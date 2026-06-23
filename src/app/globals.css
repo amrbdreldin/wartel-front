@@ -1,0 +1,439 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   WARTEL LMS – Design System (CSS Variables)
+   Primary: #008F8F (Trust/Serenity)  Secondary: #ED8A22 (Action)
+   Dynamic: all colors can be overridden at runtime via JS
+   ============================================================ */
+
+@theme inline {
+  /* ── Base Colors ───────────────────────────────── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* ── Typography ────────────────────────────────── */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --font-arabic: var(--font-arabic);
+
+  /* ── Semantic Colors ───────────────────────────── */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-dark-red: var(--dark-red);
+  --color-dark-red-foreground: var(--dark-red-foreground);
+
+  /* ── Surfaces ──────────────────────────────────── */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* ── Borders & Controls ────────────────────────── */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* ── Wartel Brand Colors ───────────────────────── */
+  --color-wartel-primary: var(--wartel-primary);
+  --color-wartel-primary-light: var(--wartel-primary-light);
+  --color-wartel-primary-dark: var(--wartel-primary-dark);
+  --color-wartel-secondary: var(--wartel-secondary);
+  --color-wartel-secondary-light: var(--wartel-secondary-light);
+  --color-wartel-secondary-dark: var(--wartel-secondary-dark);
+  --color-wartel-success: var(--wartel-success);
+  --color-wartel-warning: var(--wartel-warning);
+  --color-wartel-danger: var(--wartel-danger);
+  --color-wartel-info: var(--wartel-info);
+
+  /* ── Charts ────────────────────────────────────── */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* ── Semantic Extension ────────────────────────── */
+  --color-success-50: var(--success-50);
+  --color-success-100: var(--success-100);
+  --color-success-400: var(--success-400);
+  --color-success-500: var(--success-500);
+  --color-success-600: var(--success-600);
+  
+  --color-warning-50: var(--warning-50);
+  --color-warning-100: var(--warning-100);
+  --color-warning-400: var(--warning-400);
+  --color-warning-500: var(--warning-500);
+  --color-warning-600: var(--warning-600);
+  
+  --color-info-50: var(--info-50);
+  --color-info-100: var(--info-100);
+  --color-info-400: var(--info-400);
+  --color-info-500: var(--info-500);
+  --color-info-600: var(--info-600);
+
+  /* ── Sidebar ───────────────────────────────────── */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── Radius ────────────────────────────────────── */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ── Animations ────────────────────────────────── */
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+.animate-caret-blink {
+  animation: caret-blink 1.25s ease-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 12s ease-in-out infinite;
+}
+
+/* ============================================================
+   LIGHT THEME (default)
+   ============================================================ */
+:root {
+  /* ── Base ───────────────────────────────────────── */
+  --background: #FAFBFC;
+  --foreground: #1A1D23;
+
+  /* ── Surfaces ──────────────────────────────────── */
+  --card: #FFFFFF;
+  --card-foreground: #1A1D23;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1D23;
+
+  /* ── Semantic (using Wartel brand) ─────────────── */
+  --primary: #008F8F;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1A1D23;
+  --accent: #ED8A22;
+  --accent-foreground: #FFFFFF;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --dark-red: #B91C1C;
+  --dark-red-foreground: #FFFFFF;
+
+  /* ── Borders & Controls ────────────────────────── */
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #008F8F;
+
+  /* ── Wartel Brand Palette ──────────────────────── */
+  --wartel-primary: #008F8F;
+  --wartel-primary-light: #00B3B3;
+  --wartel-primary-dark: #006B6B;
+  --wartel-secondary: #ED8A22;
+  --wartel-secondary-light: #F5A94D;
+  --wartel-secondary-dark: #C97316;
+  --wartel-success: #10B981;
+  --wartel-warning: #F59E0B;
+  --wartel-danger: #EF4444;
+  --wartel-info: #3B82F6;
+
+  /* ── Semantic Palettes ─────────────────────────── */
+  --success-50: #ECFDF5;
+  --success-100: #D1FAE5;
+  --success-400: #34D399;
+  --success-500: #10B981;
+  --success-600: #059669;
+  
+  --warning-50: #FEFCE8;
+  --warning-100: #FEF9C3;
+  --warning-400: #FACC15;
+  --warning-500: #EAB308;
+  --warning-600: #CA8A04;
+  
+  --info-50: #EFF6FF;
+  --info-100: #DBEAFE;
+  --info-400: #60A5FA;
+  --info-500: #3B82F6;
+  --info-600: #2563EB;
+
+  /* ── Charts ────────────────────────────────────── */
+  --chart-1: #008F8F;
+  --chart-2: #ED8A22;
+  --chart-3: #10B981;
+  --chart-4: #8B5CF6;
+  --chart-5: #EC4899;
+
+  /* ── Radius ────────────────────────────────────── */
+  --radius: 0.625rem;
+
+  /* ── Sidebar ───────────────────────────────────── */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1D23;
+  --sidebar-primary: #008F8F;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F0FDFA;
+  --sidebar-accent-foreground: #008F8F;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #008F8F;
+}
+
+/* ============================================================
+   DARK THEME
+   ============================================================ */
+.dark {
+  /* ── Base ───────────────────────────────────────── */
+  --background: #0F1117;
+  --foreground: #F1F5F9;
+
+  /* ── Surfaces ──────────────────────────────────── */
+  --card: #1A1D27;
+  --card-foreground: #F1F5F9;
+  --popover: #1A1D27;
+  --popover-foreground: #F1F5F9;
+
+  /* ── Semantic ──────────────────────────────────── */
+  --primary: #00B3B3;
+  --primary-foreground: #0F1117;
+  --secondary: #1E2130;
+  --secondary-foreground: #F1F5F9;
+  --accent: #F5A94D;
+  --accent-foreground: #0F1117;
+  --muted: #1E2130;
+  --muted-foreground: #94A3B8;
+  --destructive: #F87171;
+  --destructive-foreground: #0F1117;
+  --dark-red: #991B1B;
+  --dark-red-foreground: #FFFFFF;
+
+  /* ── Borders & Controls ────────────────────────── */
+  --border: #2D3148;
+  --input: #2D3148;
+  --ring: #00B3B3;
+
+  /* ── Wartel Brand (dark variants) ──────────────── */
+  --wartel-primary: #00B3B3;
+  --wartel-primary-light: #00D4D4;
+  --wartel-primary-dark: #008F8F;
+  --wartel-secondary: #F5A94D;
+  --wartel-secondary-light: #FBBF6A;
+  --wartel-secondary-dark: #ED8A22;
+  --wartel-success: #34D399;
+  --wartel-warning: #FBBF24;
+  --wartel-danger: #F87171;
+  --wartel-info: #60A5FA;
+
+  /* ── Semantic Palettes (Dark) ──────────────────── */
+  --success-50: #022C22;
+  --success-100: #064E3B;
+  --success-400: #34D399;
+  --success-500: #10B981;
+  --success-600: #059669;
+
+  --warning-50: #422006;
+  --warning-100: #713F12;
+  --warning-400: #FACC15;
+  --warning-500: #EAB308;
+  --warning-600: #CA8A04;
+
+  --info-50: #172554;
+  --info-100: #1E3A8A;
+  --info-400: #60A5FA;
+  --info-500: #3B82F6;
+  --info-600: #2563EB;
+
+  /* ── Charts ────────────────────────────────────── */
+  --chart-1: #00B3B3;
+  --chart-2: #F5A94D;
+  --chart-3: #34D399;
+  --chart-4: #A78BFA;
+  --chart-5: #F472B6;
+
+  /* ── Sidebar ───────────────────────────────────── */
+  --sidebar: #141620;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-primary: #00B3B3;
+  --sidebar-primary-foreground: #0F1117;
+  --sidebar-accent: #1E2835;
+  --sidebar-accent-foreground: #00B3B3;
+  --sidebar-border: #2D3148;
+  --sidebar-ring: #00B3B3;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    @apply font-sans scroll-smooth;
+  }
+
+  /* RTL support */
+  html[dir="rtl"] {
+    @apply font-arabic;
+  }
+
+  /* Fix for missing pointer cursors on interactive elements */
+  button, 
+  [role="button"],
+  a {
+    @apply cursor-pointer;
+  }
+
+  /* Force hide all default and reset-injected background arrows on selects with appearance-none */
+  select.appearance-none {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important;
+  }
+
+  /* Premium input focus states */
+  input, textarea, select {
+    transition: all 0.2s ease-in-out;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none !important;
+    border-color: var(--wartel-primary) !important;
+    box-shadow: 0 0 0 3px oklch(from var(--primary) l c h / 0.15) !important;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR STYLING
+   ============================================================ */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--foreground);
+  }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+@layer utilities {
+  .glass {
+    backdrop-filter: blur(12px) saturate(180%);
+    background-color: oklch(from var(--card) l c h / 0.7);
+    border: 1px solid oklch(from var(--border) l c h / 0.3);
+  }
+
+  .gradient-primary {
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      linear-gradient(135deg, var(--wartel-primary-dark) 0%, var(--wartel-primary) 50%, var(--wartel-primary-light) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .gradient-secondary {
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      linear-gradient(135deg, var(--wartel-secondary-dark) 0%, var(--wartel-secondary) 50%, var(--wartel-secondary-light) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .gradient-brand {
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      linear-gradient(135deg, var(--wartel-primary) 0%, var(--wartel-primary-light) 50%, var(--wartel-secondary) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .text-gradient-brand {
+    background: linear-gradient(135deg, var(--wartel-primary), var(--wartel-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Hide Google reCAPTCHA v3 floating badge */
+.grecaptcha-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -1000px !important;
+  left: -1000px !important;
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}

@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.wartel_academy.www.twa",
+        "sha256_cert_fingerprints": ["85:65:F2:B3:1B:60:20:E3:B2:2B:2C:AF:89:C0:B2:B5:27:A4:D0:7A:ED:E0:28:65:AD:0F:EA:1D:E9:29:5D:EF"]
+      }
+    }]

@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SaaSTenantConfiguration",
+  "description": "Dynamic configuration payload retrieved from the backend (by matching host domain or slug) to white-label and customize the academy client interface at runtime.",
+  "tenant_metadata": {
+    "tenant_id": "8f2a1b9c-4d3e-4f5a-8b9c-1d2e3f4a5b6c",
+    "academy_name": "Warattel Academy",
+    "legal_name": "Warattel Learning Systems LLC",
+    "slug": "warattel",
+    "custom_domain": "academy.warattel.com",
+    "status": "ACTIVE",
+    "subscription_tier": "ENTERPRISE",
+    "created_at": "2026-01-15T00:00:00Z"
+  },
+  "branding": {
+    "logos": {
+      "light_mode_logo_url": "https://cdn.warattel.com/tenants/warattel/logo-light.svg",
+      "dark_mode_logo_url": "https://cdn.warattel.com/tenants/warattel/logo-dark.svg",
+      "collapsed_sidebar_logo_url": "https://cdn.warattel.com/tenants/warattel/logo-icon.svg",
+      "favicon_url": "https://cdn.warattel.com/tenants/warattel/favicon.ico"
+    },
+    "typography": {
+      "font_sans_latin": "Inter",
+      "font_arabic": "Tajawal",
+      "font_heading": "Tajawal",
+      "font_weights": ["400", "500", "700"]
+    },
+    "visual_settings": {
+      "border_radius": "0.625rem",
+      "glassmorphism_intensity": "medium",
+      "dashboard_layout_variant": "sidebar-collapsible"
+    },
+    "theme_colors": {
+      "light": {
+        "primary": "#008F8F",
+        "primary_foreground": "#FFFFFF",
+        "secondary": "#F1F5F9",
+        "secondary_foreground": "#1A1D23",
+        "accent": "#ED8A22",
+        "accent_foreground": "#FFFFFF",
+        "background": "#FAFBFC",
+        "foreground": "#1A1D23",
+        "card": "#FFFFFF",
+        "card_foreground": "#1A1D23",
+        "popover": "#FFFFFF",
+        "popover_foreground": "#1A1D23",
+        "border": "#E2E8F0",
+        "input": "#E2E8F0",
+        "ring": "#008F8F",
+        "sidebar": "#FFFFFF",
+        "sidebar_foreground": "#1A1D23",
+        "sidebar_primary": "#008F8F",
+        "sidebar_accent": "#F0FDFA"
+      },
+      "dark": {
+        "primary": "#00B3B3",
+        "primary_foreground": "#0F1117",
+        "secondary": "#1E2130",
+        "secondary_foreground": "#F1F5F9",
+        "accent": "#F5A94D",
+        "accent_foreground": "#0F1117",
+        "background": "#0F1117",
+        "foreground": "#F1F5F9",
+        "card": "#1A1D27",
+        "card_foreground": "#F1F5F9",
+        "popover": "#1A1D27",
+        "popover_foreground": "#F1F5F9",
+        "border": "#2D3148",
+        "input": "#2D3148",
+        "ring": "#00B3B3",
+        "sidebar": "#141620",
+        "sidebar_foreground": "#F1F5F9",
+        "sidebar_primary": "#00B3B3",
+        "sidebar_accent": "#1E2835"
+      }
+    }
+  },
+  "localization": {
+    "default_locale": "ar",
+    "supported_locales": ["ar", "en"],
+    "direction_default": "rtl",
+    "timezone": "Asia/Riyadh",
+    "currency_code": "SAR",
+    "currency_symbol": "ر.س",
+    "number_format": "arabic-east",
+    "date_format": "YYYY-MM-DD"
+  },
+  "seo_and_metadata": {
+    "global_meta_title_suffix": "Warattel Academy | منصة ورتل التعليمية",
+    "default_meta_description": "Warattel Academy for learning Quranic sciences, Arabic language, and Islamic studies.",
+    "default_keywords": ["LMS", "Quran", "Arabic Academy", "Tajweed", "Islamic Studies"],
+    "default_share_image_url": "https://cdn.warattel.com/tenants/warattel/og-image.jpg",
+    "google_site_verification_id": "goog-verification-key-12345",
+    "sitemap_frequency": "daily",
+    "robots_directives": "index, follow"
+  },
+  "contact_and_support": {
+    "support_email": "support@warattel.com",
+    "contact_phone": "+966500000000",
+    "whatsapp_number": "+966500000000",
+    "telegram_channel": "https://t.me/warattel",
+    "social_links": {
+      "x_twitter": "https://x.com/warattel",
+      "youtube": "https://youtube.com/warattel",
+      "instagram": "https://instagram.com/warattel",
+      "facebook": "https://facebook.com/warattel"
+    }
+  },
+  "feature_flags": {
+    "enable_student_excuses": true,
+    "enable_teacher_requests": true,
+    "enable_parent_portal": true,
+    "enable_digital_library": true,
+    "enable_exams_module": true,
+    "enable_grade_entry": true,
+    "enable_notifications_bell": true,
+    "enable_dark_mode_toggle": true,
+    "enable_role_switching_dev_mode": false,
+    "allow_student_self_registration": true
+  },
+  "quotas_and_limits": {
+    "max_students": 500,
+    "max_teachers": 25,
+    "max_supervisors": 5,
+    "max_cloud_storage_bytes": 53687091200,
+    "max_simultaneous_video_rooms": 10
+  },
+  "integrations": {
+    "google_tag_manager_id": "GTM-XXXXXXX",
+    "google_analytics_id": "G-XXXXXXXXXX",
+    "facebook_pixel_id": "pix-123456789",
+    "sentry_dsn": "https://examplePublicKey@o0.ingest.sentry.io/0",
+    "google_meet_client_id": "google-client-id-123.apps.googleusercontent.com",
+    "zoom_client_id": "zoom-client-id-xyz",
+    "payment_gateways": {
+      "stripe": {
+        "enabled": true,
+        "publishable_key": "pk_live_51P...",
+        "currency_supported": ["USD", "SAR"]
+      },
+      "paytabs": {
+        "enabled": true,
+        "merchant_id": "12345",
+        "profile_id": "67890",
+        "currency_supported": ["SAR"]
+      }
+    }
+  }
+}
