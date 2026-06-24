@@ -8,6 +8,12 @@ interface TamamHistoryTableProps {
   history: any[];
 }
 
+const isStatusAbsent = (status: any) => {
+  if (!status) return false;
+  const s = String(status).trim().toLowerCase();
+  return s === "absent" || s === "غياب" || s === "غائب";
+};
+
 export function TamamHistoryTable({ history }: TamamHistoryTableProps) {
   const t = useTranslations();
 
@@ -42,13 +48,11 @@ export function TamamHistoryTable({ history }: TamamHistoryTableProps) {
     {
       key: "present_status_name",
       header: t("student.presentStatus"),
-      thClassName: "text-center",
-      className: "text-center",
       render: (row) => (
         <span
           className={cn(
             "px-3.5 py-1.5 font-bold rounded-lg text-sm transition-all duration-200",
-            row.present_status_name === "absent"
+            isStatusAbsent(row.present_status_name)
               ? "bg-destructive/10 text-destructive dark:bg-destructive/20"
               : "bg-success-500/10 text-success-600 dark:bg-success-500/20"
           )}

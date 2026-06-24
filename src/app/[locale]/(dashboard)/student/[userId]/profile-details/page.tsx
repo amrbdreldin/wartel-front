@@ -50,6 +50,13 @@ const resolveMediaUrl = (url: string | null) => {
   return `https://wartel.amrbdr.com/storage/${url}`;
 };
 
+// Helper to check if status is completed (handles Arabic and English values)
+const isStatusCompleted = (status: any) => {
+  if (!status) return false;
+  const s = String(status).trim().toLowerCase();
+  return s === "completed" || s === "مكتمل";
+};
+
 export default function StudentProfileDetailsPage() {
   const t = useTranslations();
   const locale = useLocale();
@@ -926,11 +933,11 @@ export default function StudentProfileDetailsPage() {
                                     <td className="py-3 text-start whitespace-nowrap">
                                       <span className={cn(
                                         "px-2.5 py-0.5 rounded-full text-xs font-black border",
-                                        tamam.past_status === "completed"
+                                        isStatusCompleted(tamam.past_status)
                                           ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                           : "bg-destructive/10 text-destructive border-destructive/20"
                                       )}>
-                                        {tamam.past_status === "completed" 
+                                        {isStatusCompleted(tamam.past_status)
                                           ? (t("student.statusCompleted") || "Completed")
                                           : (t("student.statusAbsent") || "Absent")
                                         }
@@ -939,11 +946,11 @@ export default function StudentProfileDetailsPage() {
                                     <td className="py-3 text-start whitespace-nowrap">
                                       <span className={cn(
                                         "px-2.5 py-0.5 rounded-full text-xs font-black border",
-                                        tamam.present_status === "completed"
+                                        isStatusCompleted(tamam.present_status)
                                           ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                           : "bg-destructive/10 text-destructive border-destructive/20"
                                       )}>
-                                        {tamam.present_status === "completed" 
+                                        {isStatusCompleted(tamam.present_status)
                                           ? (t("student.statusCompleted") || "Completed")
                                           : (t("student.statusAbsent") || "Absent")
                                         }

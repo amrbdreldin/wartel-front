@@ -41,7 +41,12 @@ export default function TamamSystemPage() {
 
   const presentStatus = tamamCard?.status?.presentStatus;
   const pastStatus = tamamCard?.status?.pastStatus;
-  const isCompleted = presentStatus?.toLowerCase() === "completed" || pastStatus?.toLowerCase() === "completed";
+  const isStatusCompleted = (status: any) => {
+    if (!status) return false;
+    const s = String(status).trim().toLowerCase();
+    return s === "completed" || s === "مكتمل";
+  };
+  const isCompleted = isStatusCompleted(presentStatus) || isStatusCompleted(pastStatus);
 
   // 3. Mutation for submitting Tamam
   const submitTamamMutation = useMutation({

@@ -91,6 +91,8 @@ export function useTeacherNotifications(params?: QueryParams) {
     queryFn: () => teacherService.getNotifications(params, { lang }),
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    refetchInterval: 300000, // Fetch notifications every 5 minutes
+    staleTime: 60000,
   });
 }
 

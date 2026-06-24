@@ -21,7 +21,7 @@ export function useGlobalNotifications() {
   const query = useQuery<GlobalNotificationsResponse>({
     queryKey: ["global-notifications"],
     queryFn: () => apiGet<GlobalNotificationsResponse>("/notifications"),
-    refetchInterval: 120000, // Poll the API every 2 minutes
+    refetchInterval: 300000, // Poll the API every 5 minutes
     staleTime: 60000,
   });
 

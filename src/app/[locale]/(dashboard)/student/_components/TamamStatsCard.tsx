@@ -19,7 +19,9 @@ export function TamamStatsCard({ tamamCard, onShowTamamModal, onShowAssignModal,
   const locale = params.locale as string;
 
   const presentStatus = tamamCard?.status?.presentStatus;
-  const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
+  const isPending = !presentStatus || 
+    presentStatus.toLowerCase() === "pending" || 
+    presentStatus === "معلق";
   const isCompleted = !isPending;
   const isDisabled = isCompleted;
 
