@@ -11,6 +11,13 @@ const RATE_LIMIT = 50; // Max requests
 const RATE_WINDOW = 60 * 1000; // 1 minute window
 
 export function middleware(request: NextRequest) {
+  // Block aggressive crawler / scraper bots early to save bandwidth/compute
+  const userAgent = request.headers.get("user-agent") || "";
+  const botRegex = /bytespider|petalbot|gptbot|claudebot|ccbot|google-extended|applebot-extended|amazonbot|semrushbot|ahrefsbot|dotbot|mj12bot|cohere-ai|meta-externalagent/i;
+  if (botRegex.test(userAgent)) {
+    return new NextResponse("Access Denied: Blocked Bot", { status: 403 });
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   request.headers.set("x-nonce", nonce);
 
