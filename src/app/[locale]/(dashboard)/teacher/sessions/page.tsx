@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { teacherService } from "@/services/teacher.service";
-import { useTeacherSessionAttendance, useTeacherDashboard } from "@/hooks/api/useTeacherQueries";
+import { useTeacherSessionAttendance, useTeacherDashboard, useTeacherGroupStudents } from "@/hooks/api/useTeacherQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -69,9 +69,21 @@ export default function TeacherSessionsPage() {
   // Resolve session ID
   let resolvedSessionId = urlSessionId || "";
   if (!resolvedSessionId && groupId && dashboardData?.today_sessions) {
-    const matchingSession = dashboardData.today_sessions.find(
-      (s: any) => String(s.group_id) === String(groupId) || String(s.id) === String(groupId)
-    );
+    const matchingSession = dashboardData.today_sessions.find((s: any) => {
+      const isGroupIdMatch = s.group_id ? String(s.group_id) === String(groupId) : false;
+      const isIdMatch = String(s.id) === String(groupId);
+      
+      // Fallback matching by comparing names
+      let isNameMatch = false;
+      if (dashboardData.groups) {
+        const matchingGroup = dashboardData.groups.find((g: any) => String(g.id) === String(groupId));
+        if (matchingGroup) {
+          isNameMatch = s.group_name === matchingGroup.name || s.name === matchingGroup.name;
+        }
+      }
+      return isGroupIdMatch || isIdMatch || isNameMatch;
+    });
+
     if (matchingSession) {
       const foundId = matchingSession.session_id || matchingSession.id;
       if (foundId && String(foundId) !== "undefined" && String(foundId) !== "null") {
@@ -132,7 +144,57 @@ export default function TeacherSessionsPage() {
     }
   }
 
-  const groupName = resolvedGroupId === "24711" ? "مجموعة النور" : (resolvedGroupId ? `مجموعة رقم ${resolvedGroupId}` : "جميع المجموعات");
+  const { data: groupDetailsData } = useTeacherGroupStudents(resolvedGroupId);
+
+  // Resolve group name from dashboard, group details or attendance data
+  let resolvedGroupName = "";
+
+  if (dashboardData) {
+    // 1. Try to find the matching group in groups list by resolvedGroupId
+    if (resolvedGroupId) {
+      const matchingGroup = (dashboardData.groups || []).find(
+        (g: any) => String(g.id) === String(resolvedGroupId)
+      );
+      if (matchingGroup) {
+        resolvedGroupName = matchingGroup.name;
+      }
+    }
+
+    // 2. Try to find in today_sessions
+    if (!resolvedGroupName) {
+      const matchingSession = (dashboardData.today_sessions || []).find(
+        (s: any) =>
+          String(s.session_id || s.id) === String(sessionId) ||
+          String(s.group_id || s.group?.id) === String(resolvedGroupId)
+      );
+      if (matchingSession) {
+        resolvedGroupName = matchingSession.group_name || matchingSession.name || matchingSession.group?.name;
+      }
+    }
+  }
+
+  // 3. Try to get it from the attendance API response
+  if (!resolvedGroupName && attendanceRes && attendanceRes.length > 0) {
+    const sessionObj = attendanceRes[0].session as any;
+    if (sessionObj) {
+      resolvedGroupName = sessionObj.group?.name || sessionObj.group_name || sessionObj.name;
+    }
+  }
+
+  // 4. Try to get it from the group details query
+  if (!resolvedGroupName && groupDetailsData) {
+    resolvedGroupName = groupDetailsData.group_name;
+  }
+
+  const groupName = resolvedGroupName
+    ? (resolvedGroupName === "مجموعة النور" || resolvedGroupName === "Al-Noor Group" ? t("groupNoor") : resolvedGroupName)
+    : (resolvedGroupId === "24711"
+        ? t("groupNoor")
+        : (resolvedGroupId
+            ? t("groupNo", { id: resolvedGroupId })
+            : t("allGroups")
+          )
+      );
   const trackName = t("trackTajweed");
   
   const today = new Date();
@@ -181,7 +243,15 @@ export default function TeacherSessionsPage() {
           score: record.points ? parseFloat(record.points.toString()).toString() : "0",
           notes: record.comment || "",
           secret_note: record.secret_note || "",
-          group: resolvedGroupId === "24711" ? "مجموعة النور" : (resolvedGroupId ? `مجموعة رقم ${resolvedGroupId}` : `حلقة رقم ${record.session_id}`),
+          group: resolvedGroupName 
+            ? (resolvedGroupName === "مجموعة النور" || resolvedGroupName === "Al-Noor Group" ? t("groupNoor") : resolvedGroupName) 
+            : (resolvedGroupId === "24711" 
+                ? t("groupNoor") 
+                : (resolvedGroupId 
+                    ? t("groupNo", { id: resolvedGroupId }) 
+                    : t("sessionNo", { id: record.session_id })
+                  )
+              ),
           subject: "التلاوة والتجويد",
         };
       });
@@ -204,22 +274,36 @@ export default function TeacherSessionsPage() {
 
           return {
             ...existingStudent,
+            group: newStudent.group,
             loginTime: newStudent.loginTime || existingStudent.loginTime,
             decision: hasNewLogin ? "present" : existingStudent.decision,
           };
         });
       });
     }
-  }, [attendanceRes, resolvedGroupId]);
+  }, [attendanceRes, resolvedGroupId, resolvedGroupName, t]);
 
-  // Sync Meeting URL if present
+  // Sync Meeting URL if present (with fallbacks if roster is empty)
   useEffect(() => {
+    // 1. Try to get it from attendance records
     const sessionData = attendanceRes?.[0]?.session as any;
-    if (sessionData?.url) {
-      setMeetingUrl(sessionData.url);
-      setTempUrl(sessionData.url);
+    let resolvedUrl = sessionData?.url || sessionData?.meeting_link;
+
+    // 2. Try to get it from the matching session in dashboard today_sessions
+    if (!resolvedUrl && dashboardData?.today_sessions) {
+      const matchingSession = dashboardData.today_sessions.find(
+        (s: any) => String(s.session_id || s.id) === String(sessionId)
+      );
+      if (matchingSession) {
+        resolvedUrl = matchingSession.url || matchingSession.meeting_link;
+      }
     }
-  }, [attendanceRes]);
+
+    if (resolvedUrl) {
+      setMeetingUrl(resolvedUrl);
+      setTempUrl(resolvedUrl);
+    }
+  }, [attendanceRes, dashboardData, sessionId]);
 
   // Submit Attendance Mutation
   const queryClient = useQueryClient();
