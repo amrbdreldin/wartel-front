@@ -1,6 +1,6 @@
 import { UserRole } from "./enums";
 
-// ─── /data endpoint types ─────────────────────────────────────
+// ─── /register-data endpoint types ─────────────────────────────
 export interface FormDataSessionDay {
   id: number;
   group_id: string | number;

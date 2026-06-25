@@ -151,31 +151,29 @@ export function useUpdateProfileMutation() {
 
 // ─── Register form data (tracks, roles, enrollment types) ─────
 /**
- * Fetches /data on the first visit to the register page.
+ * Fetches registration form data (tracks, etc.) for a specific role ID.
  * Kept memory-only for high security and performance.
  */
-export function useRegisterFormDataQuery(studentRoleId?: string | number | null) {
+export function useRegisterFormDataQuery(roleId?: string | number | null) {
   const lang = useLocale() as Locale;
+  const resolvedRoleId = roleId ?? 1;
 
   return useQuery<RegisterFormData>({
-    queryKey: studentRoleId ? ["register", "form-data", "student", studentRoleId] : ["register", "form-data"],
+    queryKey: ["register", "form-data", "role", resolvedRoleId],
     queryFn: async () => {
       try {
-        if (studentRoleId) {
-          const res = await authService.getRegisterData(studentRoleId, { lang });
-          return {
-            tracks: res.tracks,
-            user_roles: [],
-            enrollment_types: [
-              {
-                id: 1,
-                name: "Academy",
-                tracks: res.tracks,
-              },
-            ],
-          } as RegisterFormData;
-        }
-        return await authService.getFormData({ lang });
+        const res = await authService.getRegisterData(resolvedRoleId, { lang });
+        return {
+          tracks: res.tracks,
+          user_roles: [],
+          enrollment_types: [
+            {
+              id: 1,
+              name: "Academy",
+              tracks: res.tracks,
+            },
+          ],
+        } as RegisterFormData;
       } catch (err) {
         Sentry.captureException(err);
         throw err;
