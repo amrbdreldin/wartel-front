@@ -250,6 +250,8 @@ describe("Validation Schemas", () => {
       };
       await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).resolves.toBeDefined();
     });
+
+
   });
 
   describe("excuseSchema", () => {

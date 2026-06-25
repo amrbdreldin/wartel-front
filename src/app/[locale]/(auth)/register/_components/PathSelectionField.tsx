@@ -31,7 +31,7 @@ export function PathSelectionField({
 }) {
   const tAuth = useTranslations("auth");
   const tRoot = useTranslations();
-  const { setFieldValue, values, errors, touched } = useFormikContext<RegisterValues & Record<string, any>>();
+  const { setFieldValue, values, errors, touched, submitCount } = useFormikContext<RegisterValues & Record<string, any>>();
 
   // Find selected enrollment type to dynamically get its tracks
   const selectedEnrollmentType = enrollmentTypes.find(
@@ -134,11 +134,11 @@ export function PathSelectionField({
             {/* Session Days & Times */}
             {group.session_days && group.session_days.length > 0 && (
               <div className="flex flex-wrap gap-1.5 w-full">
-                {group.session_days.map((sd) => {
+                {group.session_days.map((sd, idx) => {
                   const formatted = formatSessionTime(sd.time);
                   return (
                     <div
-                      key={sd.id}
+                      key={sd.id || idx}
                       className={cn(
                         "flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg border transition-colors",
                         isSelected
@@ -219,7 +219,7 @@ export function PathSelectionField({
               />
             ))}
           </div>
-          {errors.selected_track_id && touched.selected_track_id && (
+          {errors.selected_track_id && (touched.selected_track_id || submitCount > 0) && (
             <p className="text-xs font-bold text-destructive animate-in fade-in mt-1">{tRoot(errors.selected_track_id as string)}</p>
           )}
         </div>
@@ -281,7 +281,7 @@ export function PathSelectionField({
               )}
             </div>
           )}
-          {errors.selected_group_id && touched.selected_group_id && (
+          {errors.selected_group_id && (touched.selected_group_id || submitCount > 0) && (
             <p className="text-xs font-bold text-destructive animate-in fade-in mt-1">{tRoot(errors.selected_group_id as string)}</p>
           )}
         </div>

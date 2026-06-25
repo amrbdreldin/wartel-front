@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -53,8 +53,12 @@ export function RegisterForm() {
   const locale = params.locale as string;
   const isRTL = locale === "ar";
 
+  const searchParams = useSearchParams();
+  const isStudent = searchParams.get("type") === "student" || searchParams.get("type") === "s" || searchParams.has("student");
+  const studentRoleId = isStudent ? 1 : null;
+
   const { mutate: register, isPending } = useRegisterMutation();
-  const { data: formData, isLoading: isFormDataLoading } = useRegisterFormDataQuery();
+  const { data: formData, isLoading: isFormDataLoading } = useRegisterFormDataQuery(studentRoleId);
   const dispatch = useDispatch();
   const [isSuccess, setIsSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -124,11 +128,17 @@ export function RegisterForm() {
     const fd = new FormData();
     fd.append("full_name", values.full_name);
     fd.append("phone", values.phone);
+    
     if (values.enrollment_type_id) fd.append("enrollment_type_id", values.enrollment_type_id);
+    
     if (values.selected_track_id) fd.append("track_id", values.selected_track_id);
     if (values.selected_group_id) fd.append("group_id", values.selected_group_id);
     if (values.quran_audio) fd.append("audio_test_path", values.quran_audio);
-    fd.append("user_role_id", resolveRoleId(values.user_type, userRoles));
+    
+    const roleId = studentRoleId ? String(studentRoleId) : resolveRoleId(values.user_type, userRoles);
+    fd.append("user_role_id", roleId);
+    fd.append("role_id", roleId);
+
     fd.append("age", values.age);
     fd.append("password", values.password);
     fd.append("recaptcha_token", token);

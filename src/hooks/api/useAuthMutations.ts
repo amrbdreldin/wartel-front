@@ -154,13 +154,27 @@ export function useUpdateProfileMutation() {
  * Fetches /data on the first visit to the register page.
  * Kept memory-only for high security and performance.
  */
-export function useRegisterFormDataQuery() {
+export function useRegisterFormDataQuery(studentRoleId?: string | number | null) {
   const lang = useLocale() as Locale;
 
   return useQuery<RegisterFormData>({
-    queryKey: ["register", "form-data"],
+    queryKey: studentRoleId ? ["register", "form-data", "student", studentRoleId] : ["register", "form-data"],
     queryFn: async () => {
       try {
+        if (studentRoleId) {
+          const res = await authService.getRegisterData(studentRoleId, { lang });
+          return {
+            tracks: res.tracks,
+            user_roles: [],
+            enrollment_types: [
+              {
+                id: 1,
+                name: "Academy",
+                tracks: res.tracks,
+              },
+            ],
+          } as RegisterFormData;
+        }
         return await authService.getFormData({ lang });
       } catch (err) {
         Sentry.captureException(err);

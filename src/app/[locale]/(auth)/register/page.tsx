@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/enums";
 import { Loader2 } from "lucide-react";
@@ -74,7 +74,13 @@ export default function RegisterPage() {
         </div>
 
         {/* Main Card */}
-        <RegisterForm />
+        <Suspense fallback={
+          <div className="bg-card/80 backdrop-blur-md rounded-3xl p-10 text-center text-foreground font-bold">
+            {t("common.loading")}
+          </div>
+        }>
+          <RegisterForm />
+        </Suspense>
       </div>
     </div>
   );

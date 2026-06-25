@@ -68,7 +68,7 @@ export default function ParentDashboardPage() {
   const { mutate: loginAsStudent, isPending: isSwitchingPending } = useParentLoginAsStudent();
 
   // Register Form Data (tracks, enrollment types, user roles)
-  const { data: formData, isLoading: isFormDataLoading } = useRegisterFormDataQuery();
+  const { data: formData, isLoading: isFormDataLoading } = useRegisterFormDataQuery(5);
 
   const userRoles = formData?.user_roles ?? [];
   const enrollmentTypes = formData?.enrollment_types ?? [];
@@ -87,7 +87,9 @@ export default function ParentDashboardPage() {
     const fd = new FormData();
     fd.append("full_name", values.full_name);
     fd.append("phone", values.phone);
-    if (values.enrollment_type_id) fd.append("enrollment_type_id", values.enrollment_type_id);
+    if (values.enrollment_type_id) {
+      fd.append("enrollment_type_id", values.enrollment_type_id);
+    }
     if (values.selected_track_id) {
       fd.append("track_id", values.selected_track_id);
     }

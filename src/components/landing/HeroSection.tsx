@@ -38,13 +38,13 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full sm:w-auto">
-              {/* <Link
-                href={`/${locale}/instructions?type=women`}
+              <Link
+                href={`/${locale}/instructions?type=student`}
                 className="w-full sm:w-auto px-8 py-4 rounded-full gradient-primary text-white font-bold text-lg hover:opacity-90 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group"
               >
                 <BookOpen className="h-5 w-5 group-hover:rotate-12 transition-transform" />
                 {t("registerWomenBtn")}
-              </Link> */}
+              </Link>
               <Link
                 href={`/${locale}/instructions?type=parent`}
                 className="w-full sm:w-auto px-8 py-4 rounded-full border-2 border-primary text-primary bg-background font-bold text-lg hover:bg-primary/5 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group"

@@ -93,19 +93,19 @@ export function InstructionsContent() {
           </div>
         )}
 
-        {/* ── Active Tab Content ── */}
-        <div className="min-h-[300px] transition-all duration-500 ease-in-out">
+        {/* ── Content Box ── */}
+        <div className="min-h-[300px] flex flex-col justify-between">
           {activeTab === "women" ? (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-black text-foreground">
+                  <h2 className="text-xl font-black text-foreground">
                     {t("instructions.women.title")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
+                  </h2>
+                  <p className="text-sm text-muted-foreground leading-normal mt-0.5">
                     {t("instructions.women.subtitle")}
                   </p>
                 </div>
@@ -120,7 +120,7 @@ export function InstructionsContent() {
                     <div className="mt-1 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/25 text-primary text-xs font-black">
                       {i + 1}
                     </div>
-                    <span className="text-sm md:text-base leading-relaxed text-foreground/90">
+                    <span className="text-sm md:text-base leading-relaxed text-foreground/90 font-medium">
                       {text}
                     </span>
                   </li>
@@ -129,14 +129,13 @@ export function InstructionsContent() {
             </div>
           ) : (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              {/* Children Intro Callout */}
-              <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 rounded-3xl p-5 md:p-6 mb-6 flex gap-4 items-start">
+              <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 rounded-3xl p-6 mb-6 flex gap-4 items-start">
                 <Info className="w-6 h-6 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-black text-amber-900 dark:text-amber-400 mb-2 text-base md:text-lg">
+                  <h3 className="font-black text-amber-900 dark:text-amber-400 mb-2 text-lg">
                     {t("instructions.children.title")}
                   </h3>
-                  <p className="text-sm leading-relaxed text-amber-800/90 dark:text-amber-500/90 whitespace-pre-line">
+                  <p className="text-sm leading-relaxed text-amber-800/90 dark:text-amber-500/90 font-medium whitespace-pre-line">
                     {t("instructions.children.subtitle")}
                   </p>
                 </div>
@@ -151,7 +150,7 @@ export function InstructionsContent() {
                     <div className="mt-1 w-6 h-6 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/25 text-amber-600 dark:text-amber-500 text-xs font-black">
                       {i + 1}
                     </div>
-                    <span className="text-sm md:text-base leading-relaxed text-foreground/90">
+                    <span className="text-sm md:text-base leading-relaxed text-foreground/90 font-medium">
                       {text}
                     </span>
                   </li>
@@ -195,12 +194,12 @@ export function InstructionsContent() {
 
           <Link
             href={
-              typeParam === "women"
-                ? `/${locale}/register`
+              typeParam === "women" || typeParam === "student" || typeParam === "s"
+                ? `/${locale}/register?type=student`
                 : typeParam === "parent"
                 ? `/${locale}/register/parent`
                 : activeTab === "women"
-                ? `/${locale}/register`
+                ? `/${locale}/register?type=student`
                 : `/${locale}/register/parent`
             }
             className={cn(

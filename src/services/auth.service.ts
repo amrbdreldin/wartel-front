@@ -7,6 +7,7 @@ import type {
   InitiatePasswordResetResponse,
   User,
   RegisterFormData,
+  RegisterDataResponse,
 } from "@/types/auth.types";
 
 // ============================================================
@@ -100,6 +101,21 @@ export const authService = {
   // ─── Registration form data ──────────────────────────────
   getFormData: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<RegisterFormData>>("/data", options).then((r) => r.data),
+
+  getRegisterData: (roleId: string | number, options?: ApiCallOptions) => {
+    const config = options?.config || {};
+    const params = config.params || {};
+    return apiGet<ApiResponse<RegisterDataResponse>>("/register-data", {
+      ...options,
+      config: {
+        ...config,
+        params: {
+          ...params,
+          role_id: Number(roleId),
+        },
+      },
+    }).then((r) => r.data);
+  },
 };
 
 
