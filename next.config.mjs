@@ -43,7 +43,7 @@ const sentryConfig = {
   widenClientFileUpload: true,
 
   // Create a proxy API route to bypass ad-blockers
-  tunnelRoute: "/monitoring",
+  // tunnelRoute: "/monitoring",
 
   // Suppress non-CI output
   silent: !process.env.CI,

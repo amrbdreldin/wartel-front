@@ -2,6 +2,10 @@ import { getMessaging, getToken, isSupported } from "firebase/messaging";
 import { app } from "@/lib/firebase";
 import { toast } from "sonner";
 
+// Module-level caches to prevent redundant service worker registrations and API calls to FCM
+let cachedToken: string | null = null;
+let tokenPromise: Promise<string | null> | null = null;
+
 /**
  * Registers the Firebase Service Worker dynamically with config query params
  * and retrieves the FCM registration token if notifications are allowed.
@@ -73,46 +77,63 @@ export async function requestNotificationToken(
  * Registers the Service Worker dynamically and obtains the FCM Token
  */
 async function fetchFCMToken(): Promise<string | null> {
-  try {
-    const messaging = getMessaging(app);
-
-    // Extract firebase credentials to pass to the service worker dynamically via query parameters
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "";
-    const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "";
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
-    const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "";
-    const messagingSenderId = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "";
-    const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "";
-
-    const queryParams = new URLSearchParams({
-      apiKey,
-      authDomain,
-      projectId,
-      storageBucket,
-      messagingSenderId,
-      appId,
-    }).toString();
-
-    // Register service worker with the query parameters
-    const registration = await navigator.serviceWorker.register(
-      `/firebase-messaging-sw.js?${queryParams}`,
-      { scope: "/" }
-    );
-
-    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-    if (!vapidKey) {
-      console.warn("[FCM] NEXT_PUBLIC_FIREBASE_VAPID_KEY is not defined in environment variables.");
-    }
-
-    const token = await getToken(messaging, {
-      vapidKey,
-      serviceWorkerRegistration: registration,
-    });
-
-    console.log("[FCM] Successfully obtained token:", token);
-    return token;
-  } catch (error) {
-    console.error("[FCM] Failed to fetch token or register service worker:", error);
-    return null;
+  if (cachedToken) {
+    return cachedToken;
   }
+  if (tokenPromise) {
+    return tokenPromise;
+  }
+
+  tokenPromise = (async () => {
+    try {
+      const messaging = getMessaging(app);
+
+      // Extract firebase credentials to pass to the service worker dynamically via query parameters
+      const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "";
+      const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "";
+      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "";
+      const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "";
+      const messagingSenderId = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "";
+      const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "";
+
+      const queryParams = new URLSearchParams({
+        apiKey,
+        authDomain,
+        projectId,
+        storageBucket,
+        messagingSenderId,
+        appId,
+      }).toString();
+
+      // Register service worker with a non-conflicting scope to prevent loop registration wars with the PWA /sw.js
+      const registration = await navigator.serviceWorker.register(
+        `/firebase-messaging-sw.js?${queryParams}`,
+        { scope: "/firebase-push-scope/" }
+      );
+
+      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+      if (!vapidKey) {
+        console.warn("[FCM] NEXT_PUBLIC_FIREBASE_VAPID_KEY is not defined in environment variables.");
+      }
+
+      const token = await getToken(messaging, {
+        vapidKey,
+        serviceWorkerRegistration: registration,
+      });
+
+      console.log("[FCM] Successfully obtained token:", token);
+      cachedToken = token;
+      return token;
+    } catch (error) {
+      console.error("[FCM] Failed to fetch token or register service worker:", error);
+      return null;
+    } finally {
+      // Clear tokenPromise if fetching failed so it can be retried on subsequent triggers (e.g. user action)
+      if (!cachedToken) {
+        tokenPromise = null;
+      }
+    }
+  })();
+
+  return tokenPromise;
 }

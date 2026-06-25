@@ -10,7 +10,6 @@ import { TeacherHero } from "./_components/TeacherHero";
 import { TodaySessions } from "./_components/TodaySessions";
 import { MyGroups } from "./_components/MyGroups";
 import { toast } from "sonner";
-import { sendMeetingLinkToChat } from "@/utils/chat";
 
 export default function TeacherDashboardPage() {
   const t = useTranslations("teacherBoard");
@@ -35,38 +34,14 @@ export default function TeacherDashboardPage() {
       setSavedLinks((prev) => ({ ...prev, [group.id]: true }));
       refetch();
 
-      if (user) {
-        try {
-          // Resolve group ID by matching group name against the groups list
-          const dashboardGroups = dashboardData?.groups || [];
-          const matchingGroup = dashboardGroups.find(
-            (g: any) => g.name === group.group_name || g.name === group.name
-          );
-          const finalGroupId = matchingGroup ? matchingGroup.id : (group.group_id || group.group?.id || group.id);
-          
-          const groupName = group.group_name || group.group?.name || group.name || `حلقة رقم ${finalGroupId}`;
-          await sendMeetingLinkToChat({
-            groupId: finalGroupId,
-            groupName,
-            meetingUrl: link,
-            user: {
-              id: user.id,
-              full_name: user.full_name,
-            },
-            messageText: t("meetingLinkShareMessage", { link }),
-            notificationTitle: t("meetingLinkShareTitle", { groupName }),
-          });
-          toast.success(t("meetingLinkSharedInChat"));
-        } catch (chatErr) {
-          console.error("Failed to send meeting link to chat", chatErr);
-        }
-      }
+      toast.success(t("sessionUrlUpdated"));
 
       setTimeout(() => {
         setSavedLinks((prev) => ({ ...prev, [group.id]: false }));
       }, 3000);
     } catch (err) {
       console.error("Failed to update session URL", err);
+      toast.error(t("sessionUrlUpdateError"));
     } finally {
       setSavingLinks((prev) => ({ ...prev, [group.id]: false }));
     }

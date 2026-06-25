@@ -46,7 +46,7 @@ export default function StudentSessionPage() {
     queryKey: ["sessionAttendance", id],
     queryFn: () => studentService.getSessionAttendance(id),
     enabled: !!id,
-    refetchInterval: 5000, // Real-time polling every 5 seconds!
+    refetchInterval: 30000, // Real-time polling every 30 seconds
   });
 
   // Extract session details with robust fallbacks

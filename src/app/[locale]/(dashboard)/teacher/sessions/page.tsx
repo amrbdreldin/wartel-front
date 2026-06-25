@@ -9,8 +9,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/useAuth";
-import { sendMeetingLinkToChat } from "@/utils/chat";
 
 import { SessionHeader } from "./_components/SessionHeader";
 import { SessionRosterTable } from "./_components/SessionRosterTable";
@@ -59,7 +57,6 @@ export default function TeacherSessionsPage() {
   const t = useTranslations("teacherBoard");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
 
   const { data: dashboardData, isLoading: isDashboardLoading } = useTeacherDashboard();
 
@@ -104,7 +101,7 @@ export default function TeacherSessionsPage() {
   const [selectedStudentDetails, setSelectedStudentDetails] = useState<StudentRecord | null>(null);
 
   const { data: attendanceRes, isLoading: isAttendanceLoading, refetch: refetchAttendance } = useTeacherSessionAttendance(sessionId, {
-    refetchInterval: 5000, // Refetch every 5 seconds to get new student submissions
+    refetchInterval: 30000, // Refetch every 30 seconds to get new student submissions
   });
 
   // Resolve group ID from dashboard or attendance API if query param is session ID or empty
@@ -249,30 +246,12 @@ export default function TeacherSessionsPage() {
       await teacherService.updateSessionUrl(sessionId, tempUrl);
       setMeetingUrl(tempUrl);
 
-      const targetGroupId = resolvedGroupId;
-      if (user && targetGroupId) {
-        try {
-          const finalGroupName = groupName || `حلقة رقم ${targetGroupId}`;
-          await sendMeetingLinkToChat({
-            groupId: targetGroupId,
-            groupName: finalGroupName,
-            meetingUrl: tempUrl,
-            user: {
-              id: user.id,
-              full_name: user.full_name,
-            },
-            messageText: t("meetingLinkShareMessage", { link: tempUrl }),
-            notificationTitle: t("meetingLinkShareTitle", { groupName: finalGroupName }),
-          });
-          toast.success(t("meetingLinkSharedInChat"));
-        } catch (chatErr) {
-          console.error("Failed to send meeting link to chat", chatErr);
-        }
-      }
+      toast.success(t("sessionUrlUpdated"));
 
       setIsEditingUrl(false);
     } catch (error) {
       console.error("Failed to update session URL", error);
+      toast.error(t("sessionUrlUpdateError"));
     } finally {
       setSavingUrl(false);
     }
