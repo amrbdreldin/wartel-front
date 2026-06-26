@@ -22,12 +22,12 @@ export function ProgramsSection() {
             <p className="text-muted-foreground leading-relaxed mb-8">
               {t("desc")}
             </p>
-            <Link
+            {/* <Link
               href={`/${locale}/instructions?type=student`}
               className="inline-block px-8 py-3 rounded-full gradient-primary text-white font-bold hover:opacity-90 hover:text-secondary hover:-translate-y-1 transition-all shadow-md"
             >
               {t("btn")}
-            </Link>
+            </Link> */}
           </div>
 
           <div className="lg:w-2/3 grid md:grid-cols-2 gap-6">

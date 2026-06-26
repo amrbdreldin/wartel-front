@@ -39,21 +39,32 @@ export function AdmissionPanel({ type }: AdmissionPanelProps) {
           {t("readInstructionsFirst")}
         </p>
 
-        <Link
-          href={
-            type === "women"
-              ? `/${locale}/instructions?type=student`
-              : type === "parent"
-              ? `/${locale}/instructions?type=parent`
-              : `/${locale}/instructions`
-          }
-          className="group relative px-8 py-4 rounded-2xl bg-white text-primary font-black text-sm overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl"
-        >
-          <span className="relative z-10 flex items-center gap-2">
-            {t("goToInstructions")}
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 rtl:-rotate-90 rtl:group-hover:-translate-x-1" />
-          </span>
-        </Link>
+        {type === "women" ? (
+          // <Link
+          //   href={`/${locale}/instructions?type=student`}
+          //   className="group relative px-8 py-4 rounded-2xl bg-white text-primary font-black text-sm overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl"
+          // >
+          //   <span className="relative z-10 flex items-center gap-2">
+          //     {t("goToInstructions")}
+          //     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 rtl:-rotate-90 rtl:group-hover:-translate-x-1" />
+          //   </span>
+          // </Link>
+          null
+        ) : (
+          <Link
+            href={
+              type === "parent"
+                ? `/${locale}/instructions?type=parent`
+                : `/${locale}/instructions`
+            }
+            className="group relative px-8 py-4 rounded-2xl bg-white text-primary font-black text-sm overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl"
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              {t("goToInstructions")}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 rtl:-rotate-90 rtl:group-hover:-translate-x-1" />
+            </span>
+          </Link>
+        )}
 
         <div className="mt-12 w-full pt-12 border-t border-white/10">
           <div className="flex items-center justify-center gap-4 opacity-60">

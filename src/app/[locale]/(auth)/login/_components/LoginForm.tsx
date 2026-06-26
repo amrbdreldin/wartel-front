@@ -192,13 +192,13 @@ export function LoginForm() {
                       </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                      <Link
+                      {/* <Link
                         href={`/${locale}/instructions?type=student`}
                         className="flex items-center justify-center h-11 rounded-xl border border-primary/20 text-xs font-black text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 gap-1.5"
                       >
                         {t("auth.registerAsStudent")}
                         {isRTL ? <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" /> : <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />}
-                      </Link>
+                      </Link> */}
                       <Link
                         href={`/${locale}/instructions?type=parent`}
                         className="flex items-center justify-center h-11 rounded-xl border border-accent/20 text-xs font-black text-accent bg-accent/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 gap-1.5"

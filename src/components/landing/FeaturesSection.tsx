@@ -68,9 +68,9 @@ export function FeaturesSection() {
             </div>
             <h3 className="text-xl font-bold text-white mb-4">{t("f6Title")}</h3>
             <p className="text-white/90 leading-relaxed">{t("f6Desc")}</p>
-            <Link href={`/${locale}/instructions?type=student`} className="inline-flex items-center mt-4 text-secondary-light font-bold hover:text-white transition-colors gap-1">
+            {/* <Link href={`/${locale}/instructions?type=student`} className="inline-flex items-center mt-4 text-secondary-light font-bold hover:text-white transition-colors gap-1">
               {t("f6Btn")} {isRTL ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

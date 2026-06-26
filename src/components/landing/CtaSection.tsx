@@ -17,12 +17,12 @@ export function CtaSection() {
           {t("desc")}
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link
+          {/* <Link
             href={`/${locale}/instructions?type=student`}
             className="px-10 py-4 rounded-full gradient-secondary text-primary-dark font-bold text-lg hover:opacity-90 hover:shadow-lg hover:-translate-y-1 transition-all"
           >
             {t("registerBtn")}
-          </Link>
+          </Link> */}
           <a
             href="#faq"
             className="px-10 py-4 rounded-full border-2 border-primary text-primary font-bold text-lg hover:bg-primary hover:text-white transition-all"

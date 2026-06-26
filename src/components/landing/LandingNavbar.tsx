@@ -139,12 +139,12 @@ export function LandingNavbar() {
           ) : (
             /* ── Unauthenticated: Login + Register buttons ──────────── */
             <>
-              <Link
+              {/* <Link
                 href={`/${locale}/instructions?type=student`}
                 className="hidden md:inline-flex items-center justify-center h-9 px-5 rounded-lg border border-primary bg-background text-primary font-bold hover:bg-primary/5 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
                 {t("createAccount")}
-              </Link>
+              </Link> */}
               <Link
                 href={`/${locale}/login`}
                 className="hidden md:inline-flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 hover:shadow-md hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
@@ -205,9 +205,9 @@ export function LandingNavbar() {
                       <Link href={`/${locale}/login`} className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-md">
                         {t("login")}
                       </Link>
-                      <Link href={`/${locale}/instructions?type=student`} className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl border-2 border-primary/20 bg-primary/5 text-primary font-bold hover:bg-primary/10 transition-all">
+                      {/* <Link href={`/${locale}/instructions?type=student`} className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl border-2 border-primary/20 bg-primary/5 text-primary font-bold hover:bg-primary/10 transition-all">
                         {t("createAccount")}
-                      </Link>
+                      </Link> */}
                     </>
                   )}
                 </div>
