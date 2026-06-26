@@ -59,7 +59,7 @@ export function TamamStatsCard({ tamamCard, onShowTamamModal, onShowAssignModal,
                 <CheckCircle2 className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-muted-foreground font-extrabold tracking-wider uppercase">{t("student.weeklyTamam") || "التمام الأسبوعي"}</p>
+                <p className="text-[10px] text-muted-foreground font-extrabold tracking-wider uppercase">{t("student.weeklyTamam") || "التمام اليومي"}</p>
                 <p className="text-xs font-extrabold text-foreground truncate mt-0.5">{t("student.tamamHeaderChild") || "تأكيد تسميع الورد"}</p>
               </div>
             </div>

@@ -36,8 +36,8 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
               <Info className="h-5 w-5 text-primary shrink-0 ms-1 me-2" />
               <span>
                 {isStudentChild
-                  ? (t("student.tamamInstructionChild") || "الرجاء تأكيد إتمام ورد الحفظ والتسميع لهذا الأسبوع، ثم الضغط على زر التأكيد أدناه لتوثيق التمام في نظامكِ.")
-                  : (t("student.tamamInstruction") || "الرجاء تأكيد حضور الرفيقة لهذا الأسبوع وتحديد مستوى الحفظ.")}
+                  ? (t("student.tamamInstructionChild") || "الرجاء تأكيد إتمام ورد الحفظ والتسميع لهذا اليوم، ثم الضغط على زر التأكيد أدناه لتوثيق التمام في نظامكِ.")
+                  : (t("student.tamamInstruction") || "الرجاء تأكيد حضور الرفيقة لهذا اليوم وتحديد مستوى الحفظ.")}
               </span>
             </div>
 

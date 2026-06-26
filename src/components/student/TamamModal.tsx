@@ -98,8 +98,8 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                     <Users className="h-5 w-5" />
                 </div>
                 <div>
-                    <h3 className="font-black text-foreground">{t("student.weeklyTamam") || "التمام الأسبوعي"}</h3>
-                    <p className="text-xs text-muted-foreground font-bold">{t("student.confirmYourTamam") || "تأكيد تمام ورد هذا الأسبوع"}</p>
+                    <h3 className="font-black text-foreground">{t("student.weeklyTamam") || "التمام اليومي"}</h3>
+                    <p className="text-xs text-muted-foreground font-bold">{t("student.confirmYourTamam") || "تأكيد تمام ورد هذا اليوم"}</p>
                 </div>
             </div>
             <button
@@ -122,7 +122,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                             <h5 className="text-3xl font-black text-success-600">{t("student.tamamRecordedSuccessfully") || "تم تسجيل التمام بنجاح"}</h5>
                             <p className="text-xl text-muted-foreground font-medium">
                                 {isStudentChild
-                                    ? (t("student.tamamCompletedDescChild") || "لقد قمتِ بتأكيد التسميع والتمام بنجاح لهذا الأسبوع. نسأل الله لكِ التوفيق والسداد.")
+                                    ? (t("student.tamamCompletedDescChild") || "لقد قمتِ بتأكيد التسميع والتمام بنجاح لهذا اليوم. نسأل الله لكِ التوفيق والسداد.")
                                     : (t("student.mayAllahBlessYou") || "بارك الله فيك ونفع بك")}
                             </p>
                     </div>
@@ -142,7 +142,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                                 <CheckCircle2 className="h-8 w-8 text-primary" />
                             </div>
                             <h4 className="text-xl font-bold text-foreground mb-1">{t("student.tamamHeaderChild") || "تأكيد تسميع الورد"}</h4>
-                            <p className="text-primary font-bold text-sm tracking-wide">{t("student.confirmYourTamam") || "تأكيد تمام ورد هذا الأسبوع"}</p>
+                            <p className="text-primary font-bold text-sm tracking-wide">{t("student.confirmYourTamam") || "تأكيد تمام ورد هذا اليوم"}</p>
                         </div>
                     ) : (
                         <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10 flex flex-col items-center text-center">
@@ -159,8 +159,8 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                             <Info className="h-6 w-6 text-primary shrink-0" />
                             <span>
                                 {isStudentChild
-                                    ? (t("student.tamamInstructionChild") || "الرجاء تأكيد إتمام ورد الحفظ والتسميع لهذا الأسبوع، ثم الضغط على زر التأكيد أدناه لتوثيق التمام في نظامكِ.")
-                                    : (t("student.tamamInstruction") || "الرجاء تأكيد حضور الرفيقة لهذا الأسبوع وتوثيق إتمام ورد المراجعة.")}
+                                    ? (t("student.tamamInstructionChild") || "الرجاء تأكيد إتمام ورد الحفظ والتسميع لهذا اليوم، ثم الضغط على زر التأكيد أدناه لتوثيق التمام في نظامكِ.")
+                                    : (t("student.tamamInstruction") || "الرجاء تأكيد حضور الرفيقة لهذا اليوم وتوثيق إتمام ورد المراجعة.")}
                             </span>
                         </div>
 

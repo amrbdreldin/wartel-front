@@ -158,7 +158,7 @@ export default function TamamSystemPage() {
       <div className="pb-6 border-b border-border/50">
         <h3 className="text-2xl font-bold flex items-center gap-3 text-foreground">
           <Users className="h-7 w-7 text-accent" />
-          {t("student.tamam") || "نظام التمام الأسبوعي"}
+          {t("student.tamam") || "نظام التمام اليومي"}
         </h3>
       </div>
 
@@ -213,13 +213,13 @@ export default function TamamSystemPage() {
               </div>
 
               <h4 className="text-2xl font-bold text-foreground mb-3 tracking-tight">
-                {t("student.tamamCompleted") || "تم إكمال التمام لهذا الأسبوع!"}
+                {t("student.tamamCompleted") || "تم إكمال التمام لهذا اليوم!"}
               </h4>
               
               <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6 leading-relaxed">
                 {isStudentChild
-                  ? (t("student.tamamCompletedDescChild") || "لقد قمتِ بتأكيد التسميع والتمام بنجاح لهذا الأسبوع. نسأل الله لكِ التوفيق والسداد.")
-                  : (t("student.tamamCompletedDesc") || "لقد قمت/ــي أنت/ــي ورفيقتك بتأكيد التسميع والتمام بنجاح لهذا الأسبوع. نسأل الله لكم التوفيق والسداد.")}
+                  ? (t("student.tamamCompletedDescChild") || "لقد قمتِ بتأكيد التسميع والتمام بنجاح لهذا اليوم. نسأل الله لكِ التوفيق والسداد.")
+                  : (t("student.tamamCompletedDesc") || "لقد قمت/ــي أنت/ــي ورفيقتك بتأكيد التسميع والتمام بنجاح لهذا اليوم. نسأل الله لكم التوفيق والسداد.")}
               </p>
 
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-success-500/10 text-success-700 dark:text-success-400 rounded-full text-xs font-bold border border-success-500/20">
