@@ -61,22 +61,6 @@ const processQueue = (error: AxiosError | null, token: string | null) => {
 
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    const config = response.config;
-    if (config.url && /teacher\/sessions\/[^\/]+\/url/.test(config.url)) {
-      const method = config.method?.toUpperCase();
-      if (method === "POST" || method === "PUT") {
-        const responseData = response.data as { message?: string } | undefined;
-        let isArabic = true;
-        if (typeof window !== "undefined") {
-          isArabic = document.documentElement.lang !== "en" && !window.location.pathname.startsWith("/en");
-        }
-        let successMsg = responseData?.message;
-        if (!successMsg || successMsg === "Session URL updated successfully") {
-          successMsg = isArabic ? "تم تحديث رابط الحلقة بنجاح 🔗" : "Session link updated successfully! 🔗";
-        }
-        toast.success(successMsg);
-      }
-    }
     return response;
   },
   async (error: AxiosError) => {
