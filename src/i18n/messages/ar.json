@@ -226,6 +226,7 @@
     "teacherRole": "أستاذ/ة",
     "circleRole": "حلقة",
     "copyright": "جميع الحقوق محفوظة © أكاديمية ورتل {year}"
+
   },
   "student": {
     "group": "الحلقة",
@@ -288,7 +289,7 @@
     "warningRemaining": "فرص متبقية: {count}",
     "warningViolation": "نوع المخالفة",
     "supportLink": "رابط الدعم",
-    "availableNow": "متاح الآن:",
+    "availableNow": "متاح اليوم:",
     "tuhfaCourseDesc": "دورة مكثفة مع إجازة معتمدة. يمكنكِ التقدم بضغطة زر وتضاف مباشرة لجدولك.",
     "applyForLiveCourse": "التقدم للدورة المباشرة",
     "applied": "تم التقديم ✅",
