@@ -424,4 +424,23 @@ export interface WarningListItem {
   type?: "good" | "bad" | string;
 }
 
+export interface WerdMedia {
+  id: number;
+  title: string;
+  type: "sound" | "video" | "youtube" | "url" | "image";
+  file: string;
+}
 
+export interface WerdRecord {
+  id: number;
+  title: string;
+  track_id: string;
+  track_name: string;
+  tdbor: string | null;
+  description: string;
+  image: string | null;
+  similar: string;
+  have_exams: boolean;
+  created_at: string;
+  media: WerdMedia[];
+}

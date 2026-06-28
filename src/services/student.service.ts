@@ -20,6 +20,7 @@ import type {
   ExamResultData,
   StudentDetailedProfileResponse,
   WarningListItem,
+  WerdRecord,
 } from "@/types/student.types";
 
 // ============================================================
@@ -129,5 +130,8 @@ export const studentService = {
 
   getWarnings: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<WarningListItem[]>>(`/warnings`, options).then((r) => r.data),
+
+  getWerds: (options?: ApiCallOptions) =>
+    apiGet<ApiResponse<WerdRecord[]>>(`/werds`, options).then((r) => r),
 };
 
