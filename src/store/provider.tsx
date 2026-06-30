@@ -28,7 +28,8 @@ export default function Providers({ children }: ProvidersProps) {
           position="bottom-right"
           richColors
           closeButton
-          expand={true}
+          expand={false}
+          visibleToasts={1}
           toastOptions={{
             duration: 4000,
             className: "text-base md:text-lg font-semibold py-4 px-5 shadow-xl rounded-xl border border-border/10",

@@ -81,8 +81,10 @@ export function MobileSidebar({ open, onClose, locale }: MobileSidebarProps) {
                   const isMessagesLink = item.labelKey === "nav.messages";
                   const isNotificationsLink = item.labelKey === "nav.notifications";
                   
+                  const isMessagesPage = pathname.endsWith("/messages");
+                  
                   const badgeCount = isMessagesLink 
-                    ? unreadMessagesCount 
+                    ? (isMessagesPage ? 0 : unreadMessagesCount)
                     : isNotificationsLink 
                     ? unreadNotificationsCount 
                     : 0;
