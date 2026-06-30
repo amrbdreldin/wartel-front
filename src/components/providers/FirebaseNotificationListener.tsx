@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { toast } from "sonner";
@@ -19,14 +19,13 @@ export function FirebaseNotificationListener() {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("notifications");
-  const isInitial = useRef(true);
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id) {
-      isInitial.current = true;
       return;
     }
 
+    let isFirstSnapshot = true;
     const userIdStr = String(user.id);
     const q = query(
       collection(db, "notifications"),
@@ -65,66 +64,85 @@ export function FirebaseNotificationListener() {
 
         dispatch(setNotifications(items));
 
-        if (isInitial.current) {
-          isInitial.current = false;
+        if (isFirstSnapshot) {
+          isFirstSnapshot = false;
         } else {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
+          const addedChanges = snapshot.docChanges()
+            .filter((change) => change.type === "added")
+            .map((change) => {
               const data = change.doc.data();
-              const fallbackTitle = t("newNotification");
-              const titleText = data.title || fallbackTitle;
-              const messageText = data.message || "";
-              
-              const activeGroupId = typeof window !== "undefined" ? sessionStorage.getItem("active_chat_group_id") : null;
-              const isCurrentChat = data.type === "chat" && data.metadata?.groupId && String(data.metadata.groupId) === String(activeGroupId);
+              let createdAtTime = Date.now();
+              if (data.createdAt) {
+                if (typeof data.createdAt.toDate === "function") {
+                  createdAtTime = data.createdAt.toDate().getTime();
+                } else if (data.createdAt.seconds) {
+                  createdAtTime = data.createdAt.seconds * 1000;
+                } else {
+                  createdAtTime = new Date(String(data.createdAt)).getTime();
+                }
+              }
+              return { change, data, createdAtTime };
+            });
 
-              if (!isCurrentChat) {
-                toast.info(titleText, {
-                  description: messageText,
-                  className: "bg-background border border-border/80 text-foreground",
-                });
+          if (addedChanges.length > 0) {
+            // Sort by createdAtTime descending, so the newest is first
+            addedChanges.sort((a, b) => b.createdAtTime - a.createdAtTime);
 
-                if (
-                  typeof window !== "undefined" &&
-                  "Notification" in window &&
-                  Notification.permission === "granted"
-                ) {
-                  try {
-                    const notification = new Notification(titleText, {
-                      body: messageText,
-                      icon: "/logo.png",
-                      tag: data.metadata?.groupId ? `chat-${data.metadata.groupId}` : undefined,
-                      requireInteraction: false,
-                    });
+            const newest = addedChanges[0];
+            const { data } = newest;
+            const fallbackTitle = t("newNotification");
+            const titleText = data.title || fallbackTitle;
+            const messageText = data.message || "";
+            
+            const activeGroupId = typeof window !== "undefined" ? sessionStorage.getItem("active_chat_group_id") : null;
+            const isCurrentChat = data.type === "chat" && data.metadata?.groupId && String(data.metadata.groupId) === String(activeGroupId);
 
-                    notification.onclick = (e) => {
-                      e.preventDefault();
-                      window.focus();
+            if (!isCurrentChat) {
+              toast.info(titleText, {
+                description: messageText,
+                className: "bg-background border border-border/80 text-foreground",
+              });
 
-                      if (data.type === "chat" && data.metadata?.groupId) {
-                        if (role === "teacher") {
-                          router.push(`/${locale}/teacher/messages`);
-                        } else {
-                          router.push(`/${locale}/student/messages`);
-                        }
+              if (
+                typeof window !== "undefined" &&
+                "Notification" in window &&
+                Notification.permission === "granted"
+              ) {
+                try {
+                  const notification = new Notification(titleText, {
+                    body: messageText,
+                    icon: "/logo.png",
+                    tag: data.metadata?.groupId ? `chat-${data.metadata.groupId}` : undefined,
+                    requireInteraction: false,
+                  });
+
+                  notification.onclick = (e) => {
+                    e.preventDefault();
+                    window.focus();
+
+                    if (data.type === "chat" && data.metadata?.groupId) {
+                      if (role === "teacher") {
+                        router.push(`/${locale}/teacher/messages`);
                       } else {
-                        if (role === "teacher") {
-                          router.push(`/${locale}/teacher`);
-                        } else if (role === "parent") {
-                          router.push(`/${locale}/parent`);
-                        } else {
-                          router.push(`/${locale}/student`);
-                        }
+                        router.push(`/${locale}/student/messages`);
                       }
-                      notification.close();
-                    };
-                  } catch (error) {
-                    console.error("[Notifications] Failed to trigger native desktop notification:", error);
-                  }
+                    } else {
+                      if (role === "teacher") {
+                        router.push(`/${locale}/teacher`);
+                      } else if (role === "parent") {
+                        router.push(`/${locale}/parent`);
+                      } else {
+                        router.push(`/${locale}/student`);
+                      }
+                    }
+                    notification.close();
+                  };
+                } catch (error) {
+                  console.error("[Notifications] Failed to trigger native desktop notification:", error);
                 }
               }
             }
-          });
+          }
         }
       },
       (error) => {
