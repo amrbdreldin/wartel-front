@@ -34,6 +34,9 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       return;
     }
 
+    // Open a blank tab synchronously to prevent popup blockers from blocking it later
+    const newWindow = window.open("", "_blank");
+
     setIsJoining(true);
     try {
       const payload = {
@@ -41,9 +44,13 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       };
       await studentService.submitSessionAttendance(payload);
       toast.success(t("student.attendanceRegistered") || "Attendance recorded successfully!");
-      // Open the URL in a blank page
-      window.open(meetingUrl, "_blank", "noopener,noreferrer");
+      if (newWindow) {
+        newWindow.location.href = meetingUrl;
+      }
     } catch (error: any) {
+      if (newWindow) {
+        newWindow.close();
+      }
       console.error("Failed to register attendance", error);
       toast.error(t("student.errorRegisteringAttendance") || "Failed to record attendance.");
     } finally {
