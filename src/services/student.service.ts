@@ -131,7 +131,13 @@ export const studentService = {
   getWarnings: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<WarningListItem[]>>(`/warnings`, options).then((r) => r.data),
 
-  getWerds: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<WerdRecord[]>>(`/werds`, options).then((r) => r),
+  getWerds: (params?: QueryParams, options?: ApiCallOptions) =>
+    apiGet<ApiResponse<WerdRecord[]>>(`/werds`, {
+      ...options,
+      config: {
+        ...options?.config,
+        ...(params ? { params } : {}),
+      },
+    }).then((r) => r),
 };
 

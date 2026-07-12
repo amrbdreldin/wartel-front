@@ -3,18 +3,21 @@
 import { Scroll } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { studentService } from "@/services/student.service";
 import { WerdTable } from "./_components/WerdTable";
 
 export default function WerdPage() {
   const t = useTranslations();
   const params = useParams();
+  const pathname = usePathname();
   const locale = params.locale as string;
 
+  const isTeacher = pathname.includes("/teacher");
+
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["student-werds"],
-    queryFn: () => studentService.getWerds(),
+    queryKey: ["student-werds", isTeacher ? "teacher" : "student"],
+    queryFn: () => studentService.getWerds(isTeacher ? { type: "teacher" } : undefined),
   });
 
   const werds = data?.data || [];

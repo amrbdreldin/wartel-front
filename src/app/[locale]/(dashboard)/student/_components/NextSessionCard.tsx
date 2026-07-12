@@ -124,7 +124,7 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
                 hasJoined ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
               }`}>
                 <p className="text-[10px] text-muted-foreground text-center mb-1.5 font-medium">
-                  {t("student.meetingLinkFallback") || "لم تُحوَّل تلقائياً؟ استخدم الرابط أدناه:"}
+                  {t("student.meetingLinkFallback") || "إذا لم تُحوَّل تلقائياً؟ اضغط على الرابط أدناه:"}
                 </p>
                 <a
                   href={meetingUrl}

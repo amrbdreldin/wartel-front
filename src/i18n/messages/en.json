@@ -575,7 +575,7 @@
     "joiningSession": "Joining session and recording attendance...",
     "attendanceRegistered": "Attendance recorded successfully!",
     "errorRegisteringAttendance": "Failed to record attendance, please try again.",
-    "meetingLinkFallback": "Not redirected automatically? Use the link below:",
+    "meetingLinkFallback": "If not redirected automatically? Click the link below:",
     "sessionMeetingLink": "Session Meeting Link",
     "noActiveSessionUsers": "No active students in the session currently.",
     "meetingSecurityAlert": "Please ensure you allow browser access to your camera and microphone to participate actively in the session.",

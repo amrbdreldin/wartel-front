@@ -37,8 +37,8 @@ export default function WerdDetailsPage() {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["student-werds"],
-    queryFn: () => studentService.getWerds(),
+    queryKey: ["student-werds", isTeacher ? "teacher" : "student"],
+    queryFn: () => studentService.getWerds(isTeacher ? { type: "teacher" } : undefined),
   });
 
   const werds: WerdRecord[] = data?.data || [];
