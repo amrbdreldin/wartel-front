@@ -23,7 +23,6 @@ export function TamamStatsCard({ tamamCard, onShowTamamModal, onShowAssignModal,
     presentStatus.toLowerCase() === "pending" || 
     presentStatus === "معلق";
   const isCompleted = !isPending;
-  const isDisabled = isCompleted;
 
   // Helper to extract initials for the avatar
   const getInitials = (name?: string) => {
@@ -97,22 +96,18 @@ export function TamamStatsCard({ tamamCard, onShowTamamModal, onShowAssignModal,
             )}
           </div>
 
-          {/* Action Button */}
-          <div className="mt-auto">
-            <button
-              onClick={onShowTamamModal}
-              disabled={isDisabled}
-              className={cn(
-                "block w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-[#005C5C] text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-md",
-                isDisabled
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:from-[#005C5C] hover:to-primary hover:shadow-[0_8px_20px_rgba(0,143,143,0.25)] hover:-translate-y-0.5 active:translate-y-0 group/btn cursor-pointer"
-              )}
-            >
-              <UserCheck className={cn("w-4 h-4 transition-transform", !isDisabled && "group-hover/btn:scale-115")} />
-              <span>{t("student.recordTamam")}</span>
-            </button>
-          </div>
+          {/* Action Button — only shown when tamam is not yet completed */}
+          {!isCompleted && (
+            <div className="mt-auto">
+              <button
+                onClick={onShowTamamModal}
+                className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-[#005C5C] text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:from-[#005C5C] hover:to-primary hover:shadow-[0_8px_20px_rgba(0,143,143,0.25)] hover:-translate-y-0.5 active:translate-y-0 group/btn cursor-pointer"
+              >
+                <UserCheck className="w-4 h-4 transition-transform group-hover/btn:scale-115" />
+                <span>{t("student.recordTamam")}</span>
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <>

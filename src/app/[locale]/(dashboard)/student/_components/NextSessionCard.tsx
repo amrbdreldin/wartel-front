@@ -18,6 +18,7 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
   const locale = params.locale as string;
   const router = useRouter();
   const [isJoining, setIsJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
 
   const meetingUrl = nextSession?.url;
 
@@ -34,9 +35,6 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       return;
     }
 
-    // Open a blank tab synchronously to prevent popup blockers from blocking it later
-    const newWindow = window.open("", "_blank");
-
     setIsJoining(true);
     try {
       const payload = {
@@ -44,13 +42,10 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       };
       await studentService.submitSessionAttendance(payload);
       toast.success(t("student.attendanceRegistered") || "Attendance recorded successfully!");
-      if (newWindow) {
-        newWindow.location.href = meetingUrl;
-      }
+      setHasJoined(true);
+      // Redirect user to meeting URL
+      window.open(meetingUrl, "_blank", "noopener,noreferrer");
     } catch (error: any) {
-      if (newWindow) {
-        newWindow.close();
-      }
       console.error("Failed to register attendance", error);
       toast.error(t("student.errorRegisteringAttendance") || "Failed to record attendance.");
     } finally {
@@ -105,22 +100,43 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       {/* Join Class Button */}
       <div className="mt-auto pt-2">
         {nextSession ? (
-          <button
-            onClick={handleJoinSession}
-            disabled={isJoining || !meetingUrl}
-            className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-success-600 to-[#047857] hover:from-[#047857] hover:to-success-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:translate-y-0 text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:translate-y-0"
-          >
-            {isJoining ? (
-              <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-            ) : (
-              <Video className={`w-4 h-4 shrink-0 ${meetingUrl ? "animate-pulse" : ""}`} />
+          <>
+            <button
+              onClick={handleJoinSession}
+              disabled={isJoining || !meetingUrl}
+              className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-success-600 to-[#047857] hover:from-[#047857] hover:to-success-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:translate-y-0 text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:translate-y-0"
+            >
+              {isJoining ? (
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              ) : (
+                <Video className={`w-4 h-4 shrink-0 ${meetingUrl ? "animate-pulse" : ""}`} />
+              )}
+              <span className={isJoining ? "text-xs font-bold leading-normal px-1" : ""}>
+                {isJoining 
+                  ? t("student.joiningSession") || "Joining..." 
+                  : t("student.joinSession")}
+              </span>
+            </button>
+
+            {/* Fallback meeting link shown after join is clicked */}
+            {meetingUrl && (
+              <div className={`mt-3 transition-all duration-500 overflow-hidden ${
+                hasJoined ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+              }`}>
+                <p className="text-[10px] text-muted-foreground text-center mb-1.5 font-medium">
+                  {t("student.meetingLinkFallback") || "لم تُحوَّل تلقائياً؟ استخدم الرابط أدناه:"}
+                </p>
+                <a
+                  href={meetingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-center text-xs font-bold text-[#007070] dark:text-[#00b3b3] border border-primary/20 hover:border-primary/40 px-3 py-2 rounded-xl bg-primary/5 hover:bg-primary/10 transition-all duration-300 truncate"
+                >
+                  🔗 {meetingUrl}
+                </a>
+              </div>
             )}
-            <span className={isJoining ? "text-xs font-bold leading-normal px-1" : ""}>
-              {isJoining 
-                ? t("student.joiningSession") || "Joining..." 
-                : t("student.joinSession")}
-            </span>
-          </button>
+          </>
         ) : (
           <Link
             href={`/${locale}/student/excuses`}

@@ -98,7 +98,10 @@ export function FirebaseNotificationListener() {
             const isCurrentChat = data.type === "chat" && data.metadata?.groupId && String(data.metadata.groupId) === String(activeGroupId);
 
             if (!isCurrentChat) {
+              // Dismiss any existing notification toast before showing the new one
+              toast.dismiss("firebase-notification");
               toast.info(titleText, {
+                id: "firebase-notification",
                 description: messageText,
                 className: "bg-background border border-border/80 text-foreground",
               });
@@ -169,7 +172,10 @@ export function FirebaseNotificationListener() {
           const isCurrentChat = payloadGroupId && String(payloadGroupId) === String(activeGroupId);
 
           if (!isCurrentChat) {
+            // Dismiss any existing notification toast before showing the new one
+            toast.dismiss("firebase-notification");
             toast.info(titleText, {
+              id: "firebase-notification",
               description: messageText,
               className: "bg-background border border-border/80 text-foreground",
             });
