@@ -3,6 +3,7 @@
  * Mutations (forms) → useTeacherMutations.ts
  */
 import type { Locale } from "@/lib/constants";
+import { STALE_TIME } from "@/lib/constants";
 import { teacherService } from "@/services/teacher.service";
 import type { QueryParams } from "@/types/api.types";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -72,7 +73,7 @@ export function useTeacherRequests(params?: QueryParams) {
 }
 export function useTeacherSessionAttendance(
   sessionId: string | number,
-  options?: { refetchInterval?: number | false }
+  options?: { refetchInterval?: number | false; refetchIntervalInBackground?: boolean }
 ) {
   const lang = useLocale() as Locale;
   return useQuery({
@@ -91,7 +92,8 @@ export function useTeacherNotifications(params?: QueryParams) {
     queryFn: () => teacherService.getNotifications(params, { lang }),
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
-    refetchInterval: 300000, // Fetch notifications every 5 minutes
+    refetchInterval: 300000, // Poll REST API every 5 minutes
+    refetchIntervalInBackground: false, // Pause when tab is hidden
     staleTime: 60000,
   });
 }

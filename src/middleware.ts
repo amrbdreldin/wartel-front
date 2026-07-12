@@ -9,6 +9,19 @@ const intlMiddleware = createMiddleware(routing);
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 const RATE_LIMIT = 50; // Max requests
 const RATE_WINDOW = 60 * 1000; // 1 minute window
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // Run cleanup every 5 minutes
+let lastCleanup = Date.now();
+
+// Purge entries that haven't been seen for 5× the rate window to prevent memory leak
+function cleanupRateLimitMap() {
+  const now = Date.now();
+  for (const [ip, data] of rateLimitMap.entries()) {
+    if (now - data.timestamp > RATE_WINDOW * 5) {
+      rateLimitMap.delete(ip);
+    }
+  }
+  lastCleanup = now;
+}
 
 export function middleware(request: NextRequest) {
   // Block aggressive crawler / scraper bots early to save bandwidth/compute
@@ -36,6 +49,12 @@ export function middleware(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
   if (ip !== "unknown" && !pathname.startsWith("/_next/")) {
     const currentTime = Date.now();
+
+    // Periodically purge stale IPs to prevent unbounded memory growth (Memory Leak fix)
+    if (currentTime - lastCleanup > CLEANUP_INTERVAL) {
+      cleanupRateLimitMap();
+    }
+
     const clientData = rateLimitMap.get(ip) || { count: 0, timestamp: currentTime };
     
     if (currentTime - clientData.timestamp > RATE_WINDOW) {

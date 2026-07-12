@@ -113,7 +113,8 @@ export default function TeacherSessionsPage() {
   const [selectedStudentDetails, setSelectedStudentDetails] = useState<StudentRecord | null>(null);
 
   const { data: attendanceRes, isLoading: isAttendanceLoading, refetch: refetchAttendance } = useTeacherSessionAttendance(sessionId, {
-    refetchInterval: 30000, // Refetch every 30 seconds to get new student submissions
+    refetchInterval: 120000, // Poll every 2 minutes
+    refetchIntervalInBackground: false, // Pause when tab is hidden
   });
 
   // Resolve group ID from dashboard or attendance API if query param is session ID or empty
