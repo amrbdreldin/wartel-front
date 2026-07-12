@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -27,8 +27,12 @@ export default function WerdDetailsPage() {
   const t = useTranslations();
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const locale = params.locale as string;
   const werdId = params.werdId as string;
+
+  const isTeacher = pathname.includes("/teacher");
+  const basePath = isTeacher ? `/${locale}/teacher/werd` : `/${locale}/student/werd`;
 
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
@@ -67,7 +71,7 @@ export default function WerdDetailsPage() {
         <h2 className="text-xl font-bold text-foreground">{t("common.error")}</h2>
         <p className="text-muted-foreground">{t("common.errorOccurred")}</p>
         <button
-          onClick={() => router.push(`/${locale}/student/werd`)}
+          onClick={() => router.push(basePath)}
           className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:bg-primary/90 transition-colors"
         >
           {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
@@ -108,7 +112,7 @@ export default function WerdDetailsPage() {
         <div>
           <button
             id="werd-back-btn"
-            onClick={() => router.push(`/${locale}/student/werd`)}
+            onClick={() => router.push(basePath)}
             className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors group outline-none focus-visible:text-foreground"
           >
             {isRtl ? (

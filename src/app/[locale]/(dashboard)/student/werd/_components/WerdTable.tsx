@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { Scroll, Eye, Star } from "lucide-react";
 import { DataTable, Column } from "@/components/ui/DataTable";
@@ -18,6 +18,10 @@ interface WerdTableProps {
 export function WerdTable({ werds, isLoading, isError, error, locale }: WerdTableProps) {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
+  
+  const isTeacher = pathname.includes("/teacher");
+  const basePath = isTeacher ? `/${locale}/teacher/werd` : `/${locale}/student/werd`;
 
   const columns: Column<WerdRecord>[] = [
     {
@@ -117,7 +121,7 @@ export function WerdTable({ werds, isLoading, isError, error, locale }: WerdTabl
             id={`werd-details-btn-${id}`}
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/${locale}/student/werd/${id}`);
+              router.push(`${basePath}/${id}`);
             }}
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 hover:shadow-md hover:shadow-primary/20 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             aria-label={t("student.werd.viewDetails")}
@@ -148,7 +152,7 @@ export function WerdTable({ werds, isLoading, isError, error, locale }: WerdTabl
       pageSize={10}
       onRowClick={(werd) => {
         if (werd?.id) {
-          router.push(`/${locale}/student/werd/${werd.id}`);
+          router.push(`${basePath}/${werd.id}`);
         }
       }}
     />

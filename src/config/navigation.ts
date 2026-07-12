@@ -62,6 +62,7 @@ const teacherNavigation: NavGroup[] = [
   {
     items: [
       { labelKey: "nav.dashboard", href: "/teacher", icon: LayoutDashboard },
+      { labelKey: "nav.werd", href: "/teacher/werd", icon: Scroll },
       { labelKey: "nav.notifications", href: "/teacher/notifications", icon: Bell },
       { labelKey: "nav.messages", href: "/teacher/messages", icon: MessageSquare },
       { labelKey: "nav.requests", href: "/teacher/requests", icon: ClipboardList },
