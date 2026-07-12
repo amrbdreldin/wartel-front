@@ -579,7 +579,7 @@
     "sessionMeetingLink": "Session Meeting Link",
     "noActiveSessionUsers": "No active students in the session currently.",
     "meetingSecurityAlert": "Please ensure you allow browser access to your camera and microphone to participate actively in the session.",
-    "joinMeetingBtn": "Join Live Session via Google Meet",
+    "joinMeetingBtn": "Join Live Session",
     "meetingInstructions": "Please click the button below to join your teacher and classmates in the virtual classroom inside this page. Your attendance has already been automatically recorded.",
     "meetingLinkReady": "Meeting Link is Ready",
     "meetingLinkNotReady": "Meeting link is not ready yet",
