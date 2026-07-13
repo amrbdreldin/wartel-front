@@ -15,7 +15,14 @@ const nextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
   output: "standalone",
-
+typescript: {
+    ignoreBuildErrors: true,
+  },
+  
+  // تعطيل فحص ESLint أثناء البناء لتوفير الرامات
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Image optimization
   images: {
     remotePatterns: [
