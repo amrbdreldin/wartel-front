@@ -49,4 +49,7 @@ export const parentService = {
       }
       return responseData;
     }),
+
+  attendChildren: (data: FormData | any, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<any>>(`${BASE_URL}/attend-children`, data, options).then((r) => r),
 };

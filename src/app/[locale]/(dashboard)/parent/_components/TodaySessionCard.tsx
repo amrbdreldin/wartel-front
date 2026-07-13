@@ -1,7 +1,10 @@
 "use client";
 
-import { Video, Calendar, Clock, User, Users } from "lucide-react";
+import { useState } from "react";
+import { Video, Calendar, Clock, User, Users, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { parentService } from "@/services/parent.service";
 
 interface TodaySessionCardProps {
   session: {
@@ -17,10 +20,33 @@ interface TodaySessionCardProps {
 
 export function TodaySessionCard({ session }: TodaySessionCardProps) {
   const t = useTranslations();
+  const [isJoining, setIsJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
 
-  const handleJoinSession = () => {
-    if (session.url) {
-      window.open(session.url, "_blank", "noopener,noreferrer");
+  const handleJoinSession = async () => {
+    if (!session.session_id) return;
+    
+    setIsJoining(true);
+    try {
+      const fd = new FormData();
+      fd.append("session_id", session.session_id.toString());
+      
+      const response = await parentService.attendChildren(fd);
+      
+      if (response && response.success !== false) {
+        toast.success((response as any)?.message || t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        setHasJoined(true);
+        if (session.url) {
+          window.open(session.url, "_blank", "noopener,noreferrer");
+        }
+      } else {
+        toast.error((response as any)?.message || t("student.errorRegisteringAttendance") || "Failed to record attendance.");
+      }
+    } catch (error: any) {
+      console.error("Failed to register attendance", error);
+      toast.error(t("student.errorRegisteringAttendance") || "Failed to record attendance.");
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -79,14 +105,39 @@ export function TodaySessionCard({ session }: TodaySessionCardProps) {
       <div className="mt-auto">
         <button
           onClick={handleJoinSession}
-          disabled={!session.url}
+          disabled={isJoining || !session.url}
           className="block w-full py-3 rounded-xl bg-gradient-to-r from-success-600 to-[#047857] hover:from-[#047857] hover:to-success-600 text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Video className="w-4 h-4 shrink-0" />
+          {isJoining ? (
+            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+          ) : (
+            <Video className="w-4 h-4 shrink-0" />
+          )}
           <span>
-            {t("parent.joinSessionForChildren") || "دخول الحصة"}
+            {isJoining
+              ? t("student.joiningSession") || "Joining..."
+              : t("parent.joinSessionForChildren") || "دخول الحصة"}
           </span>
         </button>
+
+        {/* Fallback meeting link shown after join is clicked */}
+        {session.url && (
+          <div className={`mt-3 transition-all duration-500 overflow-hidden ${
+            hasJoined ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+          }`}>
+            <p className="text-[10px] text-muted-foreground text-center mb-1.5 font-medium">
+              {t("student.meetingLinkFallback") || "إذا لم تُحوَّل تلقائياً؟ اضغط على الرابط أدناه:"}
+            </p>
+            <a
+              href={session.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center text-xs font-bold text-[#007070] dark:text-[#00b3b3] border border-primary/20 hover:border-primary/40 px-3 py-2 rounded-xl bg-primary/5 hover:bg-primary/10 transition-all duration-300 truncate"
+            >
+              🔗 {session.url}
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
