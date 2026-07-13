@@ -1,4 +1,3 @@
-import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
 import withPWAInit from "@ducanh2912/next-pwa";
 
@@ -15,14 +14,15 @@ const nextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
   output: "standalone",
-typescript: {
+  
+  typescript: {
     ignoreBuildErrors: true,
   },
   
-  // تعطيل فحص ESLint أثناء البناء لتوفير الرامات
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
   // Image optimization
   images: {
     remotePatterns: [
@@ -39,23 +39,5 @@ typescript: {
   },
 };
 
-const sentryConfig = {
-  org: "warattel-academy",
-  project: "warattel-academy",
-
-  // Source map upload auth token
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-
-  // Upload wider set of client source files for better stack trace resolution
-  widenClientFileUpload: true,
-
-  // Create a proxy API route to bypass ad-blockers
-  // tunnelRoute: "/monitoring",
-
-  // Suppress non-CI output
-  silent: !process.env.CI,
-};
-
-export default withSentryConfig(withNextIntl(withPWA(nextConfig)), sentryConfig);
-
-
+// التصدير النظيف بدون تغليف Sentry
+export default withNextIntl(withPWA(nextConfig));
