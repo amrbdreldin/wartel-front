@@ -1,6 +1,11 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import withPWAInit from "@ducanh2912/next-pwa";
 
+// إعدادات البيئة لتجاهل الفحوصات الثقيلة أثناء البناء
+process.env.ESLINT_NO_DEV_ERRORS = "true";
+process.env.NEXT_DISABLE_ESLINT = "true";
+process.env.NEXT_IGNORE_TYPE_CHECK = "true";
+
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const withPWA = withPWAInit({
@@ -14,14 +19,6 @@ const nextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
   output: "standalone",
-  
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   
   // Image optimization
   images: {
@@ -39,5 +36,5 @@ const nextConfig = {
   },
 };
 
-// التصدير النظيف بدون تغليف Sentry
+// التصدير النظيف والمعدل للعمل مع كوليفاي
 export default withNextIntl(withPWA(nextConfig));
