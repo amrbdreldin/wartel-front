@@ -6,8 +6,6 @@ import axios, {
 import { toast } from "sonner";
 import { API_BASE_URL, REFRESH_TOKEN_KEY, TOKEN_KEY } from "./constants";
 import Cookies from "js-cookie";
-import * as Sentry from "@sentry/nextjs";
-import { shouldCaptureError } from "@/utils/sentry";
 
 
 // ============================================================
@@ -160,10 +158,6 @@ api.interceptors.response.use(
       }
     }
 
-    // Capture unexpected response and network errors in Sentry
-    if (shouldCaptureError(error) && !axios.isCancel(error)) {
-      Sentry.captureException(error);
-    }
 
     return Promise.reject(error);
   }

@@ -20,7 +20,6 @@ import type { LoginRequest, User, RegisterFormData } from "@/types/auth.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import type { Locale } from "@/lib/constants";
-import * as Sentry from "@sentry/nextjs";
 
 // ─── Login ────────────────────────────────────────────────────
 export function useLoginMutation() {
@@ -143,9 +142,6 @@ export function useUpdateProfileMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["auth", "profile"] });
     },
-    onError: (err) => {
-      Sentry.captureException(err);
-    },
   });
 }
 
@@ -161,23 +157,18 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
   return useQuery<RegisterFormData>({
     queryKey: ["register", "form-data", "role", resolvedRoleId],
     queryFn: async () => {
-      try {
-        const res = await authService.getRegisterData(resolvedRoleId, { lang });
-        return {
-          tracks: res.tracks,
-          user_roles: [],
-          enrollment_types: [
-            {
-              id: 1,
-              name: "Academy",
-              tracks: res.tracks,
-            },
-          ],
-        } as RegisterFormData;
-      } catch (err) {
-        Sentry.captureException(err);
-        throw err;
-      }
+      const res = await authService.getRegisterData(resolvedRoleId, { lang });
+      return {
+        tracks: res.tracks,
+        user_roles: [],
+        enrollment_types: [
+          {
+            id: 1,
+            name: "Academy",
+            tracks: res.tracks,
+          },
+        ],
+      } as RegisterFormData;
     },
     staleTime: Infinity,   // never stale once we have it
     gcTime: Infinity,      // keep in memory for the session

@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server";
-import * as Sentry from "@sentry/nextjs";
 
 // ============================================================
 // API Proxy Route Handler
@@ -206,22 +205,18 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
     upstream = await fetch(targetUrl, fetchOptions);
   } catch (err) {
     console.error("[proxy] Upstream fetch failed:", err);
-    Sentry.captureException(err);
     return NextResponse.json(
       { success: false, message: "Upstream API unreachable" },
       { status: 502 }
     );
   }
 
-  // If the upstream API fails with a 5xx server error, log this to Sentry
+  // If the upstream API fails with a 5xx server error, log this
   if (upstream.status >= 500) {
-    Sentry.captureMessage(`Upstream API returned status ${upstream.status} for ${method} ${pathStr}`, {
-      level: "error",
-      extra: {
-        status: upstream.status,
-        statusText: upstream.statusText,
-        targetUrl,
-      },
+    console.error(`[proxy] Upstream API returned status ${upstream.status} for ${method} ${pathStr}`, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      targetUrl,
     });
   }
 

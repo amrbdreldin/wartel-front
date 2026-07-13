@@ -1,7 +1,5 @@
-import { QueryClient, QueryCache, MutationCache, type DefaultOptions } from "@tanstack/react-query";
+import { QueryClient, type DefaultOptions } from "@tanstack/react-query";
 import { STALE_TIME } from "./constants";
-import * as Sentry from "@sentry/nextjs";
-import { shouldCaptureError } from "@/utils/sentry";
 
 // ============================================================
 // React Query – Default Options
@@ -22,20 +20,6 @@ const queryConfig: DefaultOptions = {
 const createQueryClient = () => {
   return new QueryClient({
     defaultOptions: queryConfig,
-    queryCache: new QueryCache({
-      onError: (error) => {
-        if (shouldCaptureError(error)) {
-          Sentry.captureException(error);
-        }
-      },
-    }),
-    mutationCache: new MutationCache({
-      onError: (error) => {
-        if (shouldCaptureError(error)) {
-          Sentry.captureException(error);
-        }
-      },
-    }),
   });
 };
 
