@@ -28,10 +28,7 @@ export function TodaySessionCard({ session }: TodaySessionCardProps) {
     
     setIsJoining(true);
     try {
-      const fd = new FormData();
-      fd.append("session_id", session.session_id.toString());
-      
-      const response = await parentService.attendChildren(fd);
+      const response = await parentService.attendChildren({ session_id: session.session_id });
       
       if (response && response.success !== false) {
         toast.success((response as any)?.message || t("student.attendanceRegistered") || "Attendance recorded successfully!");

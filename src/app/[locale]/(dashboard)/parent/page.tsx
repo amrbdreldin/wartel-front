@@ -175,7 +175,7 @@ export default function ParentDashboardPage() {
           <div className="mb-8">
             <div className="flex justify-between items-end mb-4 md:mb-6 px-1 sm:px-2">
               <h5 className="font-bold text-foreground text-base sm:text-lg flex items-center">
-                {t("parent.todaySessions") || "حصص اليوم"}
+                {t("todaySessions") || "حلقات اليوم"}
                 <span className="bg-success-500/10 text-success-600 rounded-full px-2.5 py-0.5 text-xs mx-2 font-black border border-success-500/20">
                   {todaySessions.length}
                 </span>
