@@ -63,7 +63,8 @@ export default function ParentDashboardPage() {
   }, [tNotifications]);
 
   // Queries & Mutations
-  const { data: children, isLoading: isChildrenLoading } = useParentChildren();
+  const { data: parentData, isLoading: isChildrenLoading } = useParentChildren();
+  const children = parentData?.children || [];
   const { mutateAsync: addStudentMutateAsync, isPending: isAddPending } = useParentAddStudent();
   const { mutate: loginAsStudent, isPending: isSwitchingPending } = useParentLoginAsStudent();
 

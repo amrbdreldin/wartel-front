@@ -40,11 +40,16 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       const payload = {
         session_id: Number(sessionId),
       };
-      await studentService.submitSessionAttendance(payload);
-      toast.success(t("student.attendanceRegistered") || "Attendance recorded successfully!");
-      setHasJoined(true);
-      // Redirect user to meeting URL
-      window.open(meetingUrl, "_blank", "noopener,noreferrer");
+      const response = await studentService.submitSessionAttendance(payload);
+      
+      if (response && response.success !== false) {
+        toast.success(t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        setHasJoined(true);
+        // Redirect user to meeting URL
+        window.open(meetingUrl, "_blank", "noopener,noreferrer");
+      } else {
+        toast.error(response?.message || t("student.errorRegisteringAttendance") || "Failed to record attendance.");
+      }
     } catch (error: any) {
       console.error("Failed to register attendance", error);
       toast.error(t("student.errorRegisteringAttendance") || "Failed to record attendance.");

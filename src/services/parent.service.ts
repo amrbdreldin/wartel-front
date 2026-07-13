@@ -38,7 +38,7 @@ export const parentService = {
     ).then((r) => r.data),
 
   getChildren: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<Array<{ id: number; name: string; enrollment_type: string }>>>(`${BASE_URL}/children`, options).then((r) => r.data),
+    apiGet<ApiResponse<{ children: Array<{ id: number; name: string; enrollment_type: string }>; today_sessions?: any[] }>>(`${BASE_URL}/children`, options).then((r) => r.data),
 
   addStudent: (data: FormData, options?: ApiCallOptions) =>
     apiUpload<ApiResponse<any>>(`${BASE_URL}/add-student`, data, options).then((r) => {
