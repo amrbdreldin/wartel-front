@@ -549,7 +549,6 @@
     "phonePlaceholder": "Enter phone number (e.g. 010123456789)",
     "search": "Search",
     "buddyFound": "Companion Found",
-    "studentName": "Student Name",
     "status": "Status",
     "available": "Available",
     "notAvailable": "Not Available",
@@ -624,7 +623,7 @@
       "fullName": "Full Name",
       "phone": "Phone Number",
       "role": "Role",
-      "status": "Account Status",
+      "status": "Status",
       "enrollmentType": "Enrollment Type",
       "timezone": "Timezone",
       "createdAt": "Joined At",
@@ -673,7 +672,6 @@
       "reason": "Reason",
       "buddyName": "Companion Name",
       "startDateShort": "Start Date",
-      "status": "Status",
       "tamamDate": "Tamam Date",
       "pastStatus": "Past Tamam",
       "presentStatus": "Present Tamam",
@@ -751,9 +749,7 @@
     "teacherNotifications": "Details of Alerts and Admin Messages",
     "noNotifications": "No notifications recorded",
     "noNotificationsDesc": "Your account is fully up to date and there are no new notifications at this time.",
-    "noWarningsDesc": "No academic warnings are currently registered for your students.",
-    "systemStatus": "System Status",
-    "systemActive": "Connected & Active"
+    "noWarningsDesc": "No academic warnings are currently registered for your students."
   },
   "parent": {
     "messages": "Messages",
@@ -816,7 +812,9 @@
     "enrolled": "Enrolled",
     "academy": "Academy",
     "institute": "Institute",
-    "unknownUser": "User"
+    "unknownUser": "User",
+    "todaySessions": "Today Sessions",
+    "joinSessionForChildren": "Join Session"
   },
   "validation": {
     "recaptchaRequired": "Please confirm you are not a robot",

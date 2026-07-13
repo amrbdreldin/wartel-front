@@ -226,7 +226,6 @@
     "teacherRole": "أستاذ/ة",
     "circleRole": "حلقة",
     "copyright": "جميع الحقوق محفوظة © أكاديمية ورتل {year}"
-
   },
   "student": {
     "group": "الحلقة",
@@ -813,7 +812,9 @@
     "enrolled": "ملتحقة بالأكاديمية",
     "academy": "الأكاديمية",
     "institute": "المعهد",
-    "unknownUser": "المستخدم"
+    "unknownUser": "المستخدم",
+    "todaySessions": "حلقات اليوم",
+    "joinSessionForChildren": "دخول الحلقة"
   },
   "validation": {
     "recaptchaRequired": "يرجى تأكيد أنك لست روبوتًا",
