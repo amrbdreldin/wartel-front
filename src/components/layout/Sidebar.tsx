@@ -14,6 +14,8 @@ import { useSelector } from "react-redux";
 import { selectNotifications } from "@/store/slices/notificationSlice";
 import type { RootState } from "@/store";
 
+import { useState, useEffect } from "react";
+
 // ============================================================
 // Sidebar – Desktop sidebar navigation
 // ============================================================
@@ -27,6 +29,13 @@ export function Sidebar({ collapsed = false, locale }: SidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { role } = useRole();
+  const [lastVisitedMessages, setLastVisitedMessages] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setLastVisitedMessages(Number(localStorage.getItem("last_visited_messages") || 0));
+    }
+  }, [pathname]);
   
   // Dynamically resolve role based on path since auth login is bypassed for testing
   const pathSegment = pathname.split('/')[2] as UserRole;
@@ -37,7 +46,11 @@ export function Sidebar({ collapsed = false, locale }: SidebarProps) {
 
   // Read notifications and compute unread counts
   const notifications = useSelector((state: RootState) => selectNotifications(state));
-  const unreadMessagesCount = notifications.filter((n) => (n.type as string) === "chat" && !n.is_read).length;
+  const unreadMessagesCount = notifications.filter((n) => {
+    if ((n.type as string) !== "chat" || n.is_read) return false;
+    const createdAtTime = new Date(n.created_at).getTime();
+    return createdAtTime > lastVisitedMessages;
+  }).length;
   const unreadNotificationsCount = notifications.filter((n) => (n.type as string) !== "chat" && !n.is_read).length;
 
   return (
@@ -77,7 +90,7 @@ export function Sidebar({ collapsed = false, locale }: SidebarProps) {
                 const isMessagesLink = item.labelKey === "nav.messages";
                 const isNotificationsLink = item.labelKey === "nav.notifications";
                 
-                const isMessagesPage = pathname.endsWith("/messages");
+                const isMessagesPage = pathname.includes("/messages");
                 
                 const badgeCount = isMessagesLink 
                   ? (isMessagesPage ? 0 : unreadMessagesCount)

@@ -171,23 +171,27 @@ export default function ParentDashboardPage() {
       {/* Main Content */}
       <div className="relative z-20 pb-16">
         {/* Today Sessions Section */}
-        {todaySessions && todaySessions.length > 0 && (
-          <div className="mb-8">
-            <div className="flex justify-between items-end mb-4 md:mb-6 px-1 sm:px-2">
-              <h5 className="font-bold text-foreground text-base sm:text-lg flex items-center">
-                {t("todaySessions") || "حلقات اليوم"}
-                <span className="bg-success-500/10 text-success-600 rounded-full px-2.5 py-0.5 text-xs mx-2 font-black border border-success-500/20">
-                  {todaySessions.length}
-                </span>
-              </h5>
-            </div>
+        <div className="mb-8">
+          <div className="flex justify-between items-end mb-4 md:mb-6 px-1 sm:px-2">
+            <h5 className="font-bold text-foreground text-base sm:text-lg flex items-center">
+              {t("todaySessions") || "حلقات اليوم"}
+              <span className="bg-success-500/10 text-success-600 rounded-full px-2.5 py-0.5 text-xs mx-2 font-black border border-success-500/20">
+                {todaySessions?.length || 0}
+              </span>
+            </h5>
+          </div>
+          {todaySessions && todaySessions.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {todaySessions.map((session: any) => (
                 <TodaySessionCard key={session.session_id} session={session} />
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="bg-card rounded-2xl p-8 text-center border border-dashed border-border flex flex-col items-center justify-center gap-3">
+              <p className="text-muted-foreground font-medium">{t("noSessionsToday") || "لا توجد حلقات مجدولة لليوم."}</p>
+            </div>
+          )}
+        </div>
 
         {/* Children Section Heading */}
         <div className="flex justify-between items-end mb-4 md:mb-6 px-1 sm:px-2">

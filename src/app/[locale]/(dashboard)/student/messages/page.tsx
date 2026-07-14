@@ -54,6 +54,13 @@ export default function MessagesPage() {
     }).length;
   };
 
+  // Set last visited timestamp for notifications
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("last_visited_messages", Date.now().toString());
+    }
+  }, []);
+
   // 1. Fetch Student Joined Groups
   useEffect(() => {
     async function loadGroups() {

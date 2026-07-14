@@ -59,6 +59,13 @@ export default function TeacherMessagesPage() {
     }).length;
   };
 
+  // Set last visited timestamp for notifications
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("last_visited_messages", Date.now().toString());
+    }
+  }, []);
+
   // 1. Fetch Teacher Groups with Student Lists
   useEffect(() => {
     async function loadTeacherGroups() {
