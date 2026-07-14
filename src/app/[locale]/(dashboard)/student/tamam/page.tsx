@@ -28,12 +28,18 @@ export default function TamamSystemPage() {
   const { data: historyData, isLoading: historyLoading } = useQuery({
     queryKey: ["student-tamam-history"],
     queryFn: () => studentService.getTamamHistory(),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
   });
 
   // 2. Fetch Dashboard for current Tamam status and Buddy info
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: () => studentService.getDashboard(),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
   });
 
   const tamamCard = dashboardData?.data?.tamam_card;
