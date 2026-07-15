@@ -187,6 +187,17 @@ export default function TeacherSessionsPage() {
     resolvedGroupName = groupDetailsData.group_name;
   }
 
+  // 5. Determine if this session has points
+  let hasPoints = false;
+  if (dashboardData?.today_sessions) {
+    const sessionMatch = dashboardData.today_sessions.find(
+      (s: any) => String(s.session_id || s.id) === String(sessionId)
+    );
+    if (sessionMatch?.has_points === "yes") {
+      hasPoints = true;
+    }
+  }
+
   const groupName = resolvedGroupName
     ? (resolvedGroupName === "مجموعة النور" || resolvedGroupName === "Al-Noor Group" ? t("groupNoor") : resolvedGroupName)
     : (resolvedGroupId === "24711"
@@ -319,7 +330,6 @@ export default function TeacherSessionsPage() {
     },
     onError: (error: any) => {
       console.error(error);
-      toast.error(error?.message || t("attendanceError") || "فشل في حفظ سجل الحضور");
       setShowConfirmModal(false);
     },
   });
@@ -392,7 +402,7 @@ export default function TeacherSessionsPage() {
         status_id: statusIdMap[s.decision],
         comment: s.notes || null,
         secret_note: s.secret_note || null,
-        points: parseFloat(s.score) || 0,
+        points: hasPoints ? (parseFloat(s.score) || 0) : 0,
       })),
     };
 
@@ -513,6 +523,7 @@ export default function TeacherSessionsPage() {
         maxScore={MAX_SCORE}
         getGradeLabel={(score, max) => getGradeLabel(score, max, t)}
         t={t}
+        hasPoints={hasPoints}
       />
 
       {/* Secret Note Dialog */}

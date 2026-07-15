@@ -44,6 +44,7 @@ interface SessionRosterTableProps {
   maxScore: number;
   getGradeLabel: (score: string, max: number) => { label: string; color: string };
   t: (key: string, values?: any) => string;
+  hasPoints: boolean;
 }
 
 export function SessionRosterTable({
@@ -65,6 +66,7 @@ export function SessionRosterTable({
   maxScore,
   getGradeLabel,
   t,
+  hasPoints,
 }: SessionRosterTableProps) {
   return (
     <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
@@ -108,8 +110,7 @@ export function SessionRosterTable({
               <th className="px-2 py-4 text-center">{t("subjectExam")}</th>
               <th className="px-2 py-4 text-center">{t("loginTime")}</th>
               <th className="px-2 py-4 text-center min-w-[280px]">{t("finalDecision")}</th>
-              <th className="px-2 py-4 text-center min-w-[100px]">{t("scoreMax", { max: maxScore })}</th>
-              <th className="px-2 py-4 text-center">{t("autoGrade")}</th>
+              {hasPoints && <th className="px-2 py-4 text-center min-w-[100px]">{t("scoreMax", { max: maxScore })}</th>}
               <th className="px-4 py-4 text-start min-w-[150px]">{t("additionalNotes")}</th>
               <th className="px-4 py-4 text-center">{t("action")}</th>
               <th className="px-4 py-4 text-center min-w-[80px]">{t("details")}</th>
@@ -202,22 +203,19 @@ export function SessionRosterTable({
                   </td>
 
                   {/* Score Input */}
-                  <td className="px-2 py-4 text-center align-middle">
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={student.score}
-                      onChange={(e) => handleScoreChange(student.id, e.target.value)}
-                      placeholder="--"
-                      disabled={locked}
-                      className="w-16 md:w-20 text-center font-black text-base border-2 border-border/50 rounded-xl py-1 px-2 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all bg-background mx-auto text-foreground disabled:opacity-60 disabled:cursor-not-allowed"
-                    />
-                  </td>
-
-                  {/* Auto Grade */}
-                  <td className="px-2 py-4 text-center align-middle">
-                    <span className={`text-sm font-black whitespace-nowrap ${color}`}>{label}</span>
-                  </td>
+                  {hasPoints && (
+                    <td className="px-2 py-4 text-center align-middle">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={student.score}
+                        onChange={(e) => handleScoreChange(student.id, e.target.value)}
+                        placeholder="--"
+                        disabled={locked}
+                        className="w-16 md:w-20 text-center font-black text-base border-2 border-border/50 rounded-xl py-1 px-2 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all bg-background mx-auto text-foreground disabled:opacity-60 disabled:cursor-not-allowed"
+                      />
+                    </td>
+                  )}
 
                   {/* Grade Notes */}
                   <td className="px-4 py-4 align-middle">

@@ -95,7 +95,7 @@ export default function TeacherGradesPage() {
       queryClient.invalidateQueries({ queryKey: ["teacher", "groupStudents", selectedGroupId] });
     },
     onError: (err: any) => {
-      toast.error(err?.message || t("gradesSavedError") || "حدث خطأ أثناء حفظ الدرجات");
+      console.error(err);
     },
   });
 
