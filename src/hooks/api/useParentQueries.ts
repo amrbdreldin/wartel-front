@@ -22,13 +22,14 @@ export function useParentDashboard() {
   });
 }
 
-export function useParentChildren() {
+export function useParentChildren(options?: { enabled?: boolean }) {
   const lang = useLocale() as Locale;
   return useQuery({
     queryKey: parentKeys.children(),
     queryFn: () => parentService.getChildren({ lang }),
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    enabled: options?.enabled,
   });
 }
 

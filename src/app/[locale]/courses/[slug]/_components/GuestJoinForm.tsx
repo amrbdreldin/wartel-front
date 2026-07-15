@@ -28,7 +28,7 @@ export function GuestJoinForm({ groupId }: GuestJoinFormProps) {
 
   const handleSubmit = async (
     values: { name: string; phone: string; password: string },
-    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+    { setSubmitting, resetForm }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void }
   ) => {
     setFormError(null);
     setFormSuccess(null);
@@ -49,6 +49,7 @@ export function GuestJoinForm({ groupId }: GuestJoinFormProps) {
           const successMsg = res?.message || t("directJoin.joinSuccess");
           setFormSuccess(successMsg);
           toast.success(successMsg);
+          resetForm();
         },
         onError: (err: any) => {
           const responseData = err.response?.data;

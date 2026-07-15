@@ -20,7 +20,7 @@ interface ParentChildrenJoinSectionProps {
 
 export function ParentChildrenJoinSection({ groupId }: ParentChildrenJoinSectionProps) {
   const t = useTranslations();
-  const { data: childrenData, isLoading: isLoadingChildren } = useParentChildren();
+  const { data: childrenData, isLoading: isLoadingChildren } = useParentChildren({ enabled: true });
   const { mutate: joinGroup } = useJoinGroupMutation();
 
   // Track loading/success/error per child

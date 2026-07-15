@@ -33,7 +33,9 @@ export default function DirectJoinCoursePage({
   );
 
   // For ANY authenticated user, fetch children
-  const { data: childrenData, isLoading: isLoadingChildren } = useParentChildren();
+  const { data: childrenData, isLoading: isLoadingChildren } = useParentChildren({
+    enabled: isAuthenticated
+  });
   const hasChildren =
     isAuthenticated &&
     !isLoadingChildren &&
