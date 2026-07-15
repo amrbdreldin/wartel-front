@@ -1275,5 +1275,31 @@
     "type": "النوع",
     "typeGood": "إيجابي",
     "typeBad": "سلبي"
+  },
+  "directJoin": {
+    "pageTitle": "الانضمام للدورة",
+    "joinCourse": "انضم للدورة",
+    "joinNow": "انضم الآن",
+    "groupName": "اسم المجموعة",
+    "trackName": "المسار",
+    "teacherName": "المعلم",
+    "sessionDays": "أيام الحلقات",
+    "day": "اليوم",
+    "time": "الوقت",
+    "registerToJoin": "سجّل بياناتك للانضمام",
+    "namePlaceholder": "أدخل اسمك الكامل",
+    "phonePlaceholder": "أدخل رقم الهاتف",
+    "passwordPlaceholder": "أنشئ كلمة مرور",
+    "joinSuccess": "تم الانضمام للمجموعة بنجاح!",
+    "joinError": "حدث خطأ أثناء الانضمام. يرجى المحاولة مرة أخرى.",
+    "loadingGroup": "جارِ تحميل بيانات المجموعة...",
+    "groupNotFound": "لم يتم العثور على المجموعة المطلوبة.",
+    "yourChildren": "أبناؤك",
+    "joinAsChild": "انضمام",
+    "alreadyJoined": "تم الانضمام",
+    "joiningInProgress": "جارِ الانضمام...",
+    "fullName": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "password": "كلمة المرور"
   }
 }

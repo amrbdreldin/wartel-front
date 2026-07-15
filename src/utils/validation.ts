@@ -40,6 +40,12 @@ export const parentRegisterSchema = Yup.object().shape({
   password: passwordSchema,
 });
 
+export const guestJoinSchema = Yup.object().shape({
+  name: requiredString,
+  phone: phoneSchema,
+  password: passwordSchema,
+});
+
 interface PendingGroup {
   id: string | number;
   name?: string;

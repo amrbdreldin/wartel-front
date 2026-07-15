@@ -70,13 +70,16 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
   }
 
   const pathStr = path.join("/");
+  // Encode each segment individually to properly handle Arabic/Unicode slugs
+  // without double-encoding (Next.js decodes path params automatically)
+  const encodedPathStr = path.map(segment => encodeURIComponent(segment)).join("/");
 
   const isLogin = pathStr === "auth/login";
   const isRegister = pathStr === "enrollment/submit";
 
   // Build target URL, preserving query string
   const search = req.nextUrl.search; // e.g. "?page=1&per_page=10"
-  const targetUrl = `${API_BASE_URL}/${pathStr}${search}`;
+  const targetUrl = `${API_BASE_URL}/${encodedPathStr}${search}`;
 
   // Forward safe headers from client → upstream
   const forwardedHeaders = new Headers();

@@ -1275,5 +1275,31 @@
     "type": "Type",
     "typeGood": "Positive",
     "typeBad": "Negative"
+  },
+  "directJoin": {
+    "pageTitle": "Join Course",
+    "joinCourse": "Join Course",
+    "joinNow": "Join Now",
+    "groupName": "Group Name",
+    "trackName": "Track",
+    "teacherName": "Teacher",
+    "sessionDays": "Session Days",
+    "day": "Day",
+    "time": "Time",
+    "registerToJoin": "Register to Join",
+    "namePlaceholder": "Enter your full name",
+    "phonePlaceholder": "Enter your phone number",
+    "passwordPlaceholder": "Create a password",
+    "joinSuccess": "Successfully joined the group!",
+    "joinError": "An error occurred while joining. Please try again.",
+    "loadingGroup": "Loading group details...",
+    "groupNotFound": "The requested group was not found.",
+    "yourChildren": "Your Children",
+    "joinAsChild": "Join",
+    "alreadyJoined": "Already Joined",
+    "joiningInProgress": "Joining...",
+    "fullName": "Full Name",
+    "phone": "Phone Number",
+    "password": "Password"
   }
 }
