@@ -11,7 +11,7 @@ export interface GroupSessionDay {
 }
 
 export interface DirectJoinGroup {
-  id: number;
+  group_id: number;
   group_name: string;
   track_name: string;
   teacher_name: string;

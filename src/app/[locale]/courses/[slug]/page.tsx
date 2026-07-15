@@ -130,11 +130,11 @@ export default function DirectJoinCoursePage({
 
                 {/* Action Section based on auth state */}
                 {!isAuthenticated ? (
-                  <GuestJoinForm groupId={group.id} />
+                  <GuestJoinForm groupId={group.group_id} />
                 ) : (
                   <div className="space-y-6">
                     {/* The user themselves can always join */}
-                    <AuthJoinSection groupId={group.id} />
+                    <AuthJoinSection groupId={group.group_id} />
                     
                     {/* If they have children, also show the children join section */}
                     {hasChildren && (
@@ -144,7 +144,7 @@ export default function DirectJoinCoursePage({
                             <div className="w-full border-t border-border/60" />
                           </div>
                         </div>
-                        <ParentChildrenJoinSection groupId={group.id} />
+                        <ParentChildrenJoinSection groupId={group.group_id} />
                       </>
                     )}
                   </div>
