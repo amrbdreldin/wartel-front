@@ -170,8 +170,8 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
         ],
       } as RegisterFormData;
     },
-    staleTime: Infinity,   // never stale once we have it
-    gcTime: Infinity,      // keep in memory for the session
+    staleTime: 0,
+    gcTime: 0,
     retry: 2,
   });
 }

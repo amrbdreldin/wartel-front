@@ -94,7 +94,7 @@ export function useTeacherNotifications(params?: QueryParams) {
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
     refetchInterval: 300000, // Poll REST API every 5 minutes
     refetchIntervalInBackground: false, // Pause when tab is hidden
-    staleTime: 60000,
+    staleTime: 0,
   });
 }
 

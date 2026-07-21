@@ -29,10 +29,10 @@ export const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24h
 
 // Stale times (React Query)
 export const STALE_TIME = {
-  SHORT: 1 * 60 * 1000,     // 1 minute
-  MEDIUM: 5 * 60 * 1000,    // 5 minutes
-  LONG: 30 * 60 * 1000,     // 30 minutes
-  INFINITE: Infinity,
+  SHORT: 0,
+  MEDIUM: 0,
+  LONG: 0,
+  INFINITE: 0,
 } as const;
 
 // Wartel Brand Colors (for runtime manipulation)

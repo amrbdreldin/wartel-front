@@ -1298,6 +1298,9 @@
     "joinAsChild": "Join",
     "alreadyJoined": "Already Joined",
     "joiningInProgress": "Joining...",
+    "parentLabel": "Parent",
+    "childLabel": "Child",
+    "joinAs": "Join as ({name})",
     "fullName": "Full Name",
     "phone": "Phone Number",
     "password": "Password"

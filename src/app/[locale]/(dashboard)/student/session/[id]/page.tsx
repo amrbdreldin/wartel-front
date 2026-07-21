@@ -38,7 +38,7 @@ export default function StudentSessionPage() {
   const { data: dashboardRes } = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: () => studentService.getDashboard(),
-    staleTime: 60000,
+    staleTime: 0,
   });
 
   // 2. Fetch Session Attendance (and session details/URL embedded within)

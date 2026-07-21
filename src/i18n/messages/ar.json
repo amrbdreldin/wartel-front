@@ -1298,6 +1298,9 @@
     "joinAsChild": "انضمام",
     "alreadyJoined": "تم الانضمام",
     "joiningInProgress": "جارِ الانضمام...",
+    "parentLabel": "ولي الأمر",
+    "childLabel": "الابن",
+    "joinAs": "انضمام باسم ({name})",
     "fullName": "الاسم الكامل",
     "phone": "رقم الهاتف",
     "password": "كلمة المرور"

@@ -4,7 +4,6 @@ import { use } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectJoinGroup } from "@/hooks/api/useGroupQueries";
-import { useParentChildren } from "@/hooks/api/useParentQueries";
 import { Card, CardContent } from "@/components/ui/card";
 import { GradientBar } from "@/components/ui/gradient-bar";
 import { Logo } from "@/components/common/Logo";
@@ -13,7 +12,6 @@ import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GroupInfoCard } from "./_components/GroupInfoCard";
 import { GuestJoinForm } from "./_components/GuestJoinForm";
-import { AuthJoinSection } from "./_components/AuthJoinSection";
 import { ParentChildrenJoinSection } from "./_components/ParentChildrenJoinSection";
 
 // ============================================================
@@ -31,16 +29,6 @@ export default function DirectJoinCoursePage({
   const { data: group, isLoading, isError, error, refetch } = useDirectJoinGroup(
     decodeURIComponent(slug)
   );
-
-  // For ANY authenticated user, fetch children
-  const { data: childrenData, isLoading: isLoadingChildren } = useParentChildren({
-    enabled: isAuthenticated
-  });
-  const hasChildren =
-    isAuthenticated &&
-    !isLoadingChildren &&
-    childrenData?.children &&
-    childrenData.children.length > 0;
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -135,20 +123,7 @@ export default function DirectJoinCoursePage({
                   <GuestJoinForm groupId={group.group_id} />
                 ) : (
                   <div className="space-y-6">
-                    {/* The user themselves can always join */}
-                    <AuthJoinSection groupId={group.group_id} />
-                    
-                    {/* If they have children, also show the children join section */}
-                    {hasChildren && (
-                      <>
-                        <div className="relative py-2">
-                          <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-border/60" />
-                          </div>
-                        </div>
-                        <ParentChildrenJoinSection groupId={group.group_id} />
-                      </>
-                    )}
+                    <ParentChildrenJoinSection groupId={group.group_id} />
                   </div>
                 )}
               </>

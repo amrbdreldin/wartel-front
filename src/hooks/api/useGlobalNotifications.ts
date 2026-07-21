@@ -22,6 +22,6 @@ export function useGlobalNotifications() {
     queryKey: ["global-notifications"],
     queryFn: () => apiGet<GlobalNotificationsResponse>("/notifications"),
     refetchInterval: 300000, // Poll the API every 5 minutes
-    staleTime: 60000,
+    staleTime: 0,
   });
 }

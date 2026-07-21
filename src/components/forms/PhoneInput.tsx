@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "next-intl";
 
 export interface PhoneInputProps {
   name?: string;
@@ -26,6 +27,9 @@ export function PhoneInput({
   placeholder,
   icon,
 }: PhoneInputProps) {
+  const locale = useLocale();
+  const isRtl = locale === "ar";
+
   const handleNumberChange = (newLocal: string) => {
     if (onChange) {
       onChange(newLocal);
@@ -64,6 +68,7 @@ export function PhoneInput({
             "h-11 rounded-xl border-border/60 bg-background/50 transition-all duration-200",
             "focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",
             icon ? "pl-10 pr-3" : "px-3",
+            isRtl ? "placeholder:text-right" : "placeholder:text-left",
             hasError && "border-destructive focus-visible:ring-destructive/30 focus-visible:border-destructive text-destructive"
           )}
         />

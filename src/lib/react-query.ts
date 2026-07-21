@@ -6,8 +6,8 @@ import { STALE_TIME } from "./constants";
 // ============================================================
 const queryConfig: DefaultOptions = {
   queries: {
-    staleTime: STALE_TIME.MEDIUM,
-    gcTime: STALE_TIME.LONG,
+    staleTime: 0,
+    gcTime: 0,
     retry: 1,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
