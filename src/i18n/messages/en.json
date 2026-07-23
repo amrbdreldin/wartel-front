@@ -814,7 +814,10 @@
     "institute": "Institute",
     "unknownUser": "User",
     "todaySessions": "Today Sessions",
-    "joinSessionForChildren": "Join Session"
+    "noSessionsToday": "No sessions scheduled for today.",
+    "joinSessionForChildren": "Join Session",
+    "myChildren": "My Children",
+    "unread": "Unread"
   },
   "validation": {
     "recaptchaRequired": "Please confirm you are not a robot",
@@ -1303,6 +1306,18 @@
     "joinAs": "Join as ({name})",
     "fullName": "Full Name",
     "phone": "Phone Number",
-    "password": "Password"
+    "password": "Password",
+    "registerStudent": "Register as Student",
+    "registerChildren": "Register Children",
+    "parentInfo": "Parent Information",
+    "childrenInfo": "Children Information",
+    "childNumber": "Child #{number}",
+    "addAnotherChild": "Add another child",
+    "addNewChild": "Add new child",
+    "deleteChild": "Delete child",
+    "atLeastOneChild": "At least one child is required",
+    "sonName": "Child Name",
+    "sonPhone": "Child Phone",
+    "sonPassword": "Child Password"
   }
 }

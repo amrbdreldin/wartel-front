@@ -814,7 +814,10 @@
     "institute": "المعهد",
     "unknownUser": "المستخدم",
     "todaySessions": "حلقات اليوم",
-    "joinSessionForChildren": "دخول الحلقة"
+    "noSessionsToday": "لا توجد حلقات مجدولة لليوم.",
+    "joinSessionForChildren": "دخول الحلقة",
+    "myChildren": "أبنائي",
+    "unread": "غير مقروء"
   },
   "validation": {
     "recaptchaRequired": "يرجى تأكيد أنك لست روبوتًا",
@@ -1303,6 +1306,18 @@
     "joinAs": "انضمام باسم ({name})",
     "fullName": "الاسم الكامل",
     "phone": "رقم الهاتف",
-    "password": "كلمة المرور"
+    "password": "كلمة المرور",
+    "registerStudent": "تسجيل كطالب",
+    "registerChildren": "تسجيل للأبناء",
+    "parentInfo": "بيانات ولي الأمر",
+    "childrenInfo": "بيانات الأبناء",
+    "childNumber": "الابن رقم {number}",
+    "addAnotherChild": "إضافة ابن آخر",
+    "addNewChild": "إضافة ابن جديد",
+    "deleteChild": "حذف الابن",
+    "atLeastOneChild": "يجب إضافة ابن واحد على الأقل",
+    "sonName": "اسم الابن",
+    "sonPhone": "رقم هاتف الابن",
+    "sonPassword": "كلمة مرور الابن"
   }
 }

@@ -46,6 +46,27 @@ export const guestJoinSchema = Yup.object().shape({
   password: passwordSchema,
 });
 
+export const sonItemSchema = Yup.object().shape({
+  name: requiredString,
+  phone: phoneSchema,
+  password: passwordSchema,
+});
+
+export const parentWithSonsJoinSchema = Yup.object().shape({
+  name: requiredString,
+  phone: phoneSchema,
+  password: passwordSchema,
+  sons: Yup.array()
+    .of(sonItemSchema)
+    .min(1, "validation.atLeastOneChildRequired"),
+});
+
+export const addSingleSonSchema = Yup.object().shape({
+  name: requiredString,
+  phone: phoneSchema,
+  password: passwordSchema,
+});
+
 interface PendingGroup {
   id: string | number;
   name?: string;

@@ -120,10 +120,10 @@ export default function DirectJoinCoursePage({
 
                 {/* Action Section based on auth state */}
                 {!isAuthenticated ? (
-                  <GuestJoinForm groupId={group.group_id} />
+                  <GuestJoinForm groupId={group.group_id} allowedRoles={group.allowed_roles} />
                 ) : (
                   <div className="space-y-6">
-                    <ParentChildrenJoinSection groupId={group.group_id} />
+                    <ParentChildrenJoinSection groupId={group.group_id} allowedRoles={group.allowed_roles} />
                   </div>
                 )}
               </>

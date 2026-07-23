@@ -8,8 +8,14 @@ import { useParentChildren } from "@/hooks/api/useParentQueries";
 import { useAuth } from "@/hooks/useAuth";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { toast } from "sonner";
-import { Users, Loader2, CheckCircle2, AlertCircle, UserPlus } from "lucide-react";
+import { Users, Loader2, CheckCircle2, AlertCircle, UserPlus, Plus, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FormField } from "@/components/forms/FormField";
+import { PhoneFormField } from "@/components/forms/PhoneFormField";
+import { SubmitButton } from "@/components/ui/submit-button";
+import { addSingleSonSchema } from "@/utils/validation";
+import { Form, Formik } from "formik";
+import { UserRole } from "@/types/enums";
 
 // ============================================================
 // ParentChildrenJoinSection – Unified Join list for parent & children
@@ -17,18 +23,31 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface ParentChildrenJoinSectionProps {
   groupId: number;
+  allowedRoles?: Array<{ id: number; name: string }>;
 }
 
-export function ParentChildrenJoinSection({ groupId }: ParentChildrenJoinSectionProps) {
+export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChildrenJoinSectionProps) {
   const t = useTranslations();
   const { user } = useAuth();
-  const { data: childrenData, isLoading: isLoadingChildren } = useParentChildren({ enabled: true });
+  const { data: childrenData, isLoading: isLoadingChildren, refetch: refetchChildren } = useParentChildren({ enabled: !!user });
   const { mutate: joinGroup } = useJoinGroupMutation();
+
+  const [showAddSonForm, setShowAddSonForm] = useState(false);
+  const [addSonError, setAddSonError] = useState<string | null>(null);
+  const [addSonSuccess, setAddSonSuccess] = useState<string | null>(null);
 
   // Track loading/success/error per item (id can be "parent" or child.id)
   const [states, setStates] = useState<
     Record<string | number, { loading: boolean; success: string | null; error: string | null }>
   >({});
+
+  const isParentOrTeacher = user && (
+    user.role === UserRole.PARENT ||
+    user.role === UserRole.TEACHER ||
+    String(user.role_id) === "5" ||
+    String(user.role_id) === "2" ||
+    allowedRoles?.some((r) => Number(r.id) === 5 || Number(r.id) === 3 || r.name.includes("ولي"))
+  );
 
   const handleJoin = async (id: "parent" | number) => {
     setStates((prev) => ({
@@ -46,31 +65,74 @@ export function ParentChildrenJoinSection({ groupId }: ParentChildrenJoinSection
       payload.child_id = id;
     }
 
+    joinGroup(payload, {
+      onSuccess: (res) => {
+        const successMsg = res?.message || t("directJoin.joinSuccess");
+        toast.success(successMsg);
+        setStates((prev) => ({
+          ...prev,
+          [id]: { loading: false, success: successMsg, error: null },
+        }));
+      },
+      onError: (err: any) => {
+        const responseData = err.response?.data;
+        const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
+        const validationErrors = responseData?.errors;
+        let errorMsg = mainMessage;
+        if (validationErrors && typeof validationErrors === "object") {
+          const firstErr = Object.values(validationErrors).flat()[0];
+          errorMsg = firstErr as string;
+        }
+        setStates((prev) => ({
+          ...prev,
+          [id]: { loading: false, success: null, error: errorMsg },
+        }));
+      },
+    });
+  };
+
+  const handleAddSonSubmit = async (
+    values: { name: string; phone: string; password: string },
+    { setSubmitting, resetForm }: { setSubmitting: (b: boolean) => void; resetForm: () => void }
+  ) => {
+    setAddSonError(null);
+    setAddSonSuccess(null);
+
+    const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
+
     joinGroup(
-      payload,
+      {
+        group_id: groupId,
+        firebase_token: firebaseToken || undefined,
+        sons: [
+          {
+            name: values.name,
+            phone: values.phone,
+            password: values.password,
+          },
+        ],
+      },
       {
         onSuccess: (res) => {
           const successMsg = res?.message || t("directJoin.joinSuccess");
           toast.success(successMsg);
-          setStates((prev) => ({
-            ...prev,
-            [id]: { loading: false, success: successMsg, error: null },
-          }));
+          setAddSonSuccess(successMsg);
+          resetForm();
+          setShowAddSonForm(false);
+          refetchChildren();
         },
         onError: (err: any) => {
           const responseData = err.response?.data;
           const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
           const validationErrors = responseData?.errors;
-          let errorMsg = mainMessage;
           if (validationErrors && typeof validationErrors === "object") {
             const firstErr = Object.values(validationErrors).flat()[0];
-            errorMsg = firstErr as string;
+            setAddSonError(firstErr as string);
+          } else {
+            setAddSonError(mainMessage);
           }
-          setStates((prev) => ({
-            ...prev,
-            [id]: { loading: false, success: null, error: errorMsg },
-          }));
         },
+        onSettled: () => setSubmitting(false),
       }
     );
   };
@@ -106,10 +168,6 @@ export function ParentChildrenJoinSection({ groupId }: ParentChildrenJoinSection
             </div>
           ))}
         </div>
-      ) : listItems.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          {t("common.noData")}
-        </p>
       ) : (
         <div className="space-y-3">
           {listItems.map((item) => {
@@ -180,6 +238,93 @@ export function ParentChildrenJoinSection({ groupId }: ParentChildrenJoinSection
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Button to show Add New Son Form for Parent or Teacher */}
+      {isParentOrTeacher && (
+        <div className="pt-2 space-y-4">
+          {!showAddSonForm ? (
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddSonForm(true);
+                setAddSonError(null);
+                setAddSonSuccess(null);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 transition-all text-xs font-bold"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t("directJoin.addNewChild")}</span>
+            </button>
+          ) : (
+            <div className="p-4 rounded-xl border border-border/60 bg-card/80 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between border-b border-border/30 pb-2">
+                <span className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-primary" />
+                  {t("directJoin.addNewChild")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAddSonForm(false)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted/50"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {addSonError && (
+                <div className="w-full p-3 rounded-lg bg-destructive/10 border border-destructive/25 text-destructive flex items-start gap-2 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{addSonError}</span>
+                </div>
+              )}
+              {addSonSuccess && (
+                <div className="w-full p-3 rounded-lg bg-success-500/10 border border-success-600/25 text-success-600 flex items-start gap-2 text-xs font-semibold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{addSonSuccess}</span>
+                </div>
+              )}
+
+              <Formik
+                initialValues={{ name: "", phone: "", password: "" }}
+                validationSchema={addSingleSonSchema}
+                onSubmit={handleAddSonSubmit}
+              >
+                {({ isSubmitting }) => (
+                  <Form className="space-y-4">
+                    <FormField
+                      name="name"
+                      label={t("directJoin.sonName")}
+                      placeholder={t("directJoin.namePlaceholder")}
+                    />
+
+                    <PhoneFormField
+                      name="phone"
+                      label={t("directJoin.sonPhone")}
+                      placeholder={t("directJoin.phonePlaceholder")}
+                    />
+
+                    <FormField
+                      name="password"
+                      label={t("directJoin.sonPassword")}
+                      type="password"
+                      placeholder={t("directJoin.passwordPlaceholder")}
+                    />
+
+                    <div className="flex gap-2 pt-1">
+                      <SubmitButton
+                        label={t("directJoin.addNewChild")}
+                        loadingLabel={t("directJoin.joiningInProgress")}
+                        isSubmitting={isSubmitting}
+                        icon={<UserPlus className="h-4 w-4" />}
+                      />
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+            </div>
+          )}
         </div>
       )}
     </div>
