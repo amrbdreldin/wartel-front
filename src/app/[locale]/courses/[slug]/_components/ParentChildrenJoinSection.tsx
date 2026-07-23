@@ -41,13 +41,29 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
     Record<string | number, { loading: boolean; success: string | null; error: string | null }>
   >({});
 
-  const isParentOrTeacher = user && (
-    user.role === UserRole.PARENT ||
-    user.role === UserRole.TEACHER ||
-    String(user.role_id) === "5" ||
-    String(user.role_id) === "2" ||
-    allowedRoles?.some((r) => Number(r.id) === 5 || Number(r.id) === 3 || r.name.includes("ولي"))
-  );
+  const hasParentRole = allowedRoles
+    ? allowedRoles.some((r) => Number(r.id) === 5 || r.name.includes("ولي") || r.name.toLowerCase().includes("parent"))
+    : true;
+
+  const hasSonRole = allowedRoles
+    ? allowedRoles.some(
+        (r) =>
+          Number(r.id) === 3 ||
+          r.name.includes("ابن") ||
+          r.name.includes("طفل") ||
+          r.name.toLowerCase().includes("son") ||
+          r.name.toLowerCase().includes("child")
+      )
+    : false;
+
+  const isParentOrTeacherCanAddSon =
+    user &&
+    hasSonRole &&
+    (user.role === UserRole.PARENT ||
+      user.role === UserRole.TEACHER ||
+      String(user.role_id) === "5" ||
+      String(user.role_id) === "2" ||
+      allowedRoles?.some((r) => Number(r.id) === 5 || Number(r.id) === 3 || r.name.includes("ولي")));
 
   const handleJoin = async (id: "parent" | number) => {
     setStates((prev) => ({
@@ -139,9 +155,9 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
 
   const children = childrenData?.children || [];
 
-  // Combine parent and children into a unified list
+  // Combine parent and children into a unified list, strictly filtered by allowed roles
   const listItems = [
-    ...(user
+    ...(user && hasParentRole
       ? [
           {
             id: "parent" as const,
@@ -150,11 +166,13 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           },
         ]
       : []),
-    ...children.map((child) => ({
-      id: child.id,
-      name: child.name,
-      role: "child" as const,
-    })),
+    ...(hasSonRole
+      ? children.map((child) => ({
+          id: child.id,
+          name: child.name,
+          role: "child" as const,
+        }))
+      : []),
   ];
 
   return (
@@ -168,6 +186,10 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
             </div>
           ))}
         </div>
+      ) : listItems.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-4">
+          {t("common.noData")}
+        </p>
       ) : (
         <div className="space-y-3">
           {listItems.map((item) => {
@@ -241,8 +263,8 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
         </div>
       )}
 
-      {/* Button to show Add New Son Form for Parent or Teacher */}
-      {isParentOrTeacher && (
+      {/* Button to show Add New Son Form ONLY if son role is allowed */}
+      {isParentOrTeacherCanAddSon && (
         <div className="pt-2 space-y-4">
           {!showAddSonForm ? (
             <button

@@ -41,15 +41,27 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     : true;
 
   const parentRoleObj = allowedRoles?.find(
-    (r) => Number(r.id) === 5 || Number(r.id) === 3 || r.name.includes("ولي") || r.name.toLowerCase().includes("parent")
+    (r) => Number(r.id) === 5 || r.name.includes("ولي") || r.name.toLowerCase().includes("parent")
   );
-  const hasParentRole = !!parentRoleObj || (allowedRoles ? allowedRoles.some((r) => Number(r.id) === 5 || Number(r.id) === 3) : false);
+  const hasParentRole = !!parentRoleObj || (allowedRoles ? allowedRoles.some((r) => Number(r.id) === 5) : false);
+
+  // Check if son/child role (id: 3 or name containing son/child/ابن) is allowed
+  const hasSonRole = allowedRoles
+    ? allowedRoles.some(
+        (r) =>
+          Number(r.id) === 3 ||
+          r.name.includes("ابن") ||
+          r.name.includes("طفل") ||
+          r.name.toLowerCase().includes("son") ||
+          r.name.toLowerCase().includes("child")
+      )
+    : false;
 
   const showTabs = hasStudentRole && hasParentRole;
 
-  // Active tab: default to "student" if allowed, else "children"
-  const [activeTab, setActiveTab] = useState<"student" | "children">(
-    hasStudentRole ? "student" : "children"
+  // Active tab: default to "student" if allowed, else "parent"
+  const [activeTab, setActiveTab] = useState<"student" | "parent">(
+    hasStudentRole ? "student" : "parent"
   );
 
   const handlePostJoinSuccess = (res: any, resetForm: () => void) => {
@@ -120,6 +132,42 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     });
   };
 
+  const handleParentOnlySubmit = async (
+    values: { name: string; phone: string; password: string },
+    { setSubmitting, resetForm }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void }
+  ) => {
+    setFormError(null);
+    setFormSuccess(null);
+
+    const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
+    const parentRoleId = parentRoleObj ? parentRoleObj.id : 5;
+
+    const payload: JoinGroupRequest = {
+      group_id: groupId,
+      role_id: parentRoleId,
+      name: values.name,
+      phone: values.phone,
+      password: values.password,
+      firebase_token: firebaseToken || undefined,
+    };
+
+    joinGroup(payload, {
+      onSuccess: (res: any) => handlePostJoinSuccess(res, resetForm),
+      onError: (err: any) => {
+        const responseData = err.response?.data;
+        const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
+        const validationErrors = responseData?.errors;
+        if (validationErrors && typeof validationErrors === "object") {
+          const firstErr = Object.values(validationErrors).flat()[0];
+          setFormError(firstErr as string);
+        } else {
+          setFormError(mainMessage);
+        }
+      },
+      onSettled: () => setSubmitting(false),
+    });
+  };
+
   const handleChildrenSubmit = async (
     values: {
       name: string;
@@ -133,8 +181,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     setFormSuccess(null);
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
-
-    const parentRoleId = parentRoleObj ? parentRoleObj.id : 3;
+    const parentRoleId = parentRoleObj ? parentRoleObj.id : 5;
 
     const payload: JoinGroupRequest = {
       group_id: groupId,
@@ -197,19 +244,21 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
           <button
             type="button"
             onClick={() => {
-              setActiveTab("children");
+              setActiveTab("parent");
               setFormError(null);
               setFormSuccess(null);
             }}
             className={cn(
               "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all duration-200",
-              activeTab === "children"
+              activeTab === "parent"
                 ? "bg-background text-foreground shadow-sm border border-border/40"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Users className="w-4 h-4" />
-            <span>{t("directJoin.registerChildren")}</span>
+            <span>
+              {hasSonRole ? t("directJoin.registerChildren") : t("directJoin.parentLabel")}
+            </span>
           </button>
         </div>
       )}
@@ -267,8 +316,47 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
         </Formik>
       )}
 
-      {/* Children Form (Parent + Sons) */}
-      {activeTab === "children" && (
+      {/* Parent Form: IF hasSonRole is false -> Parent only form */}
+      {activeTab === "parent" && !hasSonRole && (
+        <Formik
+          initialValues={{ name: "", phone: "", password: "" }}
+          validationSchema={guestJoinSchema}
+          onSubmit={handleParentOnlySubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form className="space-y-4 animate-in fade-in duration-200">
+              <FormField
+                name="name"
+                label={t("directJoin.fullName")}
+                placeholder={t("directJoin.namePlaceholder")}
+              />
+
+              <PhoneFormField
+                name="phone"
+                label={t("directJoin.phone")}
+                placeholder={t("directJoin.phonePlaceholder")}
+              />
+
+              <FormField
+                name="password"
+                label={t("directJoin.password")}
+                type="password"
+                placeholder={t("directJoin.passwordPlaceholder")}
+              />
+
+              <SubmitButton
+                label={t("directJoin.joinCourse")}
+                loadingLabel={t("directJoin.joiningInProgress")}
+                isSubmitting={isPending || isSubmitting}
+                icon={<UserPlus className="h-4 w-4" />}
+              />
+            </Form>
+          )}
+        </Formik>
+      )}
+
+      {/* Parent + Sons Form: IF hasSonRole is true */}
+      {activeTab === "parent" && hasSonRole && (
         <Formik
           initialValues={{
             name: "",
