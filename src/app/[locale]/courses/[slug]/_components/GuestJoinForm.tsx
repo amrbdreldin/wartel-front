@@ -36,13 +36,14 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
   // Check allowed roles
-  const studentRoleObj = allowedRoles?.find(
-    (r) => Number(r.id) === 1 || r.name.includes("طالب") || r.name.toLowerCase().includes("student")
-  );
+  const studentRoleObj =
+    allowedRoles?.find(
+      (r) => Number(r.id) === 1 || Number(r.id) === 3 || r.name?.includes("طالب") || r.name?.toLowerCase().includes("student")
+    ) || allowedRoles?.find((r) => r.id !== undefined);
   const hasStudentRole = !!studentRoleObj || (allowedRoles ? allowedRoles.some((r) => Number(r.id) === 1) : true);
 
   const parentRoleObj = allowedRoles?.find(
-    (r) => Number(r.id) === 5 || r.name.includes("ولي") || r.name.toLowerCase().includes("parent")
+    (r) => Number(r.id) === 5 || r.name?.includes("ولي") || r.name?.toLowerCase().includes("parent")
   );
   const hasParentRole = !!parentRoleObj || (allowedRoles ? allowedRoles.some((r) => Number(r.id) === 5) : false);
 
@@ -51,10 +52,10 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     ? allowedRoles.some(
         (r) =>
           Number(r.id) === 3 ||
-          r.name.includes("ابن") ||
-          r.name.includes("طفل") ||
-          r.name.toLowerCase().includes("son") ||
-          r.name.toLowerCase().includes("child")
+          r.name?.includes("ابن") ||
+          r.name?.includes("طفل") ||
+          r.name?.toLowerCase().includes("son") ||
+          r.name?.toLowerCase().includes("child")
       )
     : false;
 
@@ -107,7 +108,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     setFormSuccess(null);
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
-    const studentRoleId = studentRoleObj ? studentRoleObj.id : 1;
+    const studentRoleId = studentRoleObj ? Number(studentRoleObj.id) : 1;
 
     const payload: JoinGroupRequest = {
       group_id: groupId,
@@ -143,7 +144,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     setFormSuccess(null);
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
-    const parentRoleId = parentRoleObj ? parentRoleObj.id : 5;
+    const parentRoleId = parentRoleObj ? Number(parentRoleObj.id) : 5;
 
     const payload: JoinGroupRequest = {
       group_id: groupId,
@@ -184,7 +185,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     setFormSuccess(null);
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
-    const parentRoleId = parentRoleObj ? parentRoleObj.id : 5;
+    const parentRoleId = parentRoleObj ? Number(parentRoleObj.id) : 5;
 
     const payload: JoinGroupRequest = {
       group_id: groupId,

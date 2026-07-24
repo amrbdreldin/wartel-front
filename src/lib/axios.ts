@@ -37,6 +37,21 @@ api.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 );
 
+function isCurrentPagePublic(): boolean {
+  if (typeof window === "undefined") return false;
+  const path = window.location.pathname;
+  const cleanPath = path.replace(/^\/(ar|en)(?=\/|$)/, "");
+  return (
+    cleanPath === "" ||
+    cleanPath === "/" ||
+    cleanPath.startsWith("/courses") ||
+    cleanPath.startsWith("/register") ||
+    cleanPath.startsWith("/login") ||
+    cleanPath.startsWith("/forgot-password") ||
+    cleanPath.startsWith("/instructions")
+  );
+}
+
 // ============================================================
 // Response Interceptor – Handle Errors & Refresh
 // ============================================================
@@ -67,11 +82,24 @@ api.interceptors.response.use(
     };
 
     // Handle 401 – Attempt token refresh
+    const isPublicEndpoint = originalRequest.url?.includes("/direct-join") || originalRequest.url?.includes("/groups/join");
+
     if (
       error.response?.status === 401 && 
       !originalRequest._retry &&
       !originalRequest.url?.includes("/login")
     ) {
+      if (isPublicEndpoint) {
+        // Public/Guest endpoint – clean invalid cookies and retry unauthenticated without redirecting to login
+        originalRequest._retry = true;
+        Cookies.remove(TOKEN_KEY, { path: "/" });
+        Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
+        if (originalRequest.headers) {
+          delete originalRequest.headers.Authorization;
+        }
+        return api(originalRequest);
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
@@ -92,12 +120,12 @@ api.interceptors.response.use(
       try {
         const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
         if (!refreshToken) {
-          // No refresh token – session is completely expired. Clean up and redirect.
+          // No refresh token – session is completely expired. Clean up.
           processQueue(new Error("No refresh token") as unknown as AxiosError, null);
           isRefreshing = false;
-          Cookies.remove(TOKEN_KEY);
-          Cookies.remove(REFRESH_TOKEN_KEY);
-          if (typeof window !== "undefined") {
+          Cookies.remove(TOKEN_KEY, { path: "/" });
+          Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
+          if (typeof window !== "undefined" && !isCurrentPagePublic()) {
             const locale = window.location.pathname.split("/")[1] || "ar";
             window.location.href = `/${locale}/login`;
           }
@@ -124,10 +152,10 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
-        // Clear tokens and redirect to locale-aware login page
-        Cookies.remove(TOKEN_KEY);
-        Cookies.remove(REFRESH_TOKEN_KEY);
-        if (typeof window !== "undefined") {
+        // Clear tokens
+        Cookies.remove(TOKEN_KEY, { path: "/" });
+        Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
+        if (typeof window !== "undefined" && !isCurrentPagePublic()) {
           const locale = window.location.pathname.split("/")[1] || "ar";
           window.location.href = `/${locale}/login`;
         }

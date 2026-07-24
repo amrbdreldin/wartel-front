@@ -73,12 +73,18 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
 
-    const payload: { group_id: number; firebase_token?: string; child_id?: number } = {
+    const parentRoleObj = allowedRoles?.find(
+      (r) => Number(r.id) === 5 || r.name?.includes("ولي") || r.name?.toLowerCase().includes("parent")
+    );
+
+    const payload: { group_id: number; firebase_token?: string; child_id?: number; role_id?: number } = {
       group_id: groupId,
       firebase_token: firebaseToken || undefined,
     };
     if (id !== "parent") {
       payload.child_id = id;
+    } else if (parentRoleObj) {
+      payload.role_id = Number(parentRoleObj.id);
     }
 
     joinGroup(payload, {
