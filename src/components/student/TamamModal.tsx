@@ -14,12 +14,13 @@ import { toast } from "sonner";
 interface TamamModalProps {
   isOpen: boolean;
   onClose: () => void;
-  companionName: string;
+  companionName?: string | null;
   presentStatus?: string;
   isStudentChild?: boolean;
+  hasBuddy?: boolean;
 }
 
-export function TamamModal({ isOpen, onClose, companionName, presentStatus, isStudentChild }: TamamModalProps) {
+export function TamamModal({ isOpen, onClose, companionName, presentStatus, isStudentChild, hasBuddy }: TamamModalProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,6 +32,9 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
   const isDisabled = isSubmitting || !isPending;
   const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked);
+
+  // If student is child, or explicitly has no buddy, or companion name is missing -> perform self tamam
+  const isSelfTamam = isStudentChild || hasBuddy === false || !companionName;
 
   // Mutation for submitting Tamam
   const submitTamamMutation = useMutation({
@@ -50,7 +54,6 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
       }
     },
     onError: (err: any) => {
-      // Interceptor already toasts common errors, but we can add specific handling if needed
       console.error("Tamam submission error:", err);
     },
     onSettled: () => {
@@ -59,8 +62,8 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
   });
 
   const handleConfirmTamam = () => {
-    // Body: { "pair_id": "...", "past_status_id": 2, "present_status_id": 3 }
-    const pairId = isStudentChild ? null : "550e8400-e29b-41d4-a716-446655440000"; // Provided in request example
+    // If self tamam (no buddy or child), pair_id is null
+    const pairId = isSelfTamam ? null : "550e8400-e29b-41d4-a716-446655440000";
     
     setIsSubmitting(true);
     submitTamamMutation.mutate({
@@ -72,7 +75,6 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
 
   const handleClose = () => {
     onClose();
-    // Reset state after a small delay for smooth transition
     setTimeout(() => {
         setShowSuccess(false);
         setIsSubmitting(false);
@@ -121,7 +123,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                     <div className="space-y-2">
                             <h5 className="text-3xl font-black text-success-600">{t("student.tamamRecordedSuccessfully") || "تم تسجيل التمام بنجاح"}</h5>
                             <p className="text-xl text-muted-foreground font-medium">
-                                {isStudentChild
+                                {isSelfTamam
                                     ? (t("student.tamamCompletedDescChild") || "لقد قمتِ بتأكيد التسميع والتمام بنجاح لهذا اليوم. نسأل الله لكِ التوفيق والسداد.")
                                     : (t("student.mayAllahBlessYou") || "بارك الله فيك ونفع بك")}
                             </p>
@@ -136,7 +138,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
             ) : (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     {/* Highlight Section */}
-                    {isStudentChild ? (
+                    {isSelfTamam ? (
                         <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10 flex flex-col items-center text-center">
                             <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 border border-primary/10">
                                 <CheckCircle2 className="h-8 w-8 text-primary" />
@@ -158,7 +160,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                         <div className="bg-muted/30 p-5 rounded-2xl border border-border/50 text-sm text-muted-foreground font-medium leading-relaxed flex items-start gap-4">
                             <Info className="h-6 w-6 text-primary shrink-0" />
                             <span>
-                                {isStudentChild
+                                {isSelfTamam
                                     ? (t("student.tamamInstructionChild") || "الرجاء تأكيد إتمام ورد الحفظ والتسميع لهذا اليوم، ثم الضغط على زر التأكيد أدناه لتوثيق التمام في نظامكِ.")
                                     : (t("student.tamamInstruction") || "الرجاء تأكيد حضور الرفيقة لهذا اليوم وتوثيق إتمام ورد المراجعة.")}
                             </span>
@@ -168,11 +170,11 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                         <div className="space-y-4 bg-muted/20 border border-border/40 rounded-2xl p-4 md:p-5">
                             <h6 className="font-bold text-sm text-foreground flex items-center gap-2">
                                 <span className="w-1.5 h-3 bg-primary rounded-full"></span>
-                                {isStudentChild ? (t("student.tamamHeaderChild") || "تأكيد تسميع الورد") : (t("student.tamamCompanionHeader") || "تأكيد سماع الرفيقة")}
+                                {isSelfTamam ? (t("student.tamamHeaderChild") || "تأكيد تسميع الورد") : (t("student.tamamCompanionHeader") || "تأكيد سماع الرفيقة")}
                             </h6>
                             
                             <p className="text-xs text-muted-foreground">
-                                {isStudentChild ? (t("student.tamamInstructionCheckChild") || "يرجى تأكيد تسميع ورد الماضي والحاضر لتتمكني من إرسال التمام:") : (t("student.tamamCompanionInstructionCheck") || "يرجى تأكيد سماع الرفيقة لورد الماضي والحاضر لتتمكني من إرسال التمام:")}
+                                {isSelfTamam ? (t("student.tamamInstructionCheckChild") || "يرجى تأكيد تسميع ورد الماضي والحاضر لتتمكني من إرسال التمام:") : (t("student.tamamCompanionInstructionCheck") || "يرجى تأكيد سماع الرفيقة لورد الماضي والحاضر لتتمكني من إرسال التمام:")}
                             </p>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -202,7 +204,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                                         )}
                                     </div>
                                     <span className="text-sm font-bold text-foreground">
-                                        {isStudentChild ? (t("student.tamamPastConfirmationChild") || "أؤكد أنني قمت بتسميع ورد الماضي") : (t("student.tamamPastConfirmation") || "أؤكد أن الرفيقة سمعت ورد الماضي")}
+                                        {isSelfTamam ? (t("student.tamamPastConfirmationChild") || "أؤكد أنني قمت بتسميع ورد الماضي") : (t("student.tamamPastConfirmation") || "أؤكد أن الرفيقة سمعت ورد الماضي")}
                                     </span>
                                 </button>
 
@@ -232,7 +234,7 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                                         )}
                                     </div>
                                     <span className="text-sm font-bold text-foreground">
-                                        {isStudentChild ? (t("student.tamamPresentConfirmationChild") || "أؤكد أنني قمت بتسميع ورد الحاضر") : (t("student.tamamPresentConfirmation") || "أؤكد أن الرفيقة سمعت ورد الحاضر")}
+                                        {isSelfTamam ? (t("student.tamamPresentConfirmationChild") || "أؤكد أنني قمت بتسميع ورد الحاضر") : (t("student.tamamPresentConfirmation") || "أؤكد أن الرفيقة سمعت ورد الحاضر")}
                                     </span>
                                 </button>
                             </div>

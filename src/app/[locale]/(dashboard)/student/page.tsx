@@ -22,6 +22,8 @@ import { TamamStatsCard } from "./_components/TamamStatsCard";
 import { LatestGradeCard } from "./_components/LatestGradeCard";
 import { ActiveExamCard } from "./_components/ActiveExamCard";
 
+import { StudentDashboardGroup } from "@/types/student.types";
+
 export default function StudentDashboardPage() {
   const t = useTranslations();
   const params = useParams();
@@ -29,6 +31,7 @@ export default function StudentDashboardPage() {
   const { isStudentChild } = useRole();
   
   const [showDecisionModal, setShowDecisionModal] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<StudentDashboardGroup | null>(null);
 
   useEffect(() => {
     const hasSeen = Cookies.get("hasSeenAcademyDecisionModal");
@@ -47,8 +50,6 @@ export default function StudentDashboardPage() {
     gcTime: 0,
     refetchOnMount: true,
   });
-
-
 
   if (isLoading) {
     const skeletonCount = 5;
@@ -100,6 +101,22 @@ export default function StudentDashboardPage() {
   const alerts = data?.alerts || [];
   const hasDecision = alerts.length > 0;
 
+  const activeGroup = selectedGroup || data?.groups?.[0];
+  const activeTamamCard = activeGroup?.tamam_card || data?.tamam_card;
+  const hasBuddy = activeGroup ? (activeGroup.has_buddy || !!activeTamamCard?.buddy?.full_name) : !!activeTamamCard?.buddy?.full_name;
+  const companionName = activeTamamCard?.buddy?.full_name || null;
+  const presentStatus = activeTamamCard?.status?.presentStatus;
+
+  const handleOpenTamamModal = (group?: StudentDashboardGroup) => {
+    if (group) setSelectedGroup(group);
+    setShowTamamModal(true);
+  };
+
+  const handleOpenAssignModal = (group?: StudentDashboardGroup) => {
+    if (group) setSelectedGroup(group);
+    setShowAssignModal(true);
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
@@ -107,9 +124,10 @@ export default function StudentDashboardPage() {
       <TamamModal 
         isOpen={showTamamModal} 
         onClose={() => setShowTamamModal(false)} 
-        companionName={data?.tamam_card?.buddy?.full_name || "الرفيقة"}
-        presentStatus={data?.tamam_card?.status?.presentStatus}
+        companionName={companionName}
+        presentStatus={presentStatus}
         isStudentChild={isStudentChild}
+        hasBuddy={hasBuddy}
       />
 
       <ExcuseModal 
@@ -138,9 +156,10 @@ export default function StudentDashboardPage() {
             nextSession={data?.next_session} 
         />
         <TamamStatsCard 
+            groups={data?.groups}
             tamamCard={data?.tamam_card} 
-            onShowTamamModal={() => setShowTamamModal(true)} 
-            onShowAssignModal={() => setShowAssignModal(true)}
+            onShowTamamModal={handleOpenTamamModal} 
+            onShowAssignModal={handleOpenAssignModal}
             isStudentChild={isStudentChild}
         />
         <LatestGradeCard lastGrade={data?.last_grade} locale={locale} />

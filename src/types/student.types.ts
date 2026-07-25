@@ -240,11 +240,27 @@ export interface DashboardBuddy {
 }
 
 export interface DashboardTamamCard {
-  buddy: DashboardBuddy;
+  buddy: DashboardBuddy | null;
   status: {
-    presentStatus: string;
-    pastStatus: string;
-  };
+    presentStatus?: string;
+    pastStatus?: string;
+    [key: string]: any;
+  } | null;
+}
+
+export interface DashboardSessionDay {
+  day: string;
+  time: string;
+}
+
+export interface StudentDashboardGroup {
+  id: number;
+  name: string;
+  teacher_name: string;
+  session_days: DashboardSessionDay[];
+  has_tamam: boolean;
+  has_buddy: boolean;
+  tamam_card: DashboardTamamCard | null;
 }
 
 export interface DashboardExam {
@@ -308,8 +324,9 @@ export interface DashboardLastGrade {
 }
 
 export interface StudentDashboardResponseData {
+  groups: StudentDashboardGroup[];
   next_session: any | null;
-  tamam_card: DashboardTamamCard | null;
+  tamam_card?: DashboardTamamCard | null;
   last_grade: DashboardLastGrade | null;
   alerts: DashboardAlert[];
   next_exam: DashboardExam | null;

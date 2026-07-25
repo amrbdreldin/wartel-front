@@ -45,7 +45,7 @@ const studentNavigation: NavGroup[] = [
     items: [
       { labelKey: "nav.dashboard", href: "/student", icon: LayoutDashboard },
       { labelKey: "common.profile", href: "/student/[userId]/profile-details", icon: User },
-      { labelKey: "nav.tamam", href: "/student/tamam", icon: BookOpen },
+      // { labelKey: "nav.tamam", href: "/student/tamam", icon: BookOpen },
       { labelKey: "nav.werd", href: "/student/werd", icon: Scroll },
       { labelKey: "nav.grades", href: "/student/grades", icon: GraduationCap },
       { labelKey: "nav.excuses", href: "/student/excuses", icon: FileText },
