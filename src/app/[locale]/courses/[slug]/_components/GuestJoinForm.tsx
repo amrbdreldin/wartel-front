@@ -45,7 +45,9 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
   const parentRoleObj = allowedRoles?.find(
     (r) => Number(r.id) === 5 || r.name?.includes("ولي") || r.name?.toLowerCase().includes("parent")
   );
-  const hasParentRole = !!parentRoleObj || (allowedRoles ? allowedRoles.some((r) => Number(r.id) === 5) : false);
+
+  // Unauthenticated users should not see the parent tab even if parent role is allowed
+  const hasParentRole = false;
 
   // Check if son/child role (id: 3 or name containing son/child/ابن) is allowed
   const hasSonRole = allowedRoles
@@ -61,10 +63,8 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
 
   const showTabs = hasStudentRole && hasParentRole;
 
-  // Active tab: default to "student" if allowed, else "parent"
-  const [activeTab, setActiveTab] = useState<"student" | "parent">(
-    hasStudentRole ? "student" : "parent"
-  );
+  // Active tab: default to "student"
+  const [activeTab, setActiveTab] = useState<"student" | "parent">("student");
 
   const handlePostJoinSuccess = (res: any, resetForm: () => void) => {
     const token =
