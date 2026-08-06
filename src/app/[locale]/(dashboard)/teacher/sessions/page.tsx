@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { teacherService } from "@/services/teacher.service";
-import { useTeacherSessionAttendance, useTeacherDashboard, useTeacherGroupStudents } from "@/hooks/api/useTeacherQueries";
+import { useTeacherSessionAttendance, useTeacherDashboard } from "@/hooks/api/useTeacherQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -146,7 +146,7 @@ export default function TeacherSessionsPage() {
     }
   }
 
-  const { data: groupDetailsData } = useTeacherGroupStudents(resolvedGroupId);
+
 
   // Resolve group name from dashboard, group details or attendance data
   let resolvedGroupName = "";
@@ -183,12 +183,7 @@ export default function TeacherSessionsPage() {
     }
   }
 
-  // 4. Try to get it from the group details query
-  if (!resolvedGroupName && groupDetailsData) {
-    resolvedGroupName = groupDetailsData.group_name;
-  }
-
-  // 5. Determine if this session has points
+  // 4. Determine if this session has points
   let hasPoints = false;
   if (dashboardData?.today_sessions) {
     const sessionMatch = dashboardData.today_sessions.find(
