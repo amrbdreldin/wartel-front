@@ -170,8 +170,6 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
         ],
       } as RegisterFormData;
     },
-    staleTime: 0,
-    gcTime: 0,
     retry: 2,
   });
 }

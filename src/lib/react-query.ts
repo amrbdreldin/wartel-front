@@ -6,8 +6,8 @@ import { STALE_TIME } from "./constants";
 // ============================================================
 const queryConfig: DefaultOptions = {
   queries: {
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 60_000,   // 1 minute – avoid unnecessary refetches
+    gcTime: 300_000,     // 5 minutes – allow GC to reclaim unused query cache
     retry: 1,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,

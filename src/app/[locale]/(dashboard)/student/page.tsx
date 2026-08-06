@@ -68,9 +68,7 @@ export default function StudentDashboardPage() {
   const { data: dashboardData, isLoading, isError, error } = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: () => studentService.getDashboard(),
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true,
+    refetchOnMount: "always",
   });
 
   if (isLoading) {
