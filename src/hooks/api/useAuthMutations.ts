@@ -114,6 +114,15 @@ export function useForgotPasswordMutation() {
   });
 }
 
+// ─── Reset password request (phone only) ─────────────────────
+export function useResetPasswordRequestMutation() {
+  const lang = useLocale() as Locale;
+  return useMutation({
+    mutationFn: (phone: string) =>
+      authService.resetPasswordRequest(phone, { lang, config: { skipGlobalToast: true } as any }),
+  });
+}
+
 // ─── Forgot password – verify OTP ────────────────────────────
 export function useVerifyOtpMutation() {
   const lang = useLocale() as Locale;

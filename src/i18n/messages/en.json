@@ -225,7 +225,11 @@
     "studentRole": "Student",
     "teacherRole": "Teacher",
     "circleRole": "Circle",
-    "copyright": "All rights reserved © Warattel Academy {year}"
+    "copyright": "All rights reserved © Warattel Academy {year}",
+    "resetPasswordRequest": "Reset Password",
+    "resetPasswordRequestDesc": "Enter your phone number to submit a password reset request",
+    "resetPasswordRequestSuccess": "Password reset request submitted successfully",
+    "submitResetRequest": "Submit Reset Request"
   },
   "student": {
     "group": "Group",
@@ -1090,6 +1094,7 @@
     "finalDecision": "Final Decision",
     "autoAbsent": "Auto Absent",
     "confirmAttendance": "Confirm & Lock Attendance",
+    "isExamAttendance": "This is an exam session",
     "attendanceLocked": "Attendance Locked - Cannot Edit",
     "confirmSubmitTitle": "Confirm Attendance Submission",
     "confirmSubmitDesc": "Are you sure you want to submit the attendance roster? You will not be able to edit any attendance or grades after this action.",

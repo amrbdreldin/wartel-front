@@ -225,7 +225,11 @@
     "studentRole": "طالب/ــة",
     "teacherRole": "أستاذ/ة",
     "circleRole": "حلقة",
-    "copyright": "جميع الحقوق محفوظة © أكاديمية ورتل {year}"
+    "copyright": "جميع الحقوق محفوظة © أكاديمية ورتل {year}",
+    "resetPasswordRequest": "إعادة ضبط كلمة المرور",
+    "resetPasswordRequestDesc": "أدخل/ــي رقم الهاتف لتقديم طلب إعادة ضبط كلمة المرور",
+    "resetPasswordRequestSuccess": "تم تقديم طلب إعادة ضبط كلمة المرور بنجاح",
+    "submitResetRequest": "إرسال طلب إعادة الضبط"
   },
   "student": {
     "group": "الحلقة",
@@ -1090,6 +1094,7 @@
     "finalDecision": "القرار النهائي",
     "autoAbsent": "غائبة تلقائياً",
     "confirmAttendance": " اعتماد وتسجيل الحضور النهائي",
+    "isExamAttendance": " هذه الحلقة اختبار",
     "attendanceLocked": "تم الاعتماد - لا يمكن التعديل",
     "confirmSubmitTitle": "تأكيد اعتماد سجل الحضور",
     "confirmSubmitDesc": "هل أنت/ِ متأكدة من رغبتكِ في اعتماد سجل الحضور بشكل نهائي؟ لن تتمكني من تعديل أي درجات أو بيانات حضور بعد هذا الإجراء.",

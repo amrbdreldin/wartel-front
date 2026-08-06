@@ -5,6 +5,7 @@ import type {
   LoginResponse,
   RefreshTokenResponse,
   InitiatePasswordResetResponse,
+  ResetPasswordRequestResponse,
   User,
   RegisterDataResponse,
 } from "@/types/auth.types";
@@ -76,6 +77,11 @@ export const authService = {
   // ─── Password reset flow ─────────────────────────────────
   forgotPassword: (phone: string, options?: ApiCallOptions) =>
     apiPost<ApiResponse<InitiatePasswordResetResponse>>(`${AUTH_URL}/initiate-password-reset`, { phone }, options).then(
+      (r) => r
+    ),
+
+  resetPasswordRequest: (phone: string, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<ResetPasswordRequestResponse>>(`${AUTH_URL}/reset-password-request`, { phone }, options).then(
       (r) => r
     ),
 

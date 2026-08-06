@@ -169,4 +169,5 @@ export interface SubmitSessionAttendanceItem {
 
 export interface SubmitSessionAttendancePayload {
   attendance: SubmitSessionAttendanceItem[];
+  is_exam: boolean;
 }

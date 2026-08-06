@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
+import { ResetPasswordDialog } from "./ResetPasswordDialog";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { GradientBar } from "@/components/ui/gradient-bar";
 import { OrDivider } from "@/components/ui/or-divider";
@@ -40,6 +41,7 @@ export function LoginForm() {
   const [fcmToken, setFcmToken] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   useEffect(() => {
     // Preload reCAPTCHA v3 script
@@ -146,16 +148,16 @@ export function LoginForm() {
                     placeholder={t("auth.passwordPlaceholder")}
                   />
 
-                  {/* Forgot password link */}
-                  {/* <div className="flex justify-end">
-                    <Link
-                      href={`/${locale}/forgot-password`}
-                      className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors"
+                  {/* Reset password link */}
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setResetDialogOpen(true)}
+                      className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors font-semibold"
                     >
                       {t("auth.forgotPassword")}
-                    </Link>
-                  </div> */}
-
+                    </button>
+                  </div>
 
 
                 </CardContent>
@@ -240,6 +242,12 @@ export function LoginForm() {
             )}
           </Formik>
         </Card>
+
+        {/* Reset Password Dialog */}
+        <ResetPasswordDialog
+          open={resetDialogOpen}
+          onOpenChange={setResetDialogOpen}
+        />
       </div>
     </div>
   );

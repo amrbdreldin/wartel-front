@@ -91,6 +91,10 @@ export interface InitiatePasswordResetResponse {
   account_status: string;
 }
 
+export interface ResetPasswordRequestResponse {
+  request_id: number;
+}
+
 export interface RegisterRequest {
   full_name: string;
   age: number;

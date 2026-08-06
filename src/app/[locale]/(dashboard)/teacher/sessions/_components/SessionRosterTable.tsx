@@ -45,6 +45,8 @@ interface SessionRosterTableProps {
   getGradeLabel: (score: string, max: number) => { label: string; color: string };
   t: (key: string, values?: any) => string;
   hasPoints: boolean;
+  isExam: boolean;
+  onIsExamChange: (val: boolean) => void;
 }
 
 export function SessionRosterTable({
@@ -67,6 +69,8 @@ export function SessionRosterTable({
   getGradeLabel,
   t,
   hasPoints,
+  isExam,
+  onIsExamChange,
 }: SessionRosterTableProps) {
   return (
     <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
@@ -90,14 +94,53 @@ export function SessionRosterTable({
           </span>
         </div>
 
-        <button
-          onClick={markAllPresent}
-          disabled={locked}
-          className="flex items-center gap-2 px-4 py-2 bg-success-500 hover:bg-success-600 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-        >
-          <CheckCircle2 className="w-4 h-4" />
-          {t("markAllPresent")}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Exam Attendance Checkbox */}
+          <label
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 bg-background border border-border text-sm font-bold rounded-xl transition-all shadow-sm cursor-pointer select-none group/exam",
+              locked && "opacity-40 cursor-not-allowed",
+              isExam && "bg-primary/10 border-primary text-primary"
+            )}
+          >
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={isExam}
+                onChange={(e) => onIsExamChange(e.target.checked)}
+                disabled={locked}
+                className="peer sr-only"
+                id="is-exam-checkbox"
+              />
+              <div
+                className={cn(
+                  "w-4.5 h-4.5 rounded-md border-2 border-border transition-all flex items-center justify-center",
+                  "peer-focus-visible:ring-2 peer-focus-visible:ring-primary/30",
+                  "group-hover/exam:border-primary/60",
+                  isExam
+                    ? "bg-primary border-primary"
+                    : "bg-background"
+                )}
+              >
+                {isExam && (
+                  <svg className="w-2.5 h-2.5 text-primary-foreground" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            {t("isExamAttendance")}
+          </label>
+
+          <button
+            onClick={markAllPresent}
+            disabled={locked}
+            className="flex items-center gap-2 px-4 py-2 bg-success-500 hover:bg-success-600 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            {t("markAllPresent")}
+          </button>
+        </div>
       </div>
 
       {/* Table */}

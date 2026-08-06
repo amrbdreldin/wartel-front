@@ -106,6 +106,7 @@ export default function TeacherSessionsPage() {
   const [locked, setLocked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isExam, setIsExam] = useState(false);
 
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [noteContent, setNoteContent] = useState("");
@@ -404,6 +405,7 @@ export default function TeacherSessionsPage() {
         secret_note: s.secret_note || null,
         points: hasPoints ? (parseFloat(s.score) || 0) : 0,
       })),
+      is_exam: isExam,
     };
 
     submitAttendanceMutation.mutate(payload);
@@ -524,6 +526,8 @@ export default function TeacherSessionsPage() {
         getGradeLabel={(score, max) => getGradeLabel(score, max, t)}
         t={t}
         hasPoints={hasPoints}
+        isExam={isExam}
+        onIsExamChange={setIsExam}
       />
 
       {/* Secret Note Dialog */}
