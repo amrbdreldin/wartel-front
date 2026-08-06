@@ -137,9 +137,7 @@ export function ResetPasswordDialog({ open, onOpenChange }: ResetPasswordDialogP
             <h3 className="text-lg font-bold text-foreground">
               {t("auth.resetPasswordRequestSuccess")}
             </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {t("auth.resetPasswordRequestDesc")}
-            </p>
+         
             <Button
               type="button"
               variant="outline"
