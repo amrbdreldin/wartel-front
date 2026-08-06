@@ -70,6 +70,9 @@ export const authService = {
   updateProfile: (data: Partial<User>, options?: ApiCallOptions) =>
     apiPut<ApiResponse<User>>(`${AUTH_URL}/me`, data, options).then((r) => r.data),
 
+  getAuthUser: (options?: ApiCallOptions) =>
+    apiGet<ApiResponse<{ fcm_token?: string[]; [key: string]: any }>>(`${AUTH_URL}/user`, options).then((r) => r.data),
+
   // ─── Password reset flow ─────────────────────────────────
   forgotPassword: (phone: string, options?: ApiCallOptions) =>
     apiPost<ApiResponse<InitiatePasswordResetResponse>>(`${AUTH_URL}/initiate-password-reset`, { phone }, options).then(
