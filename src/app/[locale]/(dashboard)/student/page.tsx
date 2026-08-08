@@ -10,8 +10,6 @@ import { ExcuseModal } from "@/components/student/ExcuseModal";
 import { BuddyAssignModal } from "@/components/student/BuddyAssignModal";
 import { useQuery } from "@tanstack/react-query";
 import { studentService } from "@/services/student.service";
-import { authService } from "@/services/auth.service";
-import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { useRole } from "@/hooks/useRole";
 import Cookies from "js-cookie";
 
@@ -41,25 +39,6 @@ export default function StudentDashboardPage() {
       setTimeout(() => setShowDecisionModal(true), 0);
     }
   }, []);
-
-  useEffect(() => {
-    const syncFcmToken = async () => {
-      try {
-        const deviceToken = await requestNotificationToken(t("notifications.blocked_guide"));
-        if (!deviceToken) return;
-
-        const userData = await authService.getAuthUser();
-        const existingTokens: string[] = userData?.fcm_token || [];
-
-        if (!existingTokens.includes(deviceToken)) {
-          await studentService.updateProfile({ firebase_token: deviceToken });
-        }
-      } catch (err) {
-        console.error("[FCM Sync] Failed to sync FCM token:", err);
-      }
-    };
-    syncFcmToken();
-  }, [t]);
 
   const [showTamamModal, setShowTamamModal] = useState(false);
   const [showExcuseModal, setShowExcuseModal] = useState(false);

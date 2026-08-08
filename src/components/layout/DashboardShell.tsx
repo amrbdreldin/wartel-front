@@ -1,12 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MobileSidebar } from "./MobileSidebar";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { useAuth } from "@/hooks/useAuth";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
+import { authService } from "@/services/auth.service";
+import { studentService } from "@/services/student.service";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
@@ -25,6 +27,7 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
   const { isAuthenticated } = useAuth();
   const tNotifications = useTranslations("notifications");
   const pathname = usePathname();
+  const fcmSyncedRef = useRef(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -39,6 +42,31 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
       requestNotificationToken(tNotifications("blocked_guide"), isDashboardOrProfile);
     }
   }, [isAuthenticated, tNotifications, pathname]);
+
+  // ── FCM token sync: check /auth/user and register token if missing ──
+  useEffect(() => {
+    if (!isAuthenticated || fcmSyncedRef.current) return;
+
+    const syncFcmToken = async () => {
+      try {
+        const deviceToken = await requestNotificationToken(tNotifications("blocked_guide"));
+        if (!deviceToken) return;
+
+        const userData = await authService.getAuthUser();
+        const existingTokens: string[] = userData?.fcm_token || [];
+
+        if (!existingTokens.includes(deviceToken)) {
+          await studentService.updateProfile({ firebase_token: deviceToken });
+        }
+
+        fcmSyncedRef.current = true;
+      } catch (err) {
+        console.error("[FCM Sync] Failed to sync FCM token:", err);
+      }
+    };
+
+    syncFcmToken();
+  }, [isAuthenticated, tNotifications]);
 
   return (
     <div className="min-h-screen bg-background">
