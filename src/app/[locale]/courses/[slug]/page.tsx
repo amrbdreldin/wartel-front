@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectJoinGroup } from "@/hooks/api/useGroupQueries";
@@ -12,11 +12,20 @@ import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GroupInfoCard } from "./_components/GroupInfoCard";
 import { GuestJoinForm } from "./_components/GuestJoinForm";
+import { AuthJoinSection } from "./_components/AuthJoinSection";
 import { ParentChildrenJoinSection } from "./_components/ParentChildrenJoinSection";
+import { UserRole } from "@/types/enums";
 
 // ============================================================
 // Direct Join Course Page – /[locale]/courses/[slug]
 // ============================================================
+
+/** Map UserRole enum to the corresponding allowed_roles id from the API */
+const ROLE_ID_MAP: Record<string, number[]> = {
+  [UserRole.STUDENT]: [1],
+  [UserRole.TEACHER]: [2],
+  [UserRole.PARENT]: [5],
+};
 
 export default function DirectJoinCoursePage({
   params,
@@ -25,10 +34,33 @@ export default function DirectJoinCoursePage({
 }) {
   const { slug } = use(params);
   const t = useTranslations();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { data: group, isLoading, isError, error, refetch } = useDirectJoinGroup(
     decodeURIComponent(slug)
   );
+
+  // Check if the current user's own role is in allowed_roles (student/teacher direct join)
+  const canSelfJoin = useMemo(() => {
+    if (!user?.role || !group?.allowed_roles) return false;
+    const matchIds = ROLE_ID_MAP[user.role] || [];
+    return group.allowed_roles.some((r) => matchIds.includes(Number(r.id)));
+  }, [user?.role, group?.allowed_roles]);
+
+  // Check if parent/child roles exist in allowed_roles
+  const hasParentOrChildRoles = useMemo(() => {
+    if (!group?.allowed_roles) return false;
+    return group.allowed_roles.some(
+      (r) =>
+        Number(r.id) === 5 ||
+        Number(r.id) === 3 ||
+        r.name?.includes("ولي") ||
+        r.name?.includes("ابن") ||
+        r.name?.includes("طفل") ||
+        r.name?.toLowerCase().includes("parent") ||
+        r.name?.toLowerCase().includes("son") ||
+        r.name?.toLowerCase().includes("child")
+    );
+  }, [group?.allowed_roles]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -123,7 +155,15 @@ export default function DirectJoinCoursePage({
                   <GuestJoinForm groupId={group.group_id} allowedRoles={group.allowed_roles} />
                 ) : (
                   <div className="space-y-6">
-                    <ParentChildrenJoinSection groupId={group.group_id} allowedRoles={group.allowed_roles} />
+                    {/* Direct join button for student/teacher */}
+                    {canSelfJoin && (
+                      <AuthJoinSection groupId={group.group_id} />
+                    )}
+
+                    {/* Parent/child join section */}
+                    {hasParentOrChildRoles && (
+                      <ParentChildrenJoinSection groupId={group.group_id} allowedRoles={group.allowed_roles} />
+                    )}
                   </div>
                 )}
               </>
