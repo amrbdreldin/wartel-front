@@ -7,7 +7,6 @@ import { teacherService } from "@/services/teacher.service";
 import { useTeacherSessionAttendance, useTeacherDashboard } from "@/hooks/api/useTeacherQueries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { SessionHeader } from "./_components/SessionHeader";
@@ -400,7 +399,7 @@ export default function TeacherSessionsPage() {
         secret_note: s.secret_note || null,
         points: hasPoints ? (parseFloat(s.score) || 0) : 0,
       })),
-      is_exam: isExam,
+      is_exam: isExam ? 1 : 0,
     };
 
     submitAttendanceMutation.mutate(payload);
