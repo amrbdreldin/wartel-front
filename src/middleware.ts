@@ -9,17 +9,32 @@ const intlMiddleware = createMiddleware(routing);
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 const RATE_LIMIT = 50; // Max requests
 const RATE_WINDOW = 60 * 1000; // 1 minute window
-const CLEANUP_INTERVAL = 5 * 60 * 1000; // Run cleanup every 5 minutes
+const CLEANUP_INTERVAL = 2 * 60 * 1000; // Run cleanup every 2 minutes
+const MAX_MAP_SIZE = 10_000; // Hard cap to prevent unbounded memory growth
 let lastCleanup = Date.now();
 
-// Purge entries that haven't been seen for 5× the rate window to prevent memory leak
+// Purge stale entries AND enforce hard cap to prevent memory leak
 function cleanupRateLimitMap() {
   const now = Date.now();
+
+  // 1. Remove entries older than 2× the rate window
   for (const [ip, data] of rateLimitMap.entries()) {
-    if (now - data.timestamp > RATE_WINDOW * 5) {
+    if (now - data.timestamp > RATE_WINDOW * 2) {
       rateLimitMap.delete(ip);
     }
   }
+
+  // 2. If still over the hard cap, evict the oldest entries until at 50% capacity
+  if (rateLimitMap.size > MAX_MAP_SIZE) {
+    const entries = [...rateLimitMap.entries()].sort(
+      (a, b) => a[1].timestamp - b[1].timestamp
+    );
+    const toRemove = entries.length - Math.floor(MAX_MAP_SIZE / 2);
+    for (let i = 0; i < toRemove; i++) {
+      rateLimitMap.delete(entries[i][0]);
+    }
+  }
+
   lastCleanup = now;
 }
 
@@ -50,8 +65,8 @@ export function middleware(request: NextRequest) {
   if (ip !== "unknown" && !pathname.startsWith("/_next/")) {
     const currentTime = Date.now();
 
-    // Periodically purge stale IPs to prevent unbounded memory growth (Memory Leak fix)
-    if (currentTime - lastCleanup > CLEANUP_INTERVAL) {
+    // Cleanup: run on timer OR when map exceeds hard cap (Memory Leak fix)
+    if (currentTime - lastCleanup > CLEANUP_INTERVAL || rateLimitMap.size > MAX_MAP_SIZE) {
       cleanupRateLimitMap();
     }
 

@@ -231,9 +231,8 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
     }
   });
 
-  // Return proxied response
-  const body = await upstream.arrayBuffer();
-  return new NextResponse(body, {
+  // Return proxied response — stream body directly to avoid buffering in memory
+  return new NextResponse(upstream.body, {
     status: upstream.status,
     statusText: upstream.statusText,
     headers: responseHeaders,
