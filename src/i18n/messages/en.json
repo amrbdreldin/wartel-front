@@ -89,7 +89,11 @@
     "forgotPassword": "Forgot Password?",
     "resetPassword": "Reset Password",
     "emailPlaceholder": "Enter your email",
+    "phone": "Phone Number",
+    "password": "Password",
+    "phonePlaceholder": "010xxxxxxx",
     "passwordPlaceholder": "Enter your password",
+    "loginProgress": "Logging in...",
     "fullName": "Full Name",
     "parentFullName": "Parent's Full Name",
     "childFullName": "Child's Full Name",
@@ -1328,6 +1332,17 @@
     "atLeastOneChild": "At least one child is required",
     "sonName": "Child Name",
     "sonPhone": "Child Phone",
-    "sonPassword": "Child Password"
+    "sonPassword": "Child Password",
+    "registerParent": "Register as Parent",
+    "registerParentToJoin": "Register Parent to Join",
+    "registerParentDescription": "Please register a parent account first to add your children and join the course.",
+    "registerParentSuccess": "Parent account created successfully!",
+    "registerParentBtn": "Register as Parent & Continue",
+    "noChildrenYet": "No children added yet. Add a child now to join the course.",
+    "registerTeacher": "Register as Teacher",
+    "joinCourseAsTeacher": "Join Course as Teacher",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Log in",
+    "loginModalDesc": "Log in to your account to join the course directly."
   }
 }

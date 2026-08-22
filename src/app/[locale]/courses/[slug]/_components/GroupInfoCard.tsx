@@ -45,19 +45,21 @@ export function GroupInfoCard({ group }: GroupInfoCardProps) {
         </div>
 
         {/* Teacher */}
-        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-accent/5 border border-accent/10">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-accent/10 text-accent shrink-0">
-            <GraduationCap className="w-4.5 h-4.5" />
+        {group.teacher_name && (
+          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-accent/5 border border-accent/10">
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-accent/10 text-accent shrink-0">
+              <GraduationCap className="w-4.5 h-4.5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                {t("teacherName")}
+              </p>
+              <p className="text-sm font-semibold text-foreground truncate">
+                {group.teacher_name}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-              {t("teacherName")}
-            </p>
-            <p className="text-sm font-semibold text-foreground truncate">
-              {group.teacher_name}
-            </p>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Session Days */}

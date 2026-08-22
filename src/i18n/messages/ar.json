@@ -89,7 +89,11 @@
     "forgotPassword": "نسيت كلمة المرور؟",
     "resetPassword": "إعادة تعيين كلمة المرور",
     "emailPlaceholder": "أدخل/ــي البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "password": "كلمة المرور",
+    "phonePlaceholder": "010xxxxxxx",
     "passwordPlaceholder": "أدخل/ــي كلمة المرور",
+    "loginProgress": "جارِ تسجيل الدخول...",
     "fullName": "الاسم كاملا",
     "parentFullName": "اسم ولي الأمر كاملا",
     "childFullName": "اسم الابن/ــة كاملا",
@@ -1328,6 +1332,17 @@
     "atLeastOneChild": "يجب إضافة ابن واحد على الأقل",
     "sonName": "اسم الابن",
     "sonPhone": "رقم هاتف الابن",
-    "sonPassword": "كلمة مرور الابن"
+    "sonPassword": "كلمة مرور الابن",
+    "registerParent": "تسجيل كولي أمر",
+    "registerParentToJoin": "تسجيل ولي أمر للانضمام",
+    "registerParentDescription": "يرجى تسجيل حساب ولي أمر أولاً لتتمكن من إضافة أبنائك والانضمام للحلقة.",
+    "registerParentSuccess": "تم إنشاء حساب ولي الأمر بنجاح!",
+    "registerParentBtn": "تسجيل كولي أمر ومتابعة الانضمام",
+    "noChildrenYet": "لا يوجد أبناء مضافون بعد، أضف ابناً الآن للانضمام للحلقة.",
+    "registerTeacher": "تسجيل كمعلم",
+    "joinCourseAsTeacher": "انضم كمعلم للدورة",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+    "login": "تسجيل الدخول",
+    "loginModalDesc": "سجّل الدخول بحسابك لمتابعة الانضمام مباشرة للدورة."
   }
 }

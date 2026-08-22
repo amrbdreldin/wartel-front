@@ -193,9 +193,9 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           ))}
         </div>
       ) : listItems.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          {t("common.noData")}
-        </p>
+        <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50 text-center text-xs font-medium text-muted-foreground">
+          {t("directJoin.noChildrenYet")}
+        </div>
       ) : (
         <div className="space-y-3">
           {listItems.map((item) => {
