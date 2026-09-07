@@ -22,10 +22,10 @@ describe("Permissions Utilities", () => {
       expect(canAccessRoute(UserRole.TEACHER, "/parent")).toBe(false);
     });
 
-    it("should allow parent role to access /parent routes and deny other restricted prefixes", () => {
+    it("should allow parent role to access /parent and /student routes and deny other restricted prefixes", () => {
       expect(canAccessRoute(UserRole.PARENT, "/parent")).toBe(true);
       expect(canAccessRoute(UserRole.PARENT, "/parent/children")).toBe(true);
-      expect(canAccessRoute(UserRole.PARENT, "/student")).toBe(false);
+      expect(canAccessRoute(UserRole.PARENT, "/student")).toBe(true);
       expect(canAccessRoute(UserRole.PARENT, "/teacher")).toBe(false);
     });
 

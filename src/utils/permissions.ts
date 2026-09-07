@@ -8,7 +8,7 @@ import { UserRole } from "@/types/enums";
  * Role-based route access map
  */
 const ROUTE_ACCESS: Record<string, UserRole[]> = {
-  "/student": [UserRole.STUDENT, UserRole.TEACHER],
+  "/student": [UserRole.STUDENT, UserRole.TEACHER, UserRole.PARENT],
   "/teacher": [UserRole.TEACHER],
   "/parent": [UserRole.PARENT],
 };

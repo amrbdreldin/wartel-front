@@ -87,6 +87,10 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
     (user?.role === UserRole.TEACHER || String(user?.role_id) === "2") && 
     activeRole === UserRole.STUDENT;
 
+  const isDirectParentAsStudent = !hasParentSession && 
+    (user?.role === UserRole.PARENT || String(user?.role_id) === "5") && 
+    activeRole === UserRole.STUDENT;
+
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
 
@@ -157,20 +161,34 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
       {/* Action buttons */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         {/* Return to Parent / Teacher Button */}
-        {(hasParentSession || isDirectTeacherAsStudent) && (
+        {(hasParentSession || isDirectTeacherAsStudent || isDirectParentAsStudent) && (
           <Button
             variant="outline"
             size="sm"
-            onClick={hasParentSession ? handleReturnToParent : () => router.push(`/${locale}/teacher`)}
+            onClick={
+              hasParentSession
+                ? handleReturnToParent
+                : isDirectTeacherAsStudent
+                ? () => router.push(`/${locale}/teacher`)
+                : () => router.push(`/${locale}/parent`)
+            }
             className="h-9 gap-1 sm:gap-1.5 px-2 sm:px-3 border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary transition-all font-semibold rounded-xl text-[10px] sm:text-xs cursor-pointer shadow-sm shrink-0 animate-in fade-in duration-300"
           >
             <ArrowLeftRight className="h-3.5 w-3.5" />
-            <span>{(hasParentSession ? isRestoringTeacher : true) ? t("backToTeacher") : t("backToParent")}</span>
+            <span>
+              {hasParentSession
+                ? isRestoringTeacher
+                  ? t("backToTeacher")
+                  : t("backToParent")
+                : isDirectTeacherAsStudent
+                ? t("backToTeacher")
+                : t("backToParent")}
+            </span>
           </Button>
         )}
 
-        {/* Switch to Student Button (teacher only, no parent session active) */}
-        {!hasParentSession && activeRole === UserRole.TEACHER && (
+        {/* Switch to Student Button (teacher or parent, no parent session active) */}
+        {!hasParentSession && (activeRole === UserRole.TEACHER || activeRole === UserRole.PARENT) && (
           <Button
             variant="outline"
             size="sm"
