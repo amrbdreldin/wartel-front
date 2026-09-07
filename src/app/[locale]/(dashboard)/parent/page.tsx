@@ -169,7 +169,7 @@ export default function ParentDashboardPage() {
       />
 
       {/* Main Content */}
-      <div className="relative z-20 pb-16">
+      <div className="relative pb-16">
         {/* Today Sessions Section */}
         <div className="mb-8">
           <div className="flex justify-between items-end mb-4 md:mb-6 px-1 sm:px-2">

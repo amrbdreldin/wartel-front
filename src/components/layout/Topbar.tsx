@@ -132,7 +132,7 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
 
   return (
     <header
-      className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/95 backdrop-blur-sm px-4 lg:px-6"
+      className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-background/95 backdrop-blur-sm px-4 lg:px-6"
     >
       <Button
         variant="ghost"

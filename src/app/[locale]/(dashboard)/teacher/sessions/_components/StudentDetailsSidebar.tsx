@@ -34,7 +34,7 @@ export function StudentDetailsSidebar({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm animate-in fade-in duration-300"
+        className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={() => setSelectedStudentDetails(null)}
       />
       {/* Sidebar */}
