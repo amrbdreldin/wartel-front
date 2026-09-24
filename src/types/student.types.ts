@@ -497,3 +497,36 @@ export interface PeerBuddyRequest {
   student_id: number;
 }
 
+// ============================================================
+// Student Previous Sessions Types
+// ============================================================
+
+export interface SessionStatusItem {
+  id: number;
+  name: string;
+}
+
+export interface AttendanceStatusItem {
+  id: number;
+  name: string;
+}
+
+export interface StudentPreviousSession {
+  session_id: number;
+  group_id: number;
+  group_name: string;
+  teacher_id: number | null;
+  teacher_name: string | null;
+  scheduled_at: string;
+  scheduled_at_formatted: string;
+  session_status: SessionStatusItem | null;
+  attendance_status: AttendanceStatusItem | null;
+  degree: number | string | null;
+  degree_name: string | null;
+  notes: string | null;
+  comment: string | null;
+  points: string | number | null;
+  is_attended: boolean;
+  url: string | null;
+}
+

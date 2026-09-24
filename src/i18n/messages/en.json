@@ -787,6 +787,64 @@
       "activeStatus": "Registered",
       "from": "From",
       "to": "To"
+    },
+    "previousSessions": {
+      "pageTitle": "Previous Sessions",
+      "pageSubtitle": "Record of past recitation sessions with attendance, evaluations, and notes",
+      "stats": {
+        "totalSessions": "Total Sessions",
+        "attended": "Attended",
+        "absent": "Absent",
+        "attendanceRate": "Attendance Rate",
+        "totalPoints": "Total Points"
+      },
+      "filters": {
+        "all": "All",
+        "attended": "Attended Only",
+        "absent": "Absent Only",
+        "completed": "Completed Only"
+      },
+      "table": {
+        "sessionId": "Session #",
+        "groupName": "Circle / Group",
+        "teacher": "Teacher",
+        "scheduledAt": "Scheduled At",
+        "sessionStatus": "Session Status",
+        "attendance": "Attendance",
+        "points": "Points",
+        "degree": "Degree",
+        "actions": "Actions",
+        "details": "Details",
+        "viewDetails": "View Details",
+        "hideDetails": "Hide Details"
+      },
+      "status": {
+        "completed": "Completed",
+        "scheduled": "Scheduled",
+        "cancelled": "Cancelled",
+        "attended": "Attended",
+        "absent": "Absent",
+        "notRecorded": "Not Recorded"
+      },
+      "detailsModal": {
+        "title": "Session Details",
+        "sessionInfo": "Session Information",
+        "evaluationInfo": "Evaluation & Notes",
+        "teacherNotes": "Teacher Notes",
+        "studentNotes": "Additional Notes",
+        "noNotes": "No notes recorded for this session",
+        "meetingUrl": "Meeting Link",
+        "openMeeting": "Join / Open Meeting Link",
+        "noMeetingUrl": "No meeting link available",
+        "degreeName": "Evaluation",
+        "notEvaluated": "Not evaluated yet"
+      },
+      "noSessions": "No previous sessions recorded yet",
+      "searchPlaceholder": "Search by circle, teacher, or status...",
+      "unassigned": "Not Assigned",
+      "groupPrefix": "Group #",
+      "openLink": "Open Link",
+      "quickStats": "Quick Statistics"
     }
   },
   "teacher": {
@@ -946,7 +1004,8 @@
     "content": "Content",
     "substitutes": "Substitutes",
     "submissions": "Audio Submissions",
-    "myGroups": "My Groups"
+    "myGroups": "My Groups",
+    "previousSessions": "Previous Sessions"
   },
   "landing": {
     "nav": {

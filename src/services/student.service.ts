@@ -25,6 +25,7 @@ import type {
   AvailableBuddyTime,
   AvailableTimeSubmission,
   PeerBuddyRequest,
+  StudentPreviousSession,
 } from "@/types/student.types";
 
 // ============================================================
@@ -155,5 +156,14 @@ export const studentService = {
 
   submitPeerBuddy: (data: PeerBuddyRequest, options?: ApiCallOptions) =>
     apiPost<ApiResponse<any>>(`${BASE_URL}/peer-buddy`, data, options).then((r) => r),
+
+  getPreviousSessions: (params?: QueryParams, options?: ApiCallOptions) =>
+    apiGet<ApiResponse<StudentPreviousSession[]>>(`${BASE_URL}/previous-sessions`, {
+      ...options,
+      config: {
+        ...options?.config,
+        ...(params ? { params } : {}),
+      },
+    }).then((r) => r),
 };
 

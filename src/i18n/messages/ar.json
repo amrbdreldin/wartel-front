@@ -787,6 +787,64 @@
       "activeStatus": "مسجل",
       "from": "من",
       "to": "إلى"
+    },
+    "previousSessions": {
+      "pageTitle": "الحلقات السابقة",
+      "pageSubtitle": "سجل جلسات وحلقات التسميع السابقة، مع تفاصيل الحضور والتقييمات والملاحظات",
+      "stats": {
+        "totalSessions": "إجمالي الحلقات",
+        "attended": "حضور",
+        "absent": "غياب",
+        "attendanceRate": "نسبة الحضور",
+        "totalPoints": "مجموع النقاط"
+      },
+      "filters": {
+        "all": "الكل",
+        "attended": "حضور فقط",
+        "absent": "غياب فقط",
+        "completed": "مكتملة فقط"
+      },
+      "table": {
+        "sessionId": "رقم الحلقة",
+        "groupName": "المجموعة / الحلقة",
+        "teacher": "المعلم/ـة",
+        "scheduledAt": "موعد الحلقة",
+        "sessionStatus": "حالة الحلقة",
+        "attendance": "حالة الحضور",
+        "points": "النقاط",
+        "degree": "الدرجة",
+        "actions": "الإجراءات",
+        "details": "التفاصيل",
+        "viewDetails": "عرض التفاصيل",
+        "hideDetails": "إخفاء التفاصيل"
+      },
+      "status": {
+        "completed": "مكتملة",
+        "scheduled": "مجدولة",
+        "cancelled": "ملغاة",
+        "attended": "حضور",
+        "absent": "غياب",
+        "notRecorded": "غير مرصود"
+      },
+      "detailsModal": {
+        "title": "تفاصيل الحلقة",
+        "sessionInfo": "معلومات الحلقة",
+        "evaluationInfo": "التقييم والملاحظات",
+        "teacherNotes": "ملاحظات المعلم/ـة",
+        "studentNotes": "ملاحظات إضافية",
+        "noNotes": "لا توجد ملاحظات مسجلة لهذه الحلقة",
+        "meetingUrl": "رابط اللقاء",
+        "openMeeting": "الانضمام / فتح رابط اللقاء",
+        "noMeetingUrl": "لا يتوفر رابط لقاء مسجل",
+        "degreeName": "التقدير",
+        "notEvaluated": "لم يتم التقييم بعد"
+      },
+      "noSessions": "لا توجد حلقات سابقة مسجلة حالياً",
+      "searchPlaceholder": "بحث باسم المجموعة أو المعلم/ـة أو الحالة...",
+      "unassigned": "غير محدد",
+      "groupPrefix": "مجموعة رقم",
+      "openLink": "فتح الرابط",
+      "quickStats": "إحصائيات سريعة"
     }
   },
   "teacher": {
@@ -946,7 +1004,8 @@
     "content": "المحتوى",
     "substitutes": "البدائل",
     "submissions": "التقديمات الصوتية",
-    "myGroups": "مجموعاتي"
+    "myGroups": "مجموعاتي",
+    "previousSessions": "الحلقات السابقة"
   },
   "landing": {
     "nav": {
