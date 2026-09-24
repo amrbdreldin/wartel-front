@@ -68,7 +68,7 @@ export function TamamStatsCard({
         </div>
         <div>
           <h3 className="font-extrabold text-base text-foreground tracking-tight">
-            {t("student.myGroups")}
+            {t("student.myGroups.title")}
           </h3>
           <p className="text-xs text-muted-foreground font-semibold">
             {t("student.weeklyTamam")}

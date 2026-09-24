@@ -20,6 +20,8 @@ export const teacherKeys = {
   requests: (params?: QueryParams) => [...teacherKeys.all, "requests", params] as const,
   notifications: (params?: QueryParams) => [...teacherKeys.all, "notifications", params] as const,
   warnings: () => [...teacherKeys.all, "warnings"] as const,
+  studentPreviousAttendance: (sessionId: string | number, studentId: string | number) =>
+    [...teacherKeys.all, "studentPreviousAttendance", sessionId, studentId] as const,
 };
 
 export function useTeacherDashboard() {
@@ -82,6 +84,20 @@ export function useTeacherSessionAttendance(
     enabled: !!sessionId,
     retry: 0, // Don't hammer a potentially broken session endpoint
     ...options,
+  });
+}
+
+export function useTeacherStudentPreviousAttendance(
+  sessionId: string | number,
+  studentId: string | number | null | undefined,
+  enabled: boolean = true
+) {
+  const lang = useLocale() as Locale;
+  return useQuery({
+    queryKey: teacherKeys.studentPreviousAttendance(sessionId, studentId || ""),
+    queryFn: () => teacherService.getStudentPreviousAttendance(sessionId, studentId!, { lang }),
+    enabled: !!sessionId && !!studentId && enabled,
+    staleTime: STALE_TIME.SHORT,
   });
 }
 

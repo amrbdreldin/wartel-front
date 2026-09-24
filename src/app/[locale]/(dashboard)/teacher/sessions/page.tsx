@@ -546,6 +546,7 @@ export default function TeacherSessionsPage() {
       {/* Student Details Sidebar */}
       <StudentDetailsSidebar
         student={selectedStudentDetails}
+        sessionId={sessionId}
         setSelectedStudentDetails={setSelectedStudentDetails}
         maxScore={MAX_SCORE}
         getGradeLabel={(score, max) => getGradeLabel(score, max, t)}

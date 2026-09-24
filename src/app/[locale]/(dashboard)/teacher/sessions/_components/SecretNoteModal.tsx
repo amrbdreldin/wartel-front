@@ -22,7 +22,7 @@ export function SecretNoteModal({
   locked = false,
 }: SecretNoteModalProps) {
   const t = useTranslations("teacherBoard");
-  const tGlobal = useTranslations();
+  const tCommon = useTranslations("common");
 
   if (!showNoteDialog) return null;
 
@@ -51,7 +51,7 @@ export function SecretNoteModal({
             }}
             className="px-4 py-2 font-bold text-muted-foreground hover:bg-muted rounded-xl transition-colors"
           >
-            {locked ? (tGlobal("close") || "إغلاق") : (t("confirmSubmitCancel") || "إلغاء")}
+            {locked ? (tCommon("close") || "إغلاق") : (t("confirmSubmitCancel") || "إلغاء")}
           </button>
           {!locked && (
             <button

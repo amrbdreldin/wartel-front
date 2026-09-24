@@ -171,3 +171,32 @@ export interface SubmitSessionAttendancePayload {
   attendance: SubmitSessionAttendanceItem[];
   is_exam: 0 | 1;
 }
+
+export interface PreviousAttendanceRecord {
+  attendance_id: number;
+  session_id: number;
+  student_id: number;
+  status_id: number;
+  status: {
+    id: number;
+    name: string;
+  } | null;
+  secret_note: string | null;
+  comment: string | null;
+  points: string | number;
+  degree_id: number | null;
+  degree: string | { id?: number; name?: string } | null;
+  recorded_by: number | null;
+  recorder: { id: number; full_name: string } | null;
+  student: {
+    id: number;
+    full_name: string;
+  };
+  session: {
+    id: number;
+    group_id: number;
+    scheduled_at: string;
+    url: string | null;
+    is_exam: number;
+  };
+}

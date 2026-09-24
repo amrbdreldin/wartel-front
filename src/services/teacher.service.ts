@@ -12,6 +12,7 @@ import type {
   GroupStudentsDetailResponse,
   SessionAttendanceRecord,
   SubmitSessionAttendancePayload,
+  PreviousAttendanceRecord,
 } from "@/types/teacher.types";
 import type { WarningListItem } from "@/types/student.types";
 import type { LoginResponse } from "@/types/auth.types";
@@ -74,6 +75,9 @@ export const teacherService = {
 
   getSessionAttendance: (sessionId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<SessionAttendanceRecord[]>>(`${BASE_URL}/sessions/${sessionId}/attendance`, options).then((r) => r.data),
+
+  getStudentPreviousAttendance: (sessionId: string | number, studentId: string | number, options?: ApiCallOptions) =>
+    apiGet<ApiResponse<PreviousAttendanceRecord[]>>(`${BASE_URL}/sessions/${sessionId}/students/${studentId}/previous-attendance`, options).then((r) => r.data),
 
   submitSessionAttendance: (sessionId: string | number, data: SubmitSessionAttendancePayload, options?: ApiCallOptions) =>
     apiPost<ApiResponse<{ session_id: number; records_count: number }>>(`${BASE_URL}/sessions/${sessionId}/attendance`, data, options),
