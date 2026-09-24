@@ -461,3 +461,39 @@ export interface WerdRecord {
   created_at: string;
   media: WerdMedia[];
 }
+
+// ============================================================
+// My Groups / Peer Buddy Types
+// ============================================================
+
+export interface AvailableBuddyTime {
+  id: number;
+  day: string;
+  day_name: string;
+  start_time: string;
+  end_time: string;
+}
+
+export interface AvailableBuddy {
+  id: number;
+  name: string;
+  phone: string;
+  available_times: AvailableBuddyTime[];
+}
+
+export interface AvailableTimeSlot {
+  day: string;
+  start_time: string;
+  end_time: string;
+}
+
+export interface AvailableTimeSubmission {
+  group_id: number;
+  slots: AvailableTimeSlot[];
+}
+
+export interface PeerBuddyRequest {
+  group_id: number;
+  student_id: number;
+}
+

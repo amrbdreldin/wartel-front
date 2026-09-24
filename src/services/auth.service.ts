@@ -8,6 +8,7 @@ import type {
   ResetPasswordRequestResponse,
   User,
   RegisterDataResponse,
+  UserReactivationRequest,
 } from "@/types/auth.types";
 
 // ============================================================
@@ -105,6 +106,27 @@ export const authService = {
     apiPost<ApiResponse<null>>(`${AUTH_URL}/password/reset`, payload, options).then(
       (r) => r
     ),
+
+  // ─── Reactivation request (terminated user) ──────────────────
+  reactivationRequest: (
+    data: UserReactivationRequest,
+    options?: ApiCallOptions
+  ) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("phone", data.phone);
+    formData.append("reason", data.reason);
+    return apiUpload<ApiResponse<any>>("/user-reactivation-request", formData, options).then(
+      (r) => {
+        const responseData = r?.data;
+        if (responseData && typeof responseData === "object") {
+          (responseData as any).message = r.message;
+          (responseData as any).success = r.success;
+        }
+        return r;
+      }
+    );
+  },
 
   // ─── Registration form data ──────────────────────────────
 

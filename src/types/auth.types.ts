@@ -117,3 +117,9 @@ export interface RegisterDataResponse {
   tracks: FormDataTrack[];
 }
 
+export interface UserReactivationRequest {
+  name: string;
+  phone: string;
+  reason: string;
+}
+

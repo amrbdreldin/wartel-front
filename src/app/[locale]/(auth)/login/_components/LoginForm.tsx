@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { ResetPasswordDialog } from "./ResetPasswordDialog";
+import { ReactivationRequestDialog } from "./ReactivationRequestDialog";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { GradientBar } from "@/components/ui/gradient-bar";
 import { OrDivider } from "@/components/ui/or-divider";
@@ -11,7 +12,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { Logo } from "@/components/common/Logo";
 import { loginWithRecaptchaSchema } from "@/utils/validation";
 import { Form, Formik } from "formik";
-import { ArrowLeft, ArrowRight, LogIn, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, LogIn, AlertCircle, CheckCircle2, UserCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -42,6 +43,7 @@ export function LoginForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [reactivationDialogOpen, setReactivationDialogOpen] = useState(false);
 
   useEffect(() => {
     // Preload reCAPTCHA v3 script
@@ -148,12 +150,19 @@ export function LoginForm() {
                     placeholder={t("auth.passwordPlaceholder")}
                   />
 
-                  {/* Reset password link */}
-                  <div className="flex justify-end">
+                  {/* Quick links: Reactivation & Reset password */}
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setReactivationDialogOpen(true)}
+                      className="text-xs text-muted-foreground hover:text-primary hover:underline transition-colors font-medium text-start cursor-pointer"
+                    >
+                      {t("auth.terminatedAccountQuestion")}
+                    </button>
                     <button
                       type="button"
                       onClick={() => setResetDialogOpen(true)}
-                      className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors font-semibold"
+                      className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors font-semibold shrink-0 cursor-pointer"
                     >
                       {t("auth.forgotPassword")}
                     </button>
@@ -209,34 +218,33 @@ export function LoginForm() {
                         {isRTL ? <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" /> : <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />}
                       </Link>
                     </div>
-                  </div>
 
-                  {/* reCAPTCHA Disclaimer
-                  <div className="text-[10px] text-muted-foreground/60 text-center leading-relaxed max-w-xs mx-auto mt-4">
-                    {t.rich("auth.recaptchaDisclaimer", {
-                      privacyLink: (chunks) => (
-                        <a 
-                          href="https://policies.google.com/privacy" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="underline hover:text-primary transition-colors"
-                        >
-                          {chunks}
-                        </a>
-                      ),
-                      termsLink: (chunks) => (
-                        <a 
-                          href="https://policies.google.com/terms" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="underline hover:text-primary transition-colors"
-                        >
-                          {chunks}
-                        </a>
-                      ),
-                    })}
+                    {/* Reactivation Request Banner for terminated users */}
+                    <div className="w-full pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setReactivationDialogOpen(true)}
+                        className="w-full group flex items-center justify-between p-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all duration-200 text-start cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <UserCheck className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                              {t("auth.reactivationBannerTitle")}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {t("auth.reactivationBannerSubtitle")}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-bold text-primary shrink-0 group-hover:underline">
+                          {t("auth.reactivationBannerBtn")}
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                  */}
                 </CardFooter>
               </Form>
             )}
@@ -247,6 +255,12 @@ export function LoginForm() {
         <ResetPasswordDialog
           open={resetDialogOpen}
           onOpenChange={setResetDialogOpen}
+        />
+
+        {/* Reactivation Request Dialog */}
+        <ReactivationRequestDialog
+          open={reactivationDialogOpen}
+          onOpenChange={setReactivationDialogOpen}
         />
       </div>
     </div>

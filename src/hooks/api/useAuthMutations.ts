@@ -16,7 +16,7 @@
  */
 
 import { authService } from "@/services/auth.service";
-import type { LoginRequest, User, RegisterFormData } from "@/types/auth.types";
+import type { LoginRequest, User, RegisterFormData, UserReactivationRequest } from "@/types/auth.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import type { Locale } from "@/lib/constants";
@@ -120,6 +120,18 @@ export function useResetPasswordRequestMutation() {
   return useMutation({
     mutationFn: (phone: string) =>
       authService.resetPasswordRequest(phone, { lang, config: { skipGlobalToast: true } as any }),
+  });
+}
+
+// ─── Reactivation request (terminated user) ──────────────────
+export function useReactivationRequestMutation() {
+  const lang = useLocale() as Locale;
+  return useMutation({
+    mutationFn: (data: UserReactivationRequest) =>
+      authService.reactivationRequest(data, {
+        lang,
+        config: { skipGlobalToast: true } as any,
+      }),
   });
 }
 

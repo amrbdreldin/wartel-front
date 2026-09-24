@@ -1,6 +1,6 @@
 import { UserRole } from "@/types/enums";
 import {
-  Baby, Bell, BookOpen, ClipboardList, FileText, GraduationCap, LayoutDashboard, Library, MessageSquare, User, Scroll,
+  Baby, Bell, BookOpen, ClipboardList, FileText, GraduationCap, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
   type LucideIcon
 } from "lucide-react";
 
@@ -48,6 +48,7 @@ const studentNavigation: NavGroup[] = [
       // { labelKey: "nav.tamam", href: "/student/tamam", icon: BookOpen },
       { labelKey: "nav.werd", href: "/student/werd", icon: Scroll },
       { labelKey: "nav.grades", href: "/student/grades", icon: GraduationCap },
+      { labelKey: "nav.myGroups", href: "/student/my-groups", icon: Users },
       { labelKey: "nav.excuses", href: "/student/excuses", icon: FileText },
       { labelKey: "nav.notifications", href: "/student/notifications", icon: Bell },
       { labelKey: "nav.messages", href: "/student/messages", icon: MessageSquare },

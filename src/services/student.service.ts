@@ -21,6 +21,10 @@ import type {
   StudentDetailedProfileResponse,
   WarningListItem,
   WerdRecord,
+  AvailableBuddy,
+  AvailableBuddyTime,
+  AvailableTimeSubmission,
+  PeerBuddyRequest,
 } from "@/types/student.types";
 
 // ============================================================
@@ -139,5 +143,17 @@ export const studentService = {
         ...(params ? { params } : {}),
       },
     }).then((r) => r),
+
+  getAvailableBuddies: (groupId: number, options?: ApiCallOptions) =>
+    apiGet<ApiResponse<AvailableBuddy[]>>(`${BASE_URL}/available-buddies`, {
+      ...options,
+      config: { ...options?.config, params: { group_id: groupId } },
+    }).then((r) => r),
+
+  submitAvailableTime: (data: AvailableTimeSubmission, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<AvailableBuddyTime[]>>(`${BASE_URL}/available-time`, data, options).then((r) => r),
+
+  submitPeerBuddy: (data: PeerBuddyRequest, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<any>>(`${BASE_URL}/peer-buddy`, data, options).then((r) => r),
 };
 
