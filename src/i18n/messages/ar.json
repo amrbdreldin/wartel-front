@@ -788,7 +788,26 @@
       "savedTimesCount": "{count} وقت مسجل",
       "activeStatus": "مسجل",
       "from": "من",
-      "to": "إلى"
+      "to": "إلى",
+      "dailyTamam": "التمام اليومي",
+      "dailyTamamStatus": "حالة التمام اليومي",
+      "activeGroup": "المجموعة المحددة",
+      "clickToSelect": "انقري لتحديد هذه المجموعة",
+      "currentlySelected": "المجموعة المحددة حالياً",
+      "selectedForManagement": "محددة لإدارة الأوقات والرفيقة",
+      "selectGroupAction": "تحديد المجموعة",
+      "totalGroups": "إجمالي المجموعات",
+      "completedToday": "المكتمل اليوم",
+      "pendingToday": "المعلق اليوم",
+      "companionManagement": "إدارة الرفيقة والأوقات المتاحة",
+      "companionManagementDesc": "إدارة أوقات التسميع والبحث عن رفيقة لمجموعة",
+      "searchBuddyByPhone": "بحث عن رفيقة برقم الهاتف",
+      "searchBuddyDirect": "البحث عن رفيقة",
+      "browseBuddies": "تصفح الرفيقات المتاحات",
+      "companionFeatureDisabled": "خاصية الرفيقة غير مفعّلة في هذه المجموعة",
+      "companionFeatureDisabledDesc": "لا تتطلب هذه المجموعة تعيين رفيقة للتسميع، يتم توثيق التمام بشكل مباشر.",
+      "recordTamamForGroup": "تسجيل التمام لهذه المجموعة",
+      "selfTamamNote": "التسميع والتمام الذاتي مفعل"
     },
     "previousSessions": {
       "pageTitle": "الحلقات السابقة",
@@ -1188,7 +1207,6 @@
     "noBuddy": "لم تعين رفيقة بعد",
     "noGrade": "لا توجد درجات مسجلة"
   },
-
   "teacherBoard": {
     "previousAttendance": "سجل الحضور السابق",
     "previousAttendanceDesc": "سجلات الحضور والغياب والدرجات للحلقات السابقة",

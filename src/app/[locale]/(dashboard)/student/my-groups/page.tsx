@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Users, ChevronDown, AlertTriangle, Search, UserCheck, Clock } from "lucide-react";
+import { Users, ChevronDown, AlertTriangle, Search, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { studentService } from "@/services/student.service";
+import { useRole } from "@/hooks/useRole";
 import { cn } from "@/lib/utils";
 import type { StudentDashboardGroup, AvailableBuddyTime } from "@/types/student.types";
+
+// Modals
+import { TamamModal } from "@/components/student/TamamModal";
+import { BuddyAssignModal } from "@/components/student/BuddyAssignModal";
+
+// Components
+import { TamamStatsCard } from "../_components/TamamStatsCard";
 import { AvailableTimeForm } from "./_components/AvailableTimeForm";
 import { BuddyCard } from "./_components/BuddyCard";
 import { MySavedTimesList } from "./_components/MySavedTimesList";
@@ -19,8 +27,14 @@ import { MySavedTimesList } from "./_components/MySavedTimesList";
 export default function MyGroupsPage() {
   const t = useTranslations();
   const queryClient = useQueryClient();
+  const { isStudentChild } = useRole();
 
-  // Fetch student dashboard to get group list
+  // Modals State
+  const [showTamamModal, setShowTamamModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [modalGroup, setModalGroup] = useState<StudentDashboardGroup | null>(null);
+
+  // Fetch student dashboard to get group list and tamam data
   const {
     data: dashboardData,
     isLoading: isDashboardLoading,
@@ -94,6 +108,20 @@ export default function MyGroupsPage() {
     refetchBuddies();
   };
 
+  const handleOpenTamamModal = (group?: StudentDashboardGroup) => {
+    if (group) setModalGroup(group);
+    else if (activeGroup) setModalGroup(activeGroup);
+    setShowTamamModal(true);
+  };
+
+  const handleOpenAssignModal = (group?: StudentDashboardGroup) => {
+    if (group) {
+      setSelectedGroupId(group.id);
+      setModalGroup(group);
+    }
+    setShowAssignModal(true);
+  };
+
   // ── Loading State ────────────────────────────────────────────
   if (isDashboardLoading) {
     return (
@@ -159,8 +187,32 @@ export default function MyGroupsPage() {
     );
   }
 
+  const currentTamamGroup = modalGroup || activeGroup;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Modals */}
+      <TamamModal 
+        isOpen={showTamamModal} 
+        onClose={() => {
+          setShowTamamModal(false);
+          setModalGroup(null);
+        }} 
+        groupName={currentTamamGroup?.name}
+        companionName={currentTamamGroup?.tamam_card?.buddy?.full_name}
+        presentStatus={currentTamamGroup?.tamam_card?.status?.presentStatus}
+        isStudentChild={isStudentChild}
+        hasBuddy={currentTamamGroup?.has_buddy}
+      />
+
+      <BuddyAssignModal 
+        isOpen={showAssignModal} 
+        onClose={() => {
+          setShowAssignModal(false);
+          setModalGroup(null);
+        }} 
+      />
+
       {/* Page Header */}
       <div className="pb-6 border-b border-border/50">
         <h3 className="text-2xl font-bold flex items-center gap-3 text-foreground">
@@ -247,24 +299,33 @@ export default function MyGroupsPage() {
 
       {/* Content Grid */}
       {activeGroupId && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {/* Left Column – My Saved Times & Add Available Times */}
-          <div className="space-y-6">
-          
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+          {/* Left Column – Tamam & Group Card, My Saved Times & Add Available Times */}
+          <div className="space-y-6 h-fit">
+            {/* Relocated Tamam & Groups Card with Original Design */}
+            <TamamStatsCard
+              groups={groups}
+              tamamCard={dashboardData?.data?.tamam_card}
+              onShowTamamModal={handleOpenTamamModal}
+              onShowAssignModal={handleOpenAssignModal}
+              isStudentChild={isStudentChild}
+              selectedGroupId={activeGroupId}
+              onSelectGroup={(groupId) => setSelectedGroupId(groupId)}
+            />
 
             <AvailableTimeForm
               groupId={activeGroupId}
               onSuccess={handleTimeSaved}
             />
 
-              {myTimes.length > 0 && (
+            {myTimes.length > 0 && (
               <MySavedTimesList times={myTimes} />
             )}
           </div>
 
           {/* Right Column – Available Buddies */}
-          <div className="space-y-6">
-            <div className="bg-card border border-border/50 rounded-3xl shadow-sm overflow-hidden">
+          <div className="space-y-6 h-fit">
+            <div className="bg-card border border-border/50 rounded-3xl shadow-sm overflow-hidden h-fit">
               {/* Header */}
               <div className="bg-gradient-to-r from-wartel-secondary/5 via-wartel-secondary/3 to-transparent border-b border-border/50 p-6">
                 <div className="flex items-center gap-3">

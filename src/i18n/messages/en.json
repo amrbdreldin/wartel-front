@@ -788,7 +788,26 @@
       "savedTimesCount": "{count} registered time(s)",
       "activeStatus": "Registered",
       "from": "From",
-      "to": "To"
+      "to": "To",
+      "dailyTamam": "Daily Tamam",
+      "dailyTamamStatus": "Daily Tamam Status",
+      "activeGroup": "Selected Group",
+      "clickToSelect": "Click to select this group",
+      "currentlySelected": "Currently Selected Group",
+      "selectedForManagement": "Selected for times & buddy management",
+      "selectGroupAction": "Select Group",
+      "totalGroups": "Total Groups",
+      "completedToday": "Completed Today",
+      "pendingToday": "Pending Today",
+      "companionManagement": "Companion & Available Times Management",
+      "companionManagementDesc": "Manage recitation times and find a companion for group",
+      "searchBuddyByPhone": "Search Companion by Phone",
+      "searchBuddyDirect": "Search Companion",
+      "browseBuddies": "Browse Available Companions",
+      "companionFeatureDisabled": "Companion feature is not active for this group",
+      "companionFeatureDisabledDesc": "This group does not require peer buddy assignment; tamam is documented directly.",
+      "recordTamamForGroup": "Record Tamam for this group",
+      "selfTamamNote": "Self recitation & tamam enabled"
     },
     "previousSessions": {
       "pageTitle": "Previous Sessions",
@@ -1188,7 +1207,6 @@
     "noBuddy": "No buddy assigned yet",
     "noGrade": "No grades recorded"
   },
-
   "teacherBoard": {
     "previousAttendance": "Previous Attendance",
     "previousAttendanceDesc": "Attendance, absence, and grade history for past sessions",

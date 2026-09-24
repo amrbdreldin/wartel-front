@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ interface TamamStatsCardProps {
   onShowTamamModal: (group?: StudentDashboardGroup) => void;
   onShowAssignModal: (group?: StudentDashboardGroup) => void;
   isStudentChild?: boolean;
+  selectedGroupId?: number | null;
+  onSelectGroup?: (groupId: number) => void;
 }
 
 export function TamamStatsCard({
@@ -20,10 +22,21 @@ export function TamamStatsCard({
   onShowTamamModal,
   onShowAssignModal,
   isStudentChild,
+  selectedGroupId,
+  onSelectGroup,
 }: TamamStatsCardProps) {
   const t = useTranslations();
   // First group open by default
   const [openGroupIndex, setOpenGroupIndex] = useState<number | null>(0);
+
+  useEffect(() => {
+    if (selectedGroupId && Array.isArray(groups)) {
+      const idx = groups.findIndex((g) => g.id === selectedGroupId);
+      if (idx !== -1) {
+        setOpenGroupIndex(idx);
+      }
+    }
+  }, [selectedGroupId, groups]);
 
   const getInitials = (name?: string) => {
     if (!name) return "—";
@@ -52,11 +65,17 @@ export function TamamStatsCard({
   const hasGroups = Array.isArray(groups) && groups.length > 0;
 
   const toggleGroup = (index: number) => {
-    setOpenGroupIndex((prevIndex) => (prevIndex === index ? null : index));
+    setOpenGroupIndex((prevIndex) => {
+      const nextIndex = prevIndex === index ? null : index;
+      if (nextIndex !== null && groups && groups[nextIndex]) {
+        onSelectGroup?.(groups[nextIndex].id);
+      }
+      return nextIndex;
+    });
   };
 
   return (
-    <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_rgb(0,0,0,0.25)] hover:-translate-y-1.5 transition-all duration-500 group flex flex-col h-full relative overflow-hidden">
+    <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_rgb(0,0,0,0.25)] hover:-translate-y-1.5 transition-all duration-500 group flex flex-col h-fit relative overflow-hidden">
       {/* Premium glow effects */}
       <div className="absolute -right-20 -top-20 w-44 h-44 bg-info-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-info-500/10 transition-colors duration-500" />
       <div className="absolute -left-20 -bottom-20 w-44 h-44 bg-primary/5 rounded-full blur-3xl pointer-events-none group-hover:bg-primary/10 transition-colors duration-500" />
@@ -78,7 +97,7 @@ export function TamamStatsCard({
 
       {/* Content Area */}
       {hasGroups ? (
-        <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-0.5">
+        <div className="flex flex-col gap-3">
           {groups.map((group, idx) => {
             const isOpen = openGroupIndex === idx;
             const groupTamamCard = group.tamam_card;
@@ -274,7 +293,7 @@ export function TamamStatsCard({
         </div>
       ) : (
         /* Fallback for single tamamCard or no groups */
-        <div className="flex-1 flex flex-col justify-between space-y-3">
+        <div className="flex flex-col space-y-3">
           {isStudentChild || tamamCard?.buddy?.full_name ? (
             <div className="space-y-3">
               {isStudentChild ? (

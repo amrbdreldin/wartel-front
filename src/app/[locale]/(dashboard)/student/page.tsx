@@ -5,33 +5,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { TamamModal } from "@/components/student/TamamModal";
 import { ExcuseModal } from "@/components/student/ExcuseModal";
-import { BuddyAssignModal } from "@/components/student/BuddyAssignModal";
 import { useQuery } from "@tanstack/react-query";
 import { studentService } from "@/services/student.service";
-import { useRole } from "@/hooks/useRole";
 import Cookies from "js-cookie";
 
 // Components
 import { AcademyDecisionModal } from "./_components/AcademyDecisionModal";
-
 import { WarningsCard } from "./_components/WarningsCard";
 import { NextSessionCard } from "./_components/NextSessionCard";
-import { TamamStatsCard } from "./_components/TamamStatsCard";
 import { LatestGradeCard } from "./_components/LatestGradeCard";
 import { ActiveExamCard } from "./_components/ActiveExamCard";
-
-import { StudentDashboardGroup } from "@/types/student.types";
 
 export default function StudentDashboardPage() {
   const t = useTranslations();
   const params = useParams();
   const locale = params.locale as string;
-  const { isStudentChild } = useRole();
   
   const [showDecisionModal, setShowDecisionModal] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<StudentDashboardGroup | null>(null);
+  const [showExcuseModal, setShowExcuseModal] = useState(false);
 
   useEffect(() => {
     const hasSeen = Cookies.get("hasSeenAcademyDecisionModal");
@@ -40,10 +32,6 @@ export default function StudentDashboardPage() {
     }
   }, []);
 
-  const [showTamamModal, setShowTamamModal] = useState(false);
-  const [showExcuseModal, setShowExcuseModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-
   const { data: dashboardData, isLoading, isError, error } = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: () => studentService.getDashboard(),
@@ -51,11 +39,11 @@ export default function StudentDashboardPage() {
   });
 
   if (isLoading) {
-    const skeletonCount = 5;
+    const skeletonCount = 4;
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
         {/* Cards Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: skeletonCount }).map((_, idx) => {
             const i = idx + 1;
             return (
@@ -69,7 +57,7 @@ export default function StudentDashboardPage() {
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-2/3" />
                 </div>
-                {i === 3 && (
+                {i === 2 && (
                   <div className="pt-2">
                     <Skeleton className="h-10 w-full rounded-xl" />
                   </div>
@@ -100,43 +88,12 @@ export default function StudentDashboardPage() {
   const alerts = data?.alerts || [];
   const hasDecision = alerts.length > 0;
 
-  const activeGroup = selectedGroup || data?.groups?.[0];
-  const activeTamamCard = activeGroup?.tamam_card || data?.tamam_card;
-  const hasBuddy = activeGroup ? (activeGroup.has_buddy || !!activeTamamCard?.buddy?.full_name) : !!activeTamamCard?.buddy?.full_name;
-  const companionName = activeTamamCard?.buddy?.full_name || null;
-  const presentStatus = activeTamamCard?.status?.presentStatus;
-
-  const handleOpenTamamModal = (group?: StudentDashboardGroup) => {
-    if (group) setSelectedGroup(group);
-    setShowTamamModal(true);
-  };
-
-  const handleOpenAssignModal = (group?: StudentDashboardGroup) => {
-    if (group) setSelectedGroup(group);
-    setShowAssignModal(true);
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
       {/* Modals */}
-      <TamamModal 
-        isOpen={showTamamModal} 
-        onClose={() => setShowTamamModal(false)} 
-        companionName={companionName}
-        presentStatus={presentStatus}
-        isStudentChild={isStudentChild}
-        hasBuddy={hasBuddy}
-      />
-
       <ExcuseModal 
         isOpen={showExcuseModal} 
         onClose={() => setShowExcuseModal(false)} 
-      />
-
-      <BuddyAssignModal 
-        isOpen={showAssignModal} 
-        onClose={() => setShowAssignModal(false)} 
       />
 
       <AcademyDecisionModal 
@@ -148,18 +105,11 @@ export default function StudentDashboardPage() {
         trackTitle={data?.last_grade?.exam?.title}
       />
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      {/* Main Grid - Balanced 4 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <WarningsCard alerts={alerts} locale={locale} />
         <NextSessionCard 
-            nextSession={data?.next_session} 
-        />
-        <TamamStatsCard 
-            groups={data?.groups}
-            tamamCard={data?.tamam_card} 
-            onShowTamamModal={handleOpenTamamModal} 
-            onShowAssignModal={handleOpenAssignModal}
-            isStudentChild={isStudentChild}
+          nextSession={data?.next_session} 
         />
         <LatestGradeCard lastGrade={data?.last_grade} locale={locale} />
         <ActiveExamCard nextExam={data?.next_exam} locale={locale} />
@@ -167,5 +117,3 @@ export default function StudentDashboardPage() {
     </div>
   );
 }
-
-

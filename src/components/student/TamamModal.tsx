@@ -18,9 +18,10 @@ interface TamamModalProps {
   presentStatus?: string;
   isStudentChild?: boolean;
   hasBuddy?: boolean;
+  groupName?: string;
 }
 
-export function TamamModal({ isOpen, onClose, companionName, presentStatus, isStudentChild, hasBuddy }: TamamModalProps) {
+export function TamamModal({ isOpen, onClose, companionName, presentStatus, isStudentChild, hasBuddy, groupName }: TamamModalProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,7 +101,10 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                     <Users className="h-5 w-5" />
                 </div>
                 <div>
-                    <h3 className="font-black text-foreground">{t("student.weeklyTamam") || "التمام اليومي"}</h3>
+                    <h3 className="font-black text-foreground">
+                        {t("student.weeklyTamam") || "التمام اليومي"}
+                        {groupName ? ` • ${groupName}` : ""}
+                    </h3>
                     <p className="text-xs text-muted-foreground font-bold">{t("student.confirmYourTamam") || "تأكيد تمام ورد هذا اليوم"}</p>
                 </div>
             </div>
