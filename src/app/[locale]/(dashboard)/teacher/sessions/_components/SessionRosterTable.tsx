@@ -9,12 +9,9 @@ import {
   XCircle,
   MessageSquare,
   History,
-  Eye,
   Loader2,
   Save,
   Search,
-  BookOpen,
-  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +32,6 @@ interface SessionRosterTableProps {
   detectedCount: number;
   presentCount: number;
   locked: boolean;
-  setLocked: (val: boolean) => void;
   markAllPresent: () => void;
   setDecision: (id: string, decision: "present" | "excused" | "absent") => void;
   handleScoreChange: (id: string, value: string) => void;
@@ -47,8 +43,7 @@ interface SessionRosterTableProps {
   handleConfirm: () => void;
   isPending: boolean;
   maxScore: number;
-  getGradeLabel: (score: string, max: number) => { label: string; color: string };
-  t: (key: string, values?: any) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
   hasPoints: boolean;
   isExam: boolean;
   onIsExamChange: (val: boolean) => void;
@@ -59,7 +54,6 @@ export function SessionRosterTable({
   detectedCount,
   presentCount,
   locked,
-  setLocked,
   markAllPresent,
   setDecision,
   handleScoreChange,
@@ -71,7 +65,6 @@ export function SessionRosterTable({
   handleConfirm,
   isPending,
   maxScore,
-  getGradeLabel,
   t,
   hasPoints,
   isExam,
@@ -360,7 +353,7 @@ export function SessionRosterTable({
               {/* Card Top: Avatar, Name, Group & Subject */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-[#005C5C] text-white flex items-center justify-center font-black text-sm shrink-0 select-none shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary/80 text-white flex items-center justify-center font-black text-sm shrink-0 select-none shadow-xs">
                     {student.name.trim().charAt(0) || "ط"}
                   </div>
                   <div className="min-w-0">

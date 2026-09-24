@@ -23,7 +23,7 @@ export default function PreviousSessionsPage() {
     queryFn: () => studentService.getPreviousSessions(),
   });
 
-  const sessions = data?.data || [];
+  const sessions = React.useMemo(() => data?.data || [], [data?.data]);
 
   // Compute stats for header cards
   const stats = React.useMemo(() => {

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Phone, Clock, UserPlus, Loader2, CheckCircle2, Calendar } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { studentService } from "@/services/student.service";
 import type { AvailableBuddy } from "@/types/student.types";
@@ -25,8 +24,11 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const getDayLabel = (day: string) => {
-    const key = `student.myGroups.${day}` as any;
-    return t(key) || day;
+    try {
+      return t(`student.myGroups.${day}` as Parameters<typeof t>[0]) || day;
+    } catch {
+      return day;
+    }
   };
 
   const formatTime = (time: string) => {
@@ -60,8 +62,9 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
       } else {
         toast.error(res?.message || t("common.error"));
       }
-    } catch (err: any) {
-      const apiMessage = err?.response?.data?.message || err?.message || t("common.error");
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
+      const apiMessage = errorObj?.response?.data?.message || errorObj?.message || t("common.error");
       toast.error(apiMessage);
     } finally {
       setIsRequesting(false);
@@ -69,13 +72,13 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
   };
 
   return (
-    <div className="group bg-card border border-border/50 rounded-2xl overflow-hidden transition-all duration-300 hover:border-wartel-primary/30 hover:shadow-md hover:shadow-wartel-primary/5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="group bg-card border border-border/50 rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="p-5 space-y-4">
         {/* Student Info */}
         <div className="flex items-center gap-4">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-wartel-primary/20 to-wartel-primary/5 flex items-center justify-center text-wartel-primary font-bold text-sm border border-wartel-primary/10">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-bold text-sm border border-primary/10">
               {getInitials(buddy.name)}
             </div>
             <div className="absolute -bottom-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-success-500 border-2 border-card" />
@@ -104,9 +107,9 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
               {buddy.available_times.map((time) => (
                 <div
                   key={time.id}
-                  className="flex items-center gap-1.5 bg-wartel-primary/5 border border-wartel-primary/10 rounded-xl px-3 py-1.5 text-xs font-medium text-wartel-primary-dark transition-colors group-hover:bg-wartel-primary/10"
+                  className="flex items-center gap-1.5 bg-primary/5 border border-primary/10 rounded-xl px-3 py-1.5 text-xs font-medium text-primary transition-colors group-hover:bg-primary/10"
                 >
-                  <Clock className="h-3 w-3 text-wartel-primary shrink-0" />
+                  <Clock className="h-3 w-3 text-primary shrink-0" />
                   <span className="font-bold">{time.day_name || getDayLabel(time.day)}</span>
                   <span className="text-muted-foreground">·</span>
                   <span dir="ltr">
@@ -126,7 +129,7 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
               {t("student.myGroups.buddyRequestSent")}
             </div>
           ) : showConfirm ? (
-            <div className="space-y-3 bg-wartel-warning/5 border border-wartel-warning/20 rounded-xl p-4 animate-in zoom-in-95 duration-200">
+            <div className="space-y-3 bg-warning-500/5 border border-warning-500/20 rounded-xl p-4 animate-in zoom-in-95 duration-200">
               <p className="text-xs font-bold text-foreground text-center">
                 {t("student.myGroups.confirmBuddyRequest", { name: buddy.name })}
               </p>
@@ -134,7 +137,7 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
                 <button
                   onClick={handleSendRequest}
                   disabled={isRequesting}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-wartel-primary text-white font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isRequesting ? (
                     <>
@@ -159,7 +162,7 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
           ) : (
             <button
               onClick={() => setShowConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-wartel-primary/10 text-wartel-primary font-bold text-sm border border-wartel-primary/20 hover:bg-wartel-primary hover:text-white hover:shadow-lg hover:shadow-wartel-primary/20 transition-all duration-300 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 text-primary font-bold text-sm border border-primary/20 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 cursor-pointer"
             >
               <UserPlus className="h-4 w-4" />
               {t("student.myGroups.sendBuddyRequest")}

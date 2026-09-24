@@ -8,6 +8,7 @@ import { useTeacherSessionAttendance, useTeacherDashboard } from "@/hooks/api/us
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { SubmitSessionAttendancePayload } from "@/types/teacher.types";
 
 import { SessionHeader } from "./_components/SessionHeader";
 import { SessionRosterTable } from "./_components/SessionRosterTable";
@@ -68,14 +69,14 @@ export default function TeacherSessionsPage() {
   // Resolve session ID
   let resolvedSessionId = urlSessionId || "";
   if (!resolvedSessionId && groupId && dashboardData?.today_sessions) {
-    const matchingSession = dashboardData.today_sessions.find((s: any) => {
+    const matchingSession = dashboardData.today_sessions.find((s) => {
       const isGroupIdMatch = s.group_id ? String(s.group_id) === String(groupId) : false;
       const isIdMatch = String(s.id) === String(groupId);
       
       // Fallback matching by comparing names
       let isNameMatch = false;
       if (dashboardData.groups) {
-        const matchingGroup = dashboardData.groups.find((g: any) => String(g.id) === String(groupId));
+        const matchingGroup = dashboardData.groups.find((g) => String(g.id) === String(groupId));
         if (matchingGroup) {
           isNameMatch = s.group_name === matchingGroup.name || s.name === matchingGroup.name;
         }
@@ -121,7 +122,7 @@ export default function TeacherSessionsPage() {
   let resolvedGroupId = groupId;
   if ((!resolvedGroupId || resolvedGroupId === sessionId) && dashboardData) {
     const matchingSession = (dashboardData.today_sessions || []).find(
-      (s: any) => String(s.session_id || s.id) === String(sessionId)
+      (s) => String(s.session_id || s.id) === String(sessionId)
     );
     if (matchingSession) {
       const gId = matchingSession.group_id || matchingSession.group?.id;
@@ -130,7 +131,7 @@ export default function TeacherSessionsPage() {
       } else {
         // Fallback: match by group name
         const matchingGroup = (dashboardData.groups || []).find(
-          (g: any) => g.name === matchingSession.group_name || g.name === matchingSession.name
+          (g) => g.name === matchingSession.group_name || g.name === matchingSession.name
         );
         if (matchingGroup) {
           resolvedGroupId = String(matchingGroup.id);
@@ -139,13 +140,12 @@ export default function TeacherSessionsPage() {
     }
   }
   if (!resolvedGroupId || resolvedGroupId === sessionId) {
-    const apiGroupId = (attendanceRes?.[0]?.session as any)?.group_id || (attendanceRes?.[0]?.session as any)?.group?.id;
+    const sessionObj = attendanceRes?.[0]?.session;
+    const apiGroupId = sessionObj?.group_id || sessionObj?.group?.id;
     if (apiGroupId) {
       resolvedGroupId = String(apiGroupId);
     }
   }
-
-
 
   // Resolve group name from dashboard, group details or attendance data
   let resolvedGroupName = "";
@@ -154,7 +154,7 @@ export default function TeacherSessionsPage() {
     // 1. Try to find the matching group in groups list by resolvedGroupId
     if (resolvedGroupId) {
       const matchingGroup = (dashboardData.groups || []).find(
-        (g: any) => String(g.id) === String(resolvedGroupId)
+        (g) => String(g.id) === String(resolvedGroupId)
       );
       if (matchingGroup) {
         resolvedGroupName = matchingGroup.name;
@@ -164,21 +164,21 @@ export default function TeacherSessionsPage() {
     // 2. Try to find in today_sessions
     if (!resolvedGroupName) {
       const matchingSession = (dashboardData.today_sessions || []).find(
-        (s: any) =>
+        (s) =>
           String(s.session_id || s.id) === String(sessionId) ||
           String(s.group_id || s.group?.id) === String(resolvedGroupId)
       );
       if (matchingSession) {
-        resolvedGroupName = matchingSession.group_name || matchingSession.name || matchingSession.group?.name;
+        resolvedGroupName = matchingSession.group_name || matchingSession.name || matchingSession.group?.name || "";
       }
     }
   }
 
   // 3. Try to get it from the attendance API response
   if (!resolvedGroupName && attendanceRes && attendanceRes.length > 0) {
-    const sessionObj = attendanceRes[0].session as any;
+    const sessionObj = attendanceRes[0].session;
     if (sessionObj) {
-      resolvedGroupName = sessionObj.group?.name || sessionObj.group_name || sessionObj.name;
+      resolvedGroupName = sessionObj.group?.name || sessionObj.group_name || sessionObj.name || "";
     }
   }
 
@@ -186,9 +186,9 @@ export default function TeacherSessionsPage() {
   let hasPoints = false;
   if (dashboardData?.today_sessions) {
     const sessionMatch = dashboardData.today_sessions.find(
-      (s: any) => String(s.session_id || s.id) === String(sessionId)
+      (s) => String(s.session_id || s.id) === String(sessionId)
     );
-    if (sessionMatch?.has_points === "yes") {
+    if (sessionMatch?.has_points === "yes" || sessionMatch?.has_points === true) {
       hasPoints = true;
     }
   }
@@ -293,13 +293,13 @@ export default function TeacherSessionsPage() {
   // Sync Meeting URL if present (with fallbacks if roster is empty)
   useEffect(() => {
     // 1. Try to get it from attendance records
-    const sessionData = attendanceRes?.[0]?.session as any;
+    const sessionData = attendanceRes?.[0]?.session;
     let resolvedUrl = sessionData?.url || sessionData?.meeting_link;
 
     // 2. Try to get it from the matching session in dashboard today_sessions
     if (!resolvedUrl && dashboardData?.today_sessions) {
       const matchingSession = dashboardData.today_sessions.find(
-        (s: any) => String(s.session_id || s.id) === String(sessionId)
+        (s) => String(s.session_id || s.id) === String(sessionId)
       );
       if (matchingSession) {
         resolvedUrl = matchingSession.url || matchingSession.meeting_link;
@@ -315,7 +315,7 @@ export default function TeacherSessionsPage() {
   // Submit Attendance Mutation
   const queryClient = useQueryClient();
   const submitAttendanceMutation = useMutation({
-    mutationFn: (payload: any) => teacherService.submitSessionAttendance(sessionId, payload),
+    mutationFn: (payload: SubmitSessionAttendancePayload) => teacherService.submitSessionAttendance(sessionId, payload),
     onSuccess: (res) => {
       toast.success(res?.message || t("gradesSaved") || "تم الحفظ بنجاح");
       queryClient.invalidateQueries({ queryKey: ["teacher", "sessionAttendance", sessionId] });
@@ -323,8 +323,9 @@ export default function TeacherSessionsPage() {
       setLocked(true);
       setShowConfirmModal(false);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error(error);
+      toast.error(error instanceof Error ? error.message : t("common.errorOccurred"));
       setShowConfirmModal(false);
     },
   });
@@ -391,7 +392,7 @@ export default function TeacherSessionsPage() {
       excused: 3,
     };
 
-    const payload = {
+    const payload: SubmitSessionAttendancePayload = {
       attendance: roster.map((s) => ({
         student_id: Number(s.id),
         status_id: statusIdMap[s.decision],
@@ -505,7 +506,6 @@ export default function TeacherSessionsPage() {
         detectedCount={detectedCount}
         presentCount={presentCount}
         locked={locked}
-        setLocked={setLocked}
         markAllPresent={markAllPresent}
         setDecision={setDecision}
         handleScoreChange={handleScoreChange}
@@ -517,7 +517,6 @@ export default function TeacherSessionsPage() {
         handleConfirm={handleConfirm}
         isPending={submitAttendanceMutation.isPending}
         maxScore={MAX_SCORE}
-        getGradeLabel={(score, max) => getGradeLabel(score, max, t)}
         t={t}
         hasPoints={hasPoints}
         isExam={isExam}

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Users,
   X,
   Lock,
   Calendar,
@@ -11,17 +10,14 @@ import {
   HelpCircle,
   XCircle,
   Award,
-  BookOpen,
-  MessageSquare,
   AlertCircle,
   RotateCcw,
-  Sparkles,
   Percent,
   History,
   FileText,
   UserCheck,
 } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useTeacherStudentPreviousAttendance } from "@/hooks/api/useTeacherQueries";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,7 +41,7 @@ interface StudentDetailsSidebarProps {
   setSelectedStudentDetails: (student: StudentRecord | null) => void;
   maxScore: number;
   getGradeLabel: (score: string, max: number) => { label: string; color: string };
-  t: (key: string, values?: any) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
 export function StudentDetailsSidebar({
@@ -58,7 +54,15 @@ export function StudentDetailsSidebar({
 }: StudentDetailsSidebarProps) {
   const locale = useLocale();
   const isArabic = locale === "ar";
+  const tCommon = useTranslations("common");
   const [activeTab, setActiveTab] = useState<"history" | "current">("history");
+  const [prevStudentId, setPrevStudentId] = useState<string | null>(student?.id ?? null);
+
+  // Sync tab back to history when switching students
+  if (student && student.id !== prevStudentId) {
+    setPrevStudentId(student.id);
+    setActiveTab("history");
+  }
 
   // Close on ESC key
   useEffect(() => {
@@ -72,13 +76,6 @@ export function StudentDetailsSidebar({
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [student, setSelectedStudentDetails]);
-
-  // Reset tab to history on student change
-  useEffect(() => {
-    if (student) {
-      setActiveTab("history");
-    }
-  }, [student?.id]);
 
   const {
     data: previousRecords,
@@ -148,7 +145,7 @@ export function StudentDetailsSidebar({
         {/* Sticky Header */}
         <div className="p-5 sm:p-6 border-b border-border/80 bg-background/95 backdrop-blur-md flex items-center justify-between shrink-0 gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-[#005C5C] text-white flex items-center justify-center font-black text-xl shrink-0 shadow-md shadow-primary/20 select-none">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-primary/80 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-md shadow-primary/20 select-none">
               {student.name.trim().charAt(0) || "ط"}
             </div>
             <div className="min-w-0">
@@ -168,7 +165,7 @@ export function StudentDetailsSidebar({
           <button
             onClick={() => setSelectedStudentDetails(null)}
             className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-xl transition-all active:scale-95 shrink-0"
-            aria-label={isArabic ? "إغلاق" : "Close"}
+            aria-label={tCommon("close")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -263,7 +260,7 @@ export function StudentDetailsSidebar({
                     {t("noPreviousAttendance") || "لا توجد سجلات حضور سابقة"}
                   </h4>
                   <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                    لم يتم رصد أي جلسات أو سجلات سابقة لهذه الطالبة حتى الآن في هذا النظام.
+                    {t("noPreviousAttendanceDetail") || "لم يتم رصد أي جلسات أو سجلات سابقة لهذا الطالب/ــة حتى الآن في هذا النظام."}
                   </p>
                 </div>
               ) : (
@@ -354,7 +351,7 @@ export function StudentDetailsSidebar({
                                   {record.session?.id ? (
                                     t("sessionNo", { id: record.session.id }) || `حلقة #${record.session.id}`
                                   ) : (
-                                    "جلسة"
+                                    t("sessionDefault") || "جلسة"
                                   )}
                                 </p>
                               </div>
@@ -403,7 +400,7 @@ export function StudentDetailsSidebar({
                               )}
                               {record.degree && (
                                 <span className="px-2.5 py-1 rounded-lg font-bold bg-muted text-foreground border border-border">
-                                  {typeof record.degree === "string" ? record.degree : (record.degree as any)?.name || ""}
+                                  {typeof record.degree === "string" ? record.degree : record.degree?.name || ""}
                                 </span>
                               )}
                               {record.recorder?.full_name && (
@@ -452,7 +449,7 @@ export function StudentDetailsSidebar({
                   {t("currentSessionInfo") || "بيانات الحلقة الحالية"}
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  تفاصيل تسجيل الحضور والدرجات للجلسة المفتوحة حالياً
+                  {t("currentSessionDesc") || "تفاصيل تسجيل الحضور والدرجات للجلسة المفتوحة حالياً"}
                 </p>
               </div>
 

@@ -78,11 +78,26 @@ export interface TeacherDashboardGroup {
   }>;
 }
 
+export interface TeacherTodaySession {
+  id?: number | string;
+  session_id?: number | string;
+  group_id?: number | string;
+  name?: string;
+  group_name?: string;
+  url?: string | null;
+  meeting_link?: string | null;
+  has_points?: string | boolean;
+  group?: {
+    id?: number | string;
+    name?: string;
+  };
+}
+
 export interface TeacherDashboardData {
   total_groups: number;
   total_students: number;
   today_sessions_count: number;
-  today_sessions: any[];
+  today_sessions: TeacherTodaySession[];
   groups: TeacherDashboardGroup[];
 }
 
@@ -142,6 +157,15 @@ export interface SessionAttendanceStudent {
 export interface SessionAttendanceSession {
   id: number;
   scheduled_at: string;
+  group_id?: number | string;
+  group_name?: string;
+  name?: string;
+  url?: string | null;
+  meeting_link?: string | null;
+  group?: {
+    id?: number | string;
+    name?: string;
+  };
 }
 
 export interface SessionAttendanceRecord {

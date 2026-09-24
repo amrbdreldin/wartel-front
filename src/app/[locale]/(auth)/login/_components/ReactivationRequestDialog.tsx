@@ -16,6 +16,7 @@ import {
 import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { FormTextarea } from "@/components/forms/FormTextarea";
+import { ScrollToFieldError } from "@/components/forms/ScrollToFieldError";
 import { Button } from "@/components/ui/button";
 import { useReactivationRequestMutation } from "@/hooks/api/useAuthMutations";
 import type { UserReactivationRequest } from "@/types/auth.types";
@@ -66,16 +67,17 @@ export function ReactivationRequestDialog({
         reason: values.reason.trim(),
       },
       {
-        onSuccess: (res: any) => {
+        onSuccess: (res: { message?: string }) => {
           setStep("success");
           resetForm();
           const msg = res?.message || t("auth.reactivationSuccessTitle");
           toast.success(msg);
         },
-        onError: (err: any) => {
-          const responseData = err.response?.data;
+        onError: (err: unknown) => {
+          const errorObj = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string };
+          const responseData = errorObj?.response?.data;
           const mainMessage =
-            responseData?.message || err.message || t("common.errorOccurred");
+            responseData?.message || errorObj?.message || t("common.errorOccurred");
           const validationErrors = responseData?.errors;
           if (validationErrors && typeof validationErrors === "object") {
             const firstErr = Object.values(validationErrors).flat()[0];
@@ -124,6 +126,7 @@ export function ReactivationRequestDialog({
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-4 mt-2">
+                  <ScrollToFieldError />
                   <FormField
                     name="name"
                     label={t("auth.fullName") || t("common.fullName") || "الاسم كاملاً"}
@@ -156,7 +159,7 @@ export function ReactivationRequestDialog({
                     {isSubmitting || isPending ? (
                       <span className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        {t("common.loading")}
+                        {t("common.sending")}
                       </span>
                     ) : (
                       <>

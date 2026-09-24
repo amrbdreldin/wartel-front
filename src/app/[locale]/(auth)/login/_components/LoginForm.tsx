@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { ResetPasswordDialog } from "./ResetPasswordDialog";
@@ -18,8 +18,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useLoginMutation } from "@/hooks/api/useAuthMutations";
 import { useAuth } from "@/hooks/useAuth";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "@/store/slices/authSlice";
 import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
@@ -35,7 +33,6 @@ export function LoginForm() {
   const isRTL = locale === "ar";
 
   const router = useRouter();
-  const dispatch = useDispatch();
   const { login: handleLoginState } = useAuth();
   const { mutate: login, isPending } = useLoginMutation();
 
@@ -78,7 +75,7 @@ export function LoginForm() {
             refreshToken: res.refresh_token || "",
           });
         }
-        const successMsg = (res as any)?.message || t("auth.loginSuccess") || "تم تسجيل الدخول بنجاح";
+        const successMsg = (res as { message?: string })?.message || t("auth.loginSuccess") || "تم تسجيل الدخول بنجاح";
         setFormSuccess(successMsg);
         toast.success(successMsg);
 
@@ -90,9 +87,10 @@ export function LoginForm() {
 
         router.push(redirectPath);
       },
-      onError: (err: any) => {
-        const responseData = err.response?.data;
-        const mainMessage = responseData?.message || err.message || t("common.errorOccurred");
+      onError: (err: unknown) => {
+        const errorObj = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string };
+        const responseData = errorObj.response?.data;
+        const mainMessage = responseData?.message || errorObj.message || t("common.errorOccurred");
         const validationErrors = responseData?.errors;
         if (validationErrors && typeof validationErrors === "object") {
           const firstErr = Object.values(validationErrors).flat()[0];
@@ -135,7 +133,7 @@ export function LoginForm() {
             validationSchema={loginWithRecaptchaSchema}
             onSubmit={handleSubmit}
           >
-            {({ isSubmitting, setFieldValue, errors, touched }) => (
+            {({ isSubmitting }) => (
               <Form>
                 <CardContent className="space-y-5 pt-8 pb-4">
                   <PhoneFormField

@@ -27,8 +27,20 @@ export function SecretNoteModal({
   if (!showNoteDialog) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-background rounded-3xl p-6 w-full max-w-md shadow-xl border border-border animate-in fade-in zoom-in-95 duration-200">
+    <div
+      className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={() => {
+        setShowNoteDialog(false);
+        setNoteContent("");
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("secretNoteTitle", { name: studentName }) || `ملاحظة على الطالب/ــة: ${studentName}`}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-background rounded-3xl p-6 w-full max-w-md shadow-xl border border-border animate-in zoom-in-95 duration-200"
+      >
         <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-foreground">
           <MessageSquare className="w-5 h-5 text-primary" />
           {t("secretNoteTitle", { name: studentName }) || `ملاحظة على الطالب/ــة: ${studentName}`}

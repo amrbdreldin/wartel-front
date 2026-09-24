@@ -31,7 +31,6 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
   const [presentChecked, setPresentChecked] = useState(false);
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isDisabled = isSubmitting || !isPending;
   const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked);
 
   // If student is child, or explicitly has no buddy, or companion name is missing -> perform self tamam
@@ -41,21 +40,22 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
   const submitTamamMutation = useMutation({
     mutationFn: (data: { pair_id: string | null; past_status_id: number; present_status_id: number }) =>
       studentService.submitTamam(data),
-    onSuccess: (res: any) => {
+    onSuccess: (res: { success?: boolean; errors?: Record<string, string[]>; message?: string }) => {
       if (res?.success) {
         setShowSuccess(true);
         queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
         queryClient.invalidateQueries({ queryKey: ["student-tamam-history"] });
       } else {
         if (res?.errors) {
-          Object.values(res.errors).flat().forEach((msg: any) => toast.error(msg));
+          Object.values(res.errors).flat().forEach((msg) => toast.error(String(msg)));
         } else {
           toast.error(res?.message || t("common.error"));
         }
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error("Tamam submission error:", err);
+      toast.error(t("common.errorOccurred"));
     },
     onSettled: () => {
       setIsSubmitting(false);
@@ -185,6 +185,8 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                                 {/* Past Checkbox Card */}
                                 <button
                                     type="button"
+                                    role="checkbox"
+                                    aria-checked={pastChecked}
                                     disabled={!isPending}
                                     onClick={() => setPastChecked(prev => !prev)}
                                     className={cn(
@@ -215,6 +217,8 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                                 {/* Present Checkbox Card */}
                                 <button
                                     type="button"
+                                    role="checkbox"
+                                    aria-checked={presentChecked}
                                     disabled={!isPending}
                                     onClick={() => setPresentChecked(prev => !prev)}
                                     className={cn(

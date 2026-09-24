@@ -16,12 +16,13 @@ import {
 import type { StudentPreviousSession } from "@/types/student.types";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { cn } from "@/lib/utils";
+import { SessionDetailsModal } from "./SessionDetailsModal";
 
 interface PreviousSessionsTableProps {
   sessions: StudentPreviousSession[];
   isLoading: boolean;
   isError: boolean;
-  error?: any;
+  error?: Error | { response?: { data?: { message?: string } }; message?: string } | null;
 }
 
 type FilterType = "all" | "attended" | "absent" | "completed";
@@ -34,6 +35,7 @@ export function PreviousSessionsTable({
 }: PreviousSessionsTableProps) {
   const t = useTranslations();
   const [activeFilter, setActiveFilter] = React.useState<FilterType>("all");
+  const [selectedSession, setSelectedSession] = React.useState<StudentPreviousSession | null>(null);
 
   // Filter data based on selected filter pill
   const filteredData = React.useMemo(() => {
@@ -241,12 +243,30 @@ export function PreviousSessionsTable({
         );
       },
     },
+    {
+      key: "actions",
+      header: t("student.previousSessions.table.details") || "التفاصيل",
+      className: "text-center w-24",
+      render: (row) => (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedSession(row);
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground font-bold text-xs transition-all duration-200 border border-primary/20 hover:border-primary active:scale-95 cursor-pointer shadow-xs"
+          aria-label={`${t("student.previousSessions.table.details")} #${row.session_id}`}
+        >
+          <span>{t("student.previousSessions.table.details")}</span>
+        </button>
+      ),
+    },
   ];
 
   const resolvedErrorText =
-    error?.response?.data?.message ||
-    error?.message ||
-    t("common.errorOccurred");
+    error && "response" in error && error.response?.data?.message
+      ? error.response.data.message
+      : error?.message || t("common.errorOccurred");
 
   // Extra controls: filter pills
   const extraControls = (
@@ -306,19 +326,30 @@ export function PreviousSessionsTable({
   );
 
   return (
-    <DataTable
-      columns={columns}
-      data={filteredData}
-      isLoading={isLoading}
-      isError={isError}
-      errorText={resolvedErrorText}
-      noDataText={t("student.previousSessions.noSessions")}
-      searchable
-      searchPlaceholder={t("student.previousSessions.searchPlaceholder")}
-      searchKeys={["group_name", "teacher_name", "scheduled_at_formatted"]}
-      pageSize={10}
-      extraControls={extraControls}
-      className="border-border/60"
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        isLoading={isLoading}
+        isError={isError}
+        errorText={resolvedErrorText}
+        noDataText={t("student.previousSessions.noSessions")}
+        searchable
+        searchPlaceholder={t("student.previousSessions.searchPlaceholder")}
+        searchKeys={["group_name", "teacher_name", "scheduled_at_formatted"]}
+        pageSize={10}
+        onRowClick={(row) => setSelectedSession(row)}
+        extraControls={extraControls}
+        className="border-border/60"
+      />
+
+      <SessionDetailsModal
+        session={selectedSession}
+        open={!!selectedSession}
+        onOpenChange={(open) => {
+          if (!open) setSelectedSession(null);
+        }}
+      />
+    </>
   );
 }

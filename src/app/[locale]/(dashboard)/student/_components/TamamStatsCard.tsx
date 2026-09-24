@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -28,15 +28,17 @@ export function TamamStatsCard({
   const t = useTranslations();
   // First group open by default
   const [openGroupIndex, setOpenGroupIndex] = useState<number | null>(0);
+  const [prevSelectedGroupId, setPrevSelectedGroupId] = useState<number | null>(selectedGroupId ?? null);
 
-  useEffect(() => {
+  if (selectedGroupId !== undefined && selectedGroupId !== prevSelectedGroupId) {
+    setPrevSelectedGroupId(selectedGroupId ?? null);
     if (selectedGroupId && Array.isArray(groups)) {
       const idx = groups.findIndex((g) => g.id === selectedGroupId);
       if (idx !== -1) {
         setOpenGroupIndex(idx);
       }
     }
-  }, [selectedGroupId, groups]);
+  }
 
   const getInitials = (name?: string) => {
     if (!name) return "—";
@@ -47,12 +49,12 @@ export function TamamStatsCard({
     return name[0] || "—";
   };
 
-  const checkIsCompleted = (tamamCard: any) => {
-    if (!tamamCard) return false;
-    const status = tamamCard.status;
+  const checkIsCompleted = (tamam?: DashboardTamamCard | null) => {
+    if (!tamam) return false;
+    const status = tamam.status;
     if (!status) return false;
     if (typeof status === "string") {
-      const s = status.trim().toLowerCase();
+      const s = (status as string).trim().toLowerCase();
       return s === "completed" || s === "مكتمل" || s === "done";
     }
     const presentStatus = status.presentStatus || status.present_status;
@@ -193,7 +195,7 @@ export function TamamStatsCard({
                         {/* Rafiqa / Companion Section */}
                         {isStudentChild ? (
                           <div className="flex items-center gap-3 bg-primary/5 p-2.5 rounded-xl border border-primary/10">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-[#005C5C] text-white flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-primary/80 text-white flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
                               <CheckCircle2 className="w-4 h-4 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -271,7 +273,7 @@ export function TamamStatsCard({
                           <button
                             type="button"
                             onClick={() => onShowTamamModal(group)}
-                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-[#005C5C] text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:from-[#005C5C] hover:to-primary hover:-translate-y-0.5 active:translate-y-0 cursor-pointer text-xs"
+                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:from-primary/80 hover:to-primary hover:-translate-y-0.5 active:translate-y-0 cursor-pointer text-xs"
                           >
                             <UserCheck className="w-4 h-4" />
                             <span>{t("student.recordTamam")}</span>
@@ -298,7 +300,7 @@ export function TamamStatsCard({
             <div className="space-y-3">
               {isStudentChild ? (
                 <div className="flex items-center gap-3 bg-primary/5 p-3 rounded-2xl border border-primary/10">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-[#005C5C] text-white flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-primary/80 text-white flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
                     <CheckCircle2 className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -350,7 +352,7 @@ export function TamamStatsCard({
                 <button
                   type="button"
                   onClick={() => onShowTamamModal()}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-[#005C5C] text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:from-[#005C5C] hover:to-primary hover:-translate-y-0.5 active:translate-y-0 cursor-pointer text-xs"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:from-primary/80 hover:to-primary hover:-translate-y-0.5 active:translate-y-0 cursor-pointer text-xs"
                 >
                   <UserCheck className="w-4 h-4" />
                   <span>{t("student.recordTamam")}</span>

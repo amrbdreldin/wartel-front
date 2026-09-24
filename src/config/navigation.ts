@@ -1,6 +1,6 @@
 import { UserRole } from "@/types/enums";
 import {
-  Baby, Bell, BookOpen, CalendarCheck, ClipboardList, FileText, GraduationCap, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
+  Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
   type LucideIcon
 } from "lucide-react";
 

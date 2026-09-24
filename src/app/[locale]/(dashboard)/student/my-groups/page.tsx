@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Users, ChevronDown, AlertTriangle, Search, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
@@ -59,24 +59,24 @@ export default function MyGroupsPage() {
   // Saved available times for each group (from POST student/available-time response)
   const [savedTimesByGroup, setSavedTimesByGroup] = useState<Record<number, AvailableBuddyTime[]>>({});
 
-  // Restore saved times from localStorage if previously submitted
-  useEffect(() => {
-    if (typeof window === "undefined" || !activeGroupId) return;
-    try {
-      const stored = localStorage.getItem(`wartel_student_available_times_${activeGroupId}`);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setSavedTimesByGroup((prev) => ({
-            ...prev,
-            [activeGroupId]: parsed,
-          }));
+  const myTimes = useMemo(() => {
+    if (!activeGroupId) return [];
+    if (savedTimesByGroup[activeGroupId]) {
+      return savedTimesByGroup[activeGroupId];
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(`wartel_student_available_times_${activeGroupId}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
         }
-      }
-    } catch {}
-  }, [activeGroupId]);
-
-  const myTimes = activeGroupId ? savedTimesByGroup[activeGroupId] || [] : [];
+      } catch {}
+    }
+    return [];
+  }, [activeGroupId, savedTimesByGroup]);
 
   // Fetch available buddies for the selected group
   const {
@@ -216,7 +216,7 @@ export default function MyGroupsPage() {
       {/* Page Header */}
       <div className="pb-6 border-b border-border/50">
         <h3 className="text-2xl font-bold flex items-center gap-3 text-foreground">
-          <Users className="h-7 w-7 text-wartel-primary" />
+          <Users className="h-7 w-7 text-primary" />
           {t("student.myGroups.pageTitle")}
         </h3>
         <p className="text-sm text-muted-foreground mt-1.5 ms-10">
@@ -229,13 +229,13 @@ export default function MyGroupsPage() {
         <div className="relative max-w-sm">
           <button
             onClick={() => setIsGroupDropdownOpen(!isGroupDropdownOpen)}
-            className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-card border border-border/50 rounded-2xl text-sm font-bold text-foreground hover:border-wartel-primary/30 hover:shadow-sm transition-all duration-300 cursor-pointer"
+            className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-card border border-border/50 rounded-2xl text-sm font-bold text-foreground hover:border-primary/30 hover:shadow-sm transition-all duration-300 cursor-pointer"
             aria-expanded={isGroupDropdownOpen}
             aria-haspopup="listbox"
             aria-label={t("student.myGroups.selectGroup")}
           >
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-wartel-primary/10 flex items-center justify-center text-wartel-primary">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                 <Users className="h-4 w-4" />
               </div>
               <span>{activeGroup?.name || t("student.myGroups.selectGroupPlaceholder")}</span>
@@ -258,14 +258,14 @@ export default function MyGroupsPage() {
                       }}
                       className={cn(
                         "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-start hover:bg-muted/50 transition-colors cursor-pointer",
-                        group.id === activeGroupId && "bg-wartel-primary/5 text-wartel-primary"
+                        group.id === activeGroupId && "bg-primary/5 text-primary"
                       )}
                       role="option"
                       aria-selected={group.id === activeGroupId}
                     >
                       <div className={cn(
                         "w-2 h-2 rounded-full shrink-0",
-                        group.id === activeGroupId ? "bg-wartel-primary" : "bg-muted-foreground/30"
+                        group.id === activeGroupId ? "bg-primary" : "bg-muted-foreground/30"
                       )} />
                       <div>
                         <span className="font-bold">{group.name}</span>
@@ -284,8 +284,8 @@ export default function MyGroupsPage() {
 
       {/* Single group info bar */}
       {groups.length === 1 && activeGroup && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-wartel-primary/5 border border-wartel-primary/10 rounded-2xl">
-          <div className="w-8 h-8 rounded-xl bg-wartel-primary/10 flex items-center justify-center text-wartel-primary">
+        <div className="flex items-center gap-3 px-4 py-3 bg-primary/5 border border-primary/10 rounded-2xl">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
             <Users className="h-4 w-4" />
           </div>
           <div>
@@ -327,9 +327,9 @@ export default function MyGroupsPage() {
           <div className="space-y-6 h-fit">
             <div className="bg-card border border-border/50 rounded-3xl shadow-sm overflow-hidden h-fit">
               {/* Header */}
-              <div className="bg-gradient-to-r from-wartel-secondary/5 via-wartel-secondary/3 to-transparent border-b border-border/50 p-6">
+              <div className="bg-gradient-to-r from-accent/5 via-accent/3 to-transparent border-b border-border/50 p-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-wartel-secondary/10 flex items-center justify-center text-wartel-secondary shrink-0">
+                  <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
                     <UserCheck className="h-5 w-5" />
                   </div>
                   <div>

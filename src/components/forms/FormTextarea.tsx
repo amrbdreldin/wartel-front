@@ -4,7 +4,6 @@ import { FieldError } from "@/components/ui/field-error";
 import { FieldWrapper } from "@/components/ui/field-wrapper";
 import { cn } from "@/lib/utils";
 import { useField } from "formik";
-import { ReactNode } from "react";
 
 // ============================================================
 // FormTextarea – Formik-connected multi-line input field
@@ -17,7 +16,6 @@ interface FormTextareaProps {
   disabled?: boolean;
   className?: string;
   rows?: number;
-  icon?: ReactNode;
   required?: boolean;
 }
 
@@ -47,6 +45,8 @@ export function FormTextarea({
           rows={rows}
           placeholder={placeholder}
           disabled={disabled}
+          aria-invalid={hasError ? "true" : undefined}
+          aria-required={required ? "true" : undefined}
           className={cn(
             "w-full rounded-xl border border-border/60 bg-background/50 p-3 text-sm text-foreground transition-all duration-200 resize-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary",

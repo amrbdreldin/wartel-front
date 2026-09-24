@@ -74,9 +74,17 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
       } else {
         toast.error(res?.message || t("common.error"));
       }
-    } catch (err: any) {
-      const apiMessage = err?.response?.data?.message || err?.message || t("common.error");
-      toast.error(apiMessage);
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string };
+      const responseData = errorObj?.response?.data;
+      const validationErrors = responseData?.errors;
+      if (validationErrors && typeof validationErrors === "object") {
+        const firstErr = Object.values(validationErrors).flat()[0];
+        toast.error(firstErr);
+      } else {
+        const apiMessage = responseData?.message || errorObj?.message || t("common.error");
+        toast.error(apiMessage);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -85,9 +93,9 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
   return (
     <div className="bg-card border border-border/50 rounded-3xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* Header */}
-      <div className="bg-gradient-to-r from-wartel-primary/5 via-wartel-primary/3 to-transparent border-b border-border/50 p-6">
+      <div className="bg-gradient-to-r from-primary/5 via-primary/3 to-transparent border-b border-border/50 p-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-wartel-primary/10 flex items-center justify-center text-wartel-primary shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
             <CalendarClock className="h-5 w-5" />
           </div>
           <div>
@@ -107,10 +115,10 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
           {slots.map((slot, index) => (
             <div
               key={index}
-              className="group relative bg-muted/30 border border-border/50 rounded-2xl p-4 transition-all duration-300 hover:border-wartel-primary/30 hover:shadow-sm animate-in fade-in zoom-in-95 duration-300"
+              className="group relative bg-muted/30 border border-border/50 rounded-2xl p-4 transition-all duration-300 hover:border-primary/30 hover:shadow-sm animate-in fade-in zoom-in-95 duration-300"
             >
               {/* Slot Number Badge */}
-              <div className="absolute -top-2.5 start-4 bg-wartel-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <div className="absolute -top-2.5 start-4 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
                 {index + 1}
               </div>
 
@@ -125,7 +133,7 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
                     id={`day-${index}`}
                     value={slot.day}
                     onChange={(e) => updateSlot(index, "day", e.target.value)}
-                    className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-wartel-primary/20 focus:border-wartel-primary transition-all appearance-none cursor-pointer"
+                    className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer"
                     aria-label={t("student.myGroups.selectDay")}
                   >
                     <option value="">{t("student.myGroups.selectDay")}</option>
@@ -152,7 +160,7 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
                         e.currentTarget.showPicker?.();
                       } catch {}
                     }}
-                    className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-wartel-primary/20 focus:border-wartel-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:cursor-pointer"
+                    className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:cursor-pointer"
                     aria-label={t("student.myGroups.startTime")}
                   />
                 </div>
@@ -172,7 +180,7 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
                         e.currentTarget.showPicker?.();
                       } catch {}
                     }}
-                    className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-wartel-primary/20 focus:border-wartel-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:cursor-pointer"
+                    className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:cursor-pointer"
                     aria-label={t("student.myGroups.endTime")}
                   />
                 </div>
@@ -198,7 +206,7 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
           <button
             type="button"
             onClick={addSlot}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-wartel-primary/30 text-wartel-primary font-bold text-sm hover:bg-wartel-primary/5 hover:border-wartel-primary/50 transition-all duration-300 cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-primary/30 text-primary font-bold text-sm hover:bg-primary/5 hover:border-primary/50 transition-all duration-300 cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             {t("student.myGroups.addSlot")}
@@ -208,7 +216,7 @@ export function AvailableTimeForm({ groupId, onSuccess }: AvailableTimeFormProps
             type="submit"
             disabled={isSaving}
             className={cn(
-              "flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-wartel-primary text-white font-bold text-sm shadow-lg shadow-wartel-primary/20 hover:shadow-wartel-primary/30 transition-all duration-300 sm:ms-auto cursor-pointer",
+              "flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-md shadow-primary/20 hover:bg-primary/90 transition-all duration-300 sm:ms-auto cursor-pointer",
               isSaving && "opacity-60 cursor-not-allowed"
             )}
           >
