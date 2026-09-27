@@ -2,34 +2,103 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
 import {
   CalendarCheck,
-  CheckCircle2,
-  Clock,
-  Sparkles,
-  TrendingUp,
-  XCircle,
+ 
 } from "lucide-react";
-import { studentService } from "@/services/student.service";
+import { useStudentPreviousSessions } from "@/hooks/api/useStudentQueries";
 import { PreviousSessionsTable } from "./_components/PreviousSessionsTable";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { StudentPreviousSession } from "@/types/student.types";
 
 export default function PreviousSessionsPage() {
   const t = useTranslations();
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const pageSize = 15;
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["student-previous-sessions"],
-    queryFn: () => studentService.getPreviousSessions(),
+  const { data, isLoading, isFetching, isError, error } = useStudentPreviousSessions({
+    page: currentPage,
+    per_page: pageSize,
   });
 
-  const sessions = React.useMemo(() => data?.data || [], [data?.data]);
+  // Extract sessions safely from any response shape (PaginatedResponse, direct array, or Laravel LengthAwarePaginator)
+  const sessions: StudentPreviousSession[] = React.useMemo(() => {
+    if (!data) return [];
+    if (Array.isArray(data.data)) return data.data;
+    if (data.data && typeof data.data === "object" && Array.isArray((data.data as any).data)) {
+      return (data.data as any).data;
+    }
+    if (Array.isArray(data)) return data as any;
+    return [];
+  }, [data]);
+
+  // Extract pagination meta safely from all common formats
+  const paginationMeta = React.useMemo(() => {
+    if (!data) return null;
+    const d = data as any;
+
+    if (d.meta && typeof d.meta === "object") {
+      return {
+        currentPage: Number(d.meta.current_page || d.meta.currentPage || currentPage),
+        lastPage: Number(d.meta.last_page || d.meta.lastPage || 1),
+        perPage: Number(d.meta.per_page || d.meta.perPage || pageSize),
+        total: Number(d.meta.total ?? 0),
+      };
+    }
+
+    if (d.data && typeof d.data === "object" && d.data.current_page !== undefined) {
+      return {
+        currentPage: Number(d.data.current_page || currentPage),
+        lastPage: Number(d.data.last_page || 1),
+        perPage: Number(d.data.per_page || pageSize),
+        total: Number(d.data.total ?? 0),
+      };
+    }
+
+    if (d.data?.meta && typeof d.data.meta === "object") {
+      return {
+        currentPage: Number(d.data.meta.current_page || currentPage),
+        lastPage: Number(d.data.meta.last_page || 1),
+        perPage: Number(d.data.meta.per_page || pageSize),
+        total: Number(d.data.total ?? 0),
+      };
+    }
+
+    if (d.pagination && typeof d.pagination === "object") {
+      return {
+        currentPage: Number(d.pagination.current_page || d.pagination.currentPage || currentPage),
+        lastPage: Number(d.pagination.last_page || d.pagination.lastPage || 1),
+        perPage: Number(d.pagination.per_page || d.pagination.perPage || pageSize),
+        total: Number(d.pagination.total ?? 0),
+      };
+    }
+
+    return null;
+  }, [data, currentPage, pageSize]);
+
+  const totalPages = React.useMemo(() => {
+    if (paginationMeta?.lastPage) {
+      return paginationMeta.lastPage;
+    }
+    // Fallback if backend does not return pagination meta:
+    // If current batch is full (15 items), next page exists.
+    if (sessions.length === pageSize) {
+      return currentPage + 1;
+    }
+    return Math.max(currentPage, 1);
+  }, [paginationMeta, sessions.length, currentPage, pageSize]);
+
+  const totalItems = React.useMemo(() => {
+    if (paginationMeta?.total !== undefined) {
+      return paginationMeta.total;
+    }
+    return undefined;
+  }, [paginationMeta]);
 
   // Compute stats for header cards
   const stats = React.useMemo(() => {
     if (!sessions.length) {
       return {
-        total: 0,
+        total: totalItems ?? 0,
         attended: 0,
         absent: 0,
         rate: "0%",
@@ -37,7 +106,7 @@ export default function PreviousSessionsPage() {
       };
     }
 
-    const total = sessions.length;
+    const total = totalItems ?? sessions.length;
     const attended = sessions.filter(
       (s) => s.is_attended || s.attendance_status?.id === 1
     ).length;
@@ -47,7 +116,7 @@ export default function PreviousSessionsPage() {
         (!s.is_attended && s.attendance_status !== null)
     ).length;
 
-    const rateNum = total > 0 ? Math.round((attended / total) * 100) : 0;
+    const rateNum = sessions.length > 0 ? Math.round((attended / sessions.length) * 100) : 0;
     const rate = `${rateNum}%`;
 
     const pointsSum = sessions.reduce((acc, curr) => {
@@ -62,7 +131,7 @@ export default function PreviousSessionsPage() {
       rate,
       totalPoints: pointsSum.toFixed(2),
     };
-  }, [sessions]);
+  }, [sessions, totalItems]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">
@@ -85,103 +154,21 @@ export default function PreviousSessionsPage() {
         </div>
       </header>
 
-      {/* Quick Statistics Banner */}
-      <section
-        aria-label={t("student.previousSessions.quickStats")}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-      >
-        {/* Total Sessions Card */}
-        <div className="p-5 rounded-3xl bg-card border border-border/60 shadow-xs hover:shadow-md transition-all duration-300 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div className="space-y-0.5">
-            <span className="text-xs font-semibold text-muted-foreground">
-              {t("student.previousSessions.stats.totalSessions")}
-            </span>
-            {isLoading ? (
-              <Skeleton className="h-7 w-16" />
-            ) : (
-              <p className="text-2xl font-black text-foreground">
-                {stats.total}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Attended Sessions Card */}
-        <div className="p-5 rounded-3xl bg-card border border-border/60 shadow-xs hover:shadow-md transition-all duration-300 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <div className="space-y-0.5">
-            <span className="text-xs font-semibold text-muted-foreground">
-              {t("student.previousSessions.stats.attended")}
-            </span>
-            {isLoading ? (
-              <Skeleton className="h-7 w-16" />
-            ) : (
-              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                {stats.attended}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Absent Sessions Card */}
-        <div className="p-5 rounded-3xl bg-card border border-border/60 shadow-xs hover:shadow-md transition-all duration-300 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-            <XCircle className="w-6 h-6" />
-          </div>
-          <div className="space-y-0.5">
-            <span className="text-xs font-semibold text-muted-foreground">
-              {t("student.previousSessions.stats.absent")}
-            </span>
-            {isLoading ? (
-              <Skeleton className="h-7 w-16" />
-            ) : (
-              <p className="text-2xl font-black text-rose-600 dark:text-rose-400">
-                {stats.absent}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Attendance Rate / Total Points Card */}
-        <div className="p-5 rounded-3xl bg-card border border-border/60 shadow-xs hover:shadow-md transition-all duration-300 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <TrendingUp className="w-6 h-6" />
-          </div>
-          <div className="space-y-0.5">
-            <span className="text-xs font-semibold text-muted-foreground">
-              {t("student.previousSessions.stats.attendanceRate")}
-            </span>
-            {isLoading ? (
-              <Skeleton className="h-7 w-16" />
-            ) : (
-              <div className="flex items-center gap-2">
-                <p className="text-2xl font-black text-foreground">
-                  {stats.rate}
-                </p>
-                {parseFloat(stats.totalPoints) > 0 && (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    <Sparkles className="w-3 h-3" />
-                    {stats.totalPoints}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+    
 
       {/* Main Table Section */}
       <section aria-label={t("student.previousSessions.pageTitle")}>
         <PreviousSessionsTable
           sessions={sessions}
           isLoading={isLoading}
+          isFetching={isFetching}
           isError={isError}
           error={error}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
         />
       </section>
     </div>

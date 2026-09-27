@@ -807,7 +807,16 @@
       "companionFeatureDisabled": "خاصية الرفيقة غير مفعّلة في هذه المجموعة",
       "companionFeatureDisabledDesc": "لا تتطلب هذه المجموعة تعيين رفيقة للتسميع، يتم توثيق التمام بشكل مباشر.",
       "recordTamamForGroup": "تسجيل التمام لهذه المجموعة",
-      "selfTamamNote": "التسميع والتمام الذاتي مفعل"
+      "selfTamamNote": "التسميع والتمام الذاتي مفعل",
+      "timeDeletedSuccess": "تم حذف الوقت المتاح بنجاح!",
+      "deleteSlotConfirm": "هل أنتِ متأكدة من حذف هذا الوقت المتاح؟",
+      "savedSlots": "الأوقات المضافة",
+      "addNewSlotSubtitle": "تحديد وقت إضافي لتفرغك في هذه المجموعة",
+      "deleteTimeSlot": "حذف الوقت",
+      "groupSchedule": "مواعيد الحلقة",
+      "noScheduleAssigned": "لم يتم تحديد مواعيد أسبوعية بعد",
+      "saveToApplyChanges": "تمت إزالة الوقت من القائمة. انقري على حفظ الأوقات المتاحة لتأكيد التغييرات.",
+      "timesClearedSuccess": "تم مسح جميع الأوقات المتاحة بنجاح!"
     },
     "previousSessions": {
       "pageTitle": "الحلقات السابقة",

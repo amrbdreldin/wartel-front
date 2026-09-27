@@ -807,7 +807,16 @@
       "companionFeatureDisabled": "Companion feature is not active for this group",
       "companionFeatureDisabledDesc": "This group does not require peer buddy assignment; tamam is documented directly.",
       "recordTamamForGroup": "Record Tamam for this group",
-      "selfTamamNote": "Self recitation & tamam enabled"
+      "selfTamamNote": "Self recitation & tamam enabled",
+      "timeDeletedSuccess": "Available time slot deleted successfully!",
+      "deleteSlotConfirm": "Are you sure you want to delete this available time?",
+      "savedSlots": "Added Times",
+      "addNewSlotSubtitle": "Specify an additional time slot for this group",
+      "deleteTimeSlot": "Delete Time",
+      "groupSchedule": "Group Schedule",
+      "noScheduleAssigned": "No weekly schedule assigned yet",
+      "saveToApplyChanges": "Time slot removed from list. Click Save Available Times to confirm changes.",
+      "timesClearedSuccess": "All available times have been cleared successfully!"
     },
     "previousSessions": {
       "pageTitle": "Previous Sessions",

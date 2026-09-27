@@ -21,47 +21,29 @@ import { cn } from "@/lib/utils";
 interface PreviousSessionsTableProps {
   sessions: StudentPreviousSession[];
   isLoading: boolean;
+  isFetching?: boolean;
   isError: boolean;
   error?: Error | { response?: { data?: { message?: string } }; message?: string } | null;
+  currentPage?: number;
+  totalPages?: number;
+  totalItems?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
 }
-
-type FilterType = "all" | "attended" | "absent" | "completed";
 
 export function PreviousSessionsTable({
   sessions = [],
   isLoading = false,
+  isFetching = false,
   isError = false,
   error,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems,
+  pageSize = 15,
+  onPageChange,
 }: PreviousSessionsTableProps) {
   const t = useTranslations();
-  const [activeFilter, setActiveFilter] = React.useState<FilterType>("all");
-
-  // Filter data based on selected filter pill
-  const filteredData = React.useMemo(() => {
-    if (!sessions) return [];
-
-    switch (activeFilter) {
-      case "attended":
-        return sessions.filter(
-          (s) => s.is_attended || s.attendance_status?.id === 1
-        );
-      case "absent":
-        return sessions.filter(
-          (s) =>
-            s.attendance_status?.id === 2 ||
-            (!s.is_attended && s.attendance_status !== null)
-        );
-      case "completed":
-        return sessions.filter(
-          (s) =>
-            s.session_status?.id === 3 ||
-            s.session_status?.name?.toLowerCase().includes("مكتمل")
-        );
-      case "all":
-      default:
-        return sessions;
-    }
-  }, [sessions, activeFilter]);
 
   const columns: Column<StudentPreviousSession>[] = [
     {
@@ -258,76 +240,24 @@ export function PreviousSessionsTable({
       ? error.response.data.message
       : error?.message || t("common.errorOccurred");
 
-  // Extra controls: filter pills
-  const extraControls = (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <button
-        type="button"
-        onClick={() => setActiveFilter("all")}
-        className={cn(
-          "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200",
-          activeFilter === "all"
-            ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-            : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {t("student.previousSessions.filters.all")} ({sessions.length})
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setActiveFilter("attended")}
-        className={cn(
-          "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200",
-          activeFilter === "attended"
-            ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/20"
-            : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {t("student.previousSessions.filters.attended")}
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setActiveFilter("absent")}
-        className={cn(
-          "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200",
-          activeFilter === "absent"
-            ? "bg-rose-600 text-white shadow-sm shadow-rose-600/20"
-            : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {t("student.previousSessions.filters.absent")}
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setActiveFilter("completed")}
-        className={cn(
-          "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200",
-          activeFilter === "completed"
-            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-            : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {t("student.previousSessions.filters.completed")}
-      </button>
-    </div>
-  );
-
   return (
     <DataTable
       columns={columns}
-      data={filteredData}
+      data={sessions}
       isLoading={isLoading}
+      isFetching={isFetching}
       isError={isError}
       errorText={resolvedErrorText}
       noDataText={t("student.previousSessions.noSessions")}
       searchable
       searchPlaceholder={t("student.previousSessions.searchPlaceholder")}
       searchKeys={["group_name", "teacher_name", "scheduled_at_formatted", "comment", "notes"]}
-      pageSize={10}
-      extraControls={extraControls}
+      pageSize={pageSize}
+      manualPagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      totalItems={totalItems}
+      onPageChange={onPageChange}
       className="border-border/60"
     />
   );

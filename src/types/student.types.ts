@@ -261,6 +261,7 @@ export interface StudentDashboardGroup {
   has_tamam: boolean;
   has_buddy: boolean;
   tamam_card: DashboardTamamCard | null;
+  available_times?: AvailableBuddyTime[];
 }
 
 export interface DashboardExam {

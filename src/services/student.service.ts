@@ -158,11 +158,14 @@ export const studentService = {
     apiPost<ApiResponse<any>>(`${BASE_URL}/peer-buddy`, data, options).then((r) => r),
 
   getPreviousSessions: (params?: QueryParams, options?: ApiCallOptions) =>
-    apiGet<ApiResponse<StudentPreviousSession[]>>(`${BASE_URL}/previous-sessions`, {
+    apiGet<PaginatedResponse<StudentPreviousSession> | ApiResponse<StudentPreviousSession[]>>(`${BASE_URL}/previous-sessions`, {
       ...options,
       config: {
         ...options?.config,
-        ...(params ? { params } : {}),
+        params: {
+          ...options?.config?.params,
+          ...params,
+        },
       },
     }).then((r) => r),
 };

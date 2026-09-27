@@ -19,6 +19,7 @@ export interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
   isLoading?: boolean;
+  isFetching?: boolean;
   isError?: boolean;
   errorText?: string;
   noDataText?: string;
@@ -32,6 +33,11 @@ export interface DataTableProps<T> {
   
   // Pagination options
   pageSize?: number;
+  manualPagination?: boolean;
+  currentPage?: number;
+  totalPages?: number;
+  totalItems?: number;
+  onPageChange?: (page: number) => void;
   
   // Row click
   onRowClick?: (row: T) => void;
@@ -55,6 +61,7 @@ export function DataTable<T>({
   columns,
   data = [],
   isLoading = false,
+  isFetching = false,
   isError = false,
   errorText,
   noDataText,
@@ -64,6 +71,11 @@ export function DataTable<T>({
   searchPlaceholder,
   searchKeys = [],
   pageSize,
+  manualPagination,
+  currentPage: propCurrentPage,
+  totalPages: propTotalPages,
+  totalItems,
+  onPageChange,
   onRowClick,
   className,
   tableClassName,
@@ -78,13 +90,26 @@ export function DataTable<T>({
   
   // State
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [internalPage, setInternalPage] = React.useState(1);
   const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+
+  const isManual = manualPagination || Boolean(onPageChange);
+  const activePage = isManual ? (propCurrentPage ?? 1) : internalPage;
+
+  const handlePageChange = (newPage: number) => {
+    if (isManual) {
+      onPageChange?.(newPage);
+    } else {
+      setInternalPage(newPage);
+    }
+  };
 
   // Reset pagination on search
   React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+    if (!isManual) {
+      setInternalPage(1);
+    }
+  }, [searchTerm, isManual]);
 
   // Handle local searching
   const filteredData = React.useMemo(() => {
@@ -127,14 +152,17 @@ export function DataTable<T>({
     return sorted;
   }, [filteredData, sortConfig, columns]);
 
-  // Handle local pagination
+  // Handle pagination
   const paginatedData = React.useMemo(() => {
+    if (isManual) return sortedData;
     if (!pageSize) return sortedData;
-    const startIndex = (currentPage - 1) * pageSize;
+    const startIndex = (activePage - 1) * pageSize;
     return sortedData.slice(startIndex, startIndex + pageSize);
-  }, [sortedData, currentPage, pageSize]);
+  }, [sortedData, activePage, pageSize, isManual]);
 
-  const totalPages = pageSize ? Math.ceil(sortedData.length / pageSize) : 1;
+  const totalPages = isManual
+    ? (propTotalPages ?? (pageSize && totalItems !== undefined ? Math.max(Math.ceil(totalItems / pageSize), 1) : 1))
+    : (pageSize ? Math.ceil(sortedData.length / pageSize) : 1);
 
   const handleSort = (key: string, sortable?: boolean) => {
     if (!sortable) return;
@@ -204,7 +232,7 @@ export function DataTable<T>({
                   <button
                     type="button"
                     onClick={() => setSearchTerm("")}
-                    className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-muted-foreground/70 hover:text-foreground transition-colors outline-none"
+                    className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-muted-foreground/70 hover:text-foreground transition-colors outline-none cursor-pointer"
                     aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
@@ -218,7 +246,12 @@ export function DataTable<T>({
       )}
 
       {/* Main Table Responsive Container */}
-      <div className="relative overflow-x-auto rounded-2xl border border-border/40 bg-card/50 backdrop-blur-[2px]">
+      <div className={cn("relative overflow-x-auto rounded-2xl border border-border/40 bg-card/50 backdrop-blur-[2px] transition-opacity duration-200", isFetching && "opacity-75")}>
+        {isFetching && (
+          <div className="absolute top-0 inset-x-0 h-1 bg-primary/20 overflow-hidden z-20">
+            <div className="h-full bg-primary animate-pulse w-full" />
+          </div>
+        )}
         <table 
           className={cn("w-full border-collapse text-start align-middle", tableClassName)}
           style={{ minWidth: "600px" }}
@@ -352,19 +385,25 @@ export function DataTable<T>({
           {/* Summary text */}
           <span className="text-base text-muted-foreground/80 font-medium text-center sm:text-start">
             {t("common.showingRows", {
-              start: currentPage * pageSize - pageSize + 1,
-              end: Math.min(currentPage * pageSize, sortedData.length),
-              total: sortedData.length,
+              start: sortedData.length === 0 ? 0 : (activePage - 1) * pageSize + 1,
+              end: isManual
+                ? (totalItems !== undefined
+                    ? Math.min((activePage - 1) * pageSize + sortedData.length, totalItems)
+                    : (activePage - 1) * pageSize + sortedData.length)
+                : Math.min(activePage * pageSize, sortedData.length),
+              total: isManual
+                ? (totalItems ?? (totalPages * pageSize))
+                : sortedData.length,
             })}
           </span>
 
           {/* Page buttons */}
           <div className="flex items-center justify-center gap-2">
             <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
+              onClick={() => handlePageChange(Math.max(activePage - 1, 1))}
+              disabled={activePage === 1 || isFetching}
               aria-label={t("common.previous")}
-              className="p-2 border border-border/60 hover:bg-muted/50 hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted-foreground rounded-xl transition-all outline-none"
+              className="p-2 border border-border/60 hover:bg-muted/50 hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted-foreground rounded-xl transition-all outline-none cursor-pointer disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-5.5 h-5.5 rtl:rotate-180" />
             </button>
@@ -375,15 +414,16 @@ export function DataTable<T>({
               if (
                 p === 1 || 
                 p === totalPages || 
-                (p >= currentPage - 1 && p <= currentPage + 1)
+                (p >= activePage - 1 && p <= activePage + 1)
               ) {
                 return (
                   <button
                     key={`page-btn-${p}`}
-                    onClick={() => setCurrentPage(p)}
+                    onClick={() => handlePageChange(p)}
+                    disabled={isFetching}
                     className={cn(
-                      "w-10 h-10 text-base font-bold rounded-xl transition-all border outline-none",
-                      currentPage === p 
+                      "w-10 h-10 text-base font-bold rounded-xl transition-all border outline-none cursor-pointer disabled:cursor-not-allowed",
+                      activePage === p 
                         ? "bg-primary text-primary-foreground border-primary shadow-sm hover:opacity-90" 
                         : "border-border/60 hover:bg-muted/50 hover:text-foreground"
                     )}
@@ -393,7 +433,7 @@ export function DataTable<T>({
                 );
               }
               
-              if (p === currentPage - 2 || p === currentPage + 2) {
+              if (p === activePage - 2 || p === activePage + 2) {
                 return (
                   <span key={`ellipsis-${p}`} className="px-1 text-muted-foreground font-black">
                     ...
@@ -405,10 +445,10 @@ export function DataTable<T>({
             })}
 
             <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(Math.min(activePage + 1, totalPages))}
+              disabled={activePage === totalPages || isFetching}
               aria-label={t("common.next")}
-              className="p-2 border border-border/60 hover:bg-muted/50 hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted-foreground rounded-xl transition-all outline-none"
+              className="p-2 border border-border/60 hover:bg-muted/50 hover:text-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted-foreground rounded-xl transition-all outline-none cursor-pointer disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-5.5 h-5.5 rtl:rotate-180" />
             </button>

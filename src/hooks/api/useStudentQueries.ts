@@ -9,7 +9,7 @@ import type { Locale } from "@/lib/constants";
 import { STALE_TIME } from "@/lib/constants";
 import { studentService } from "@/services/student.service";
 import type { QueryParams } from "@/types/api.types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 
 export const studentKeys = {
@@ -21,6 +21,7 @@ export const studentKeys = {
   library: (params?: QueryParams) => [...studentKeys.all, "library", params] as const,
   settings: () => [...studentKeys.all, "settings"] as const,
   warnings: () => [...studentKeys.all, "warnings"] as const,
+  previousSessions: (params?: QueryParams) => [...studentKeys.all, "previous-sessions", params] as const,
 };
 
 export function useStudentDashboard() {
@@ -87,5 +88,14 @@ export function useStudentWarnings() {
     queryFn: () => studentService.getWarnings({ lang }),
     retry: 1, // 1 retry only – avoid hammering a broken endpoint
     retryDelay: 2000,
+  });
+}
+
+export function useStudentPreviousSessions(params?: QueryParams) {
+  const lang = useLocale() as Locale;
+  return useQuery({
+    queryKey: studentKeys.previousSessions(params),
+    queryFn: () => studentService.getPreviousSessions(params, { lang }),
+    placeholderData: keepPreviousData,
   });
 }
