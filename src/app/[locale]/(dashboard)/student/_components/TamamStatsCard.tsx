@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown } from "lucide-react";
+import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown, Phone, Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import type { StudentDashboardGroup, DashboardTamamCard } from "@/types/student.types";
 
 interface TamamStatsCardProps {
@@ -69,8 +70,13 @@ export function TamamStatsCard({
     const groupTamam = activeTargetGroup.tamam_card || tamamCard;
     const buddy = groupTamam?.buddy;
     const isCompleted = checkIsCompleted(groupTamam);
-    const hasBuddyFeature = activeTargetGroup.has_buddy;
     const hasAssignedBuddy = !!buddy?.full_name;
+    const isBuddyGroup = Boolean(
+      activeTargetGroup.has_buddy &&
+      (activeTargetGroup.has_buddy as any) !== "false" &&
+      (activeTargetGroup.has_buddy as any) !== "0"
+    );
+    const hasBuddyFeature = isBuddyGroup || hasAssignedBuddy;
 
     return (
       <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_rgb(0,0,0,0.25)] transition-all duration-500 group flex flex-col h-fit relative overflow-hidden">
@@ -147,7 +153,61 @@ export function TamamStatsCard({
 
           {/* Rafiqa / Companion Section */}
           <div className="space-y-2">
-            {isStudentChild ? (
+            {hasAssignedBuddy ? (
+              /* Assigned Rafiqa */
+              <div className="bg-muted/25 p-3.5 rounded-2xl border border-border/40 space-y-2.5">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-primary to-primary/80 text-white border-2 border-card flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
+                    {getInitials(buddy?.full_name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-muted-foreground font-extrabold tracking-wider uppercase">
+                      {t("student.rafeqaName")}
+                    </p>
+                    <p className="text-sm font-extrabold text-foreground truncate mt-0.5">
+                      {buddy?.full_name}
+                    </p>
+                  </div>
+                </div>
+
+                {buddy?.phone && (
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold min-w-0">
+                      <Phone className="w-3.5 h-3.5 text-primary shrink-0" />
+                      <a
+                        href={`tel:${buddy.phone}`}
+                        dir="ltr"
+                        className="text-foreground hover:text-primary font-bold transition-colors truncate"
+                      >
+                        {buddy.phone}
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <a
+                        href={`tel:${buddy.phone}`}
+                        className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                        title={t("student.call") || "اتصال"}
+                        aria-label={t("student.call") || "اتصال"}
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(buddy.phone);
+                          toast.success(t("student.phoneCopied") || "تم نسخ رقم الهاتف");
+                        }}
+                        className="p-1.5 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        title={t("student.copyPhone") || "نسخ الرقم"}
+                        aria-label={t("student.copyPhone") || "نسخ الرقم"}
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : isStudentChild ? (
               <div className="flex items-center gap-3 bg-primary/5 p-3 rounded-2xl border border-primary/10">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-primary/80 text-white flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
                   <CheckCircle2 className="w-4 h-4 text-white" />
@@ -162,32 +222,15 @@ export function TamamStatsCard({
                 </div>
               </div>
             ) : hasBuddyFeature ? (
-              hasAssignedBuddy ? (
-                /* Assigned Rafiqa */
-                <div className="flex items-center gap-3 bg-muted/25 p-3 rounded-2xl border border-border/40">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-primary/80 text-white border-2 border-card flex items-center justify-center text-xs font-bold shadow-sm select-none shrink-0">
-                    {getInitials(buddy?.full_name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-muted-foreground font-extrabold tracking-wider uppercase">
-                      {t("student.rafeqaName")}
-                    </p>
-                    <p className="text-sm font-extrabold text-foreground truncate mt-0.5">
-                      {buddy?.full_name}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                /* No Rafiqa Assigned Yet */
-                <div className="p-4 border border-dashed border-border/80 rounded-2xl bg-muted/20 text-center flex flex-col items-center justify-center space-y-1.5">
-                  <p className="text-xs font-bold text-foreground leading-relaxed">
-                    {t("student.noBuddyAssigned")}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground font-medium">
-                    {t("student.myGroups.availableBuddiesDesc")}
-                  </p>
-                </div>
-              )
+              /* No Rafiqa Assigned Yet */
+              <div className="p-4 border border-dashed border-border/80 rounded-2xl bg-muted/20 text-center flex flex-col items-center justify-center space-y-1.5">
+                <p className="text-xs font-bold text-foreground leading-relaxed">
+                  {t("student.noBuddyAssigned")}
+                </p>
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  {t("student.myGroups.availableBuddiesDesc")}
+                </p>
+              </div>
             ) : (
               <div className="p-3 bg-muted/20 border border-border/30 rounded-2xl text-center">
                 <p className="text-xs font-medium text-muted-foreground">

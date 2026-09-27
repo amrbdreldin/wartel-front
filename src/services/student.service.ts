@@ -38,8 +38,17 @@ export const studentService = {
   getDashboard: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<StudentDashboardResponseData>>(`${BASE_URL}/dashboard`, options).then((r) => r),
 
-  submitTamam: (data: TamamSubmissionRequest, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<TamamRecord>>(`${BASE_URL}/tamam`, data, options).then((r) => r),
+  submitTamam: (data: TamamSubmissionRequest, options?: ApiCallOptions) => {
+    const payload = {
+      group_id: data.group_id,
+      student_id: data.student_id,
+      past_status_id: data.past_status_id,
+      persent_status_id: data.persent_status_id ?? data.present_status_id,
+      present_status_id: data.present_status_id ?? data.persent_status_id,
+      ...(data.pair_id !== undefined ? { pair_id: data.pair_id } : {}),
+    };
+    return apiPost<ApiResponse<TamamRecord>>(`${BASE_URL}/tamam`, payload, options).then((r) => r);
+  },
 
   getTamamHistory: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<TamamHistoryResponseData>>(`${BASE_URL}/tamam/history`, options).then((r) => r),

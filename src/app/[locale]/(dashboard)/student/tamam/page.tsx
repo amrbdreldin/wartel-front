@@ -8,8 +8,10 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRole } from "@/hooks/useRole";
+import { useAuth } from "@/hooks/useAuth";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import type { TamamSubmissionRequest, StudentDashboardGroup } from "@/types/student.types";
 
 // Components
 import { BuddyInfoCard } from "./_components/BuddyInfoCard";
@@ -19,7 +21,9 @@ import { TamamHistoryTable } from "./_components/TamamHistoryTable";
 export default function TamamSystemPage() {
   const t = useTranslations();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const { isStudentChild } = useRole();
   const params = useParams();
   const locale = params.locale as string;
@@ -38,7 +42,12 @@ export default function TamamSystemPage() {
     refetchOnMount: "always",
   });
 
-  const tamamCard = dashboardData?.data?.tamam_card;
+  const groups: StudentDashboardGroup[] = dashboardData?.data?.groups || [];
+
+  const activeGroupId = selectedGroupId || groups[0]?.id || null;
+  const activeGroup = groups.find((g) => g.id === activeGroupId) || groups[0] || null;
+
+  const tamamCard = activeGroup?.tamam_card || dashboardData?.data?.tamam_card;
   const buddy = tamamCard?.buddy;
 
   const presentStatus = tamamCard?.status?.presentStatus;
@@ -52,7 +61,7 @@ export default function TamamSystemPage() {
 
   // 3. Mutation for submitting Tamam
   const submitTamamMutation = useMutation({
-    mutationFn: (data: { pair_id: string | null; past_status_id: number; present_status_id: number }) =>
+    mutationFn: (data: TamamSubmissionRequest) =>
       studentService.submitTamam(data),
     onSuccess: (res: any) => {
       if (res?.success) {
@@ -69,6 +78,7 @@ export default function TamamSystemPage() {
     },
     onError: (err: any) => {
       console.error("Tamam submission error:", err);
+      toast.error(t("common.errorOccurred"));
     },
     onSettled: () => {
       setIsSubmitting(false);
@@ -76,12 +86,24 @@ export default function TamamSystemPage() {
   });
 
   const handleConfirmTamam = (pastChecked: boolean, presentChecked: boolean) => {
-    const pairId = isStudentChild ? null : "550e8400-e29b-41d4-a716-446655440000"; // Fallback or from buddy?
-    
+    const groupId = activeGroup?.id || (dashboardData?.data as any)?.group_id || groups[0]?.id;
+    const studentId = user?.id || (dashboardData?.data as any)?.student_id;
+
+    if (!groupId) {
+      toast.error(t("common.errorOccurred"));
+      return;
+    }
+    if (!studentId) {
+      toast.error(t("common.errorOccurred"));
+      return;
+    }
+
     setIsSubmitting(true);
     submitTamamMutation.mutate({
-      pair_id: pairId,
+      group_id: Number(groupId) || groupId,
+      student_id: Number(studentId) || studentId,
       past_status_id: pastChecked ? 2 : 3, 
+      persent_status_id: presentChecked ? 2 : 3,
       present_status_id: presentChecked ? 2 : 3,
     });
   };
@@ -163,6 +185,70 @@ export default function TamamSystemPage() {
           {t("student.tamam") || "نظام التمام اليومي"}
         </h3>
       </div>
+
+      {/* Group Tabs Bar */}
+      {groups.length > 1 && (
+        <div
+          role="tablist"
+          aria-label={t("student.myGroups.pageTitle")}
+          className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pb-2 pt-1 -mx-1 px-1"
+        >
+          {groups.map((group) => {
+            const isSelected = group.id === activeGroupId;
+            const groupTamam = group.tamam_card;
+            const isGroupCompleted =
+              isStatusCompleted(groupTamam?.status?.presentStatus) ||
+              isStatusCompleted(groupTamam?.status?.pastStatus);
+
+            return (
+              <button
+                key={group.id}
+                role="tab"
+                id={`tamam-group-tab-${group.id}`}
+                aria-selected={isSelected}
+                aria-controls={`tamam-group-panel-${group.id}`}
+                onClick={() => setSelectedGroupId(group.id)}
+                className={cn(
+                  "group relative flex items-center gap-2.5 px-5 py-3 rounded-2xl font-bold text-sm transition-all duration-300 whitespace-nowrap cursor-pointer select-none",
+                  isSelected
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/25 scale-[1.01]"
+                    : "bg-card border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/40 hover:border-border"
+                )}
+              >
+                <Users
+                  className={cn(
+                    "w-4 h-4 transition-colors shrink-0",
+                    isSelected
+                      ? "text-primary-foreground"
+                      : "text-muted-foreground group-hover:text-primary"
+                  )}
+                />
+                <span>{group.name}</span>
+
+                {group.has_tamam && (
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full shrink-0 transition-colors",
+                      isSelected
+                        ? isGroupCompleted
+                          ? "bg-emerald-300"
+                          : "bg-warning-300"
+                        : isGroupCompleted
+                        ? "bg-emerald-500"
+                        : "bg-warning-500"
+                    )}
+                    title={
+                      isGroupCompleted
+                        ? t("student.statusCompleted")
+                        : t("student.statusPending")
+                    }
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Companion Info Card */}

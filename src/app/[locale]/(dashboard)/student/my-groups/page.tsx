@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { studentService } from "@/services/student.service";
 import { useRole } from "@/hooks/useRole";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import type { StudentDashboardGroup, AvailableBuddyTime } from "@/types/student.types";
 
@@ -26,6 +27,7 @@ export default function MyGroupsPage() {
   const t = useTranslations();
   const queryClient = useQueryClient();
   const { isStudentChild } = useRole();
+  const { user } = useAuth();
 
   // Modals State
   const [showTamamModal, setShowTamamModal] = useState(false);
@@ -77,6 +79,14 @@ export default function MyGroupsPage() {
     return [];
   }, [activeGroupId, savedTimesByGroup, activeGroup]);
 
+  // Check if buddy feature is enabled for the active group
+  const hasBuddyEnabled = Boolean(
+    activeGroup &&
+      Boolean(activeGroup.has_buddy) &&
+      (activeGroup.has_buddy as any) !== "false" &&
+      (activeGroup.has_buddy as any) !== "0"
+  );
+
   // Fetch available buddies for the selected group
   const {
     data: buddiesData,
@@ -86,7 +96,7 @@ export default function MyGroupsPage() {
   } = useQuery({
     queryKey: ["available-buddies", activeGroupId],
     queryFn: () => studentService.getAvailableBuddies(activeGroupId!),
-    enabled: !!activeGroupId,
+    enabled: !!activeGroupId && hasBuddyEnabled,
   });
 
   const buddies = buddiesData?.data || [];
@@ -212,11 +222,14 @@ export default function MyGroupsPage() {
           setShowTamamModal(false);
           setModalGroup(null);
         }}
+        groupId={currentTamamGroup?.id}
+        studentId={user?.id}
         groupName={currentTamamGroup?.name}
         companionName={currentTamamGroup?.tamam_card?.buddy?.full_name}
+        companionPhone={currentTamamGroup?.tamam_card?.buddy?.phone}
         presentStatus={currentTamamGroup?.tamam_card?.status?.presentStatus}
         isStudentChild={isStudentChild}
-        hasBuddy={currentTamamGroup?.has_buddy}
+        hasBuddy={currentTamamGroup?.has_buddy || !!currentTamamGroup?.tamam_card?.buddy?.full_name}
       />
 
       {/* Page Header */}
@@ -291,7 +304,12 @@ export default function MyGroupsPage() {
           id={`group-panel-${activeGroup.id}`}
           role="tabpanel"
           aria-labelledby={`group-tab-${activeGroup.id}`}
-          className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start"
+          className={cn(
+            "items-start gap-6",
+            hasBuddyEnabled
+              ? "grid grid-cols-1 xl:grid-cols-2"
+              : "max-w-2xl"
+          )}
         >
           {/* Left Column – Tamam & Group Details, Available Buddies */}
           <div className="space-y-6 h-fit">
@@ -301,94 +319,98 @@ export default function MyGroupsPage() {
               isStudentChild={isStudentChild}
             />
 
-            {/* Available Buddies */}
-            <div className="bg-card border border-border/50 rounded-3xl shadow-sm overflow-hidden h-fit">
-              {/* Header */}
-              <div className="bg-gradient-to-r from-accent/5 via-accent/3 to-transparent border-b border-border/50 p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                    <UserCheck className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-foreground text-lg">
-                      {t("student.myGroups.availableBuddies")}
-                    </h3>
-                    <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                      {t("student.myGroups.availableBuddiesDesc")}
-                    </p>
+            {/* Available Buddies (only if buddy feature is enabled) */}
+            {hasBuddyEnabled && (
+              <div className="bg-card border border-border/50 rounded-3xl shadow-sm overflow-hidden h-fit">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-accent/5 via-accent/3 to-transparent border-b border-border/50 p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                      <UserCheck className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground text-lg">
+                        {t("student.myGroups.availableBuddies")}
+                      </h3>
+                      <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                        {t("student.myGroups.availableBuddiesDesc")}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Buddies Content */}
-              <div className="p-6">
-                {isBuddiesLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-muted/30 rounded-2xl p-5 space-y-3">
-                        <div className="flex items-center gap-3">
-                          <Skeleton className="w-12 h-12 rounded-2xl" />
-                          <div className="space-y-1.5 flex-1">
-                            <Skeleton className="h-4 w-32" />
-                            <Skeleton className="h-3 w-24" />
+                {/* Buddies Content */}
+                <div className="p-6">
+                  {isBuddiesLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-muted/30 rounded-2xl p-5 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="w-12 h-12 rounded-2xl" />
+                            <div className="space-y-1.5 flex-1">
+                              <Skeleton className="h-4 w-32" />
+                              <Skeleton className="h-3 w-24" />
+                            </div>
                           </div>
+                          <div className="flex gap-2">
+                            <Skeleton className="h-7 w-28 rounded-xl" />
+                            <Skeleton className="h-7 w-32 rounded-xl" />
+                          </div>
+                          <Skeleton className="h-9 w-full rounded-xl" />
                         </div>
-                        <div className="flex gap-2">
-                          <Skeleton className="h-7 w-28 rounded-xl" />
-                          <Skeleton className="h-7 w-32 rounded-xl" />
-                        </div>
-                        <Skeleton className="h-9 w-full rounded-xl" />
-                      </div>
-                    ))}
-                  </div>
-                ) : isBuddiesError ? (
-                  <div className="text-center py-8 text-destructive">
-                    <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
-                    <p className="text-sm font-bold">{t("common.errorOccurred")}</p>
-                  </div>
-                ) : buddies.length === 0 ? (
-                  <div className="text-center py-12 space-y-3">
-                    <div className="w-16 h-16 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto">
-                      <Search className="h-8 w-8 text-muted-foreground/50" />
+                      ))}
                     </div>
-                    <h4 className="font-bold text-foreground">
-                      {t("student.myGroups.noBuddiesFound")}
-                    </h4>
-                    <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                      {t("student.myGroups.noBuddiesFoundDesc")}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {buddies.map((buddy) => (
-                      <BuddyCard
-                        key={buddy.id}
-                        buddy={buddy}
-                        groupId={activeGroup.id}
-                        onRequestSent={() => {
-                          queryClient.invalidateQueries({
-                            queryKey: ["available-buddies", activeGroup.id],
-                          });
-                          queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
+                  ) : isBuddiesError ? (
+                    <div className="text-center py-8 text-destructive">
+                      <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-sm font-bold">{t("common.errorOccurred")}</p>
+                    </div>
+                  ) : buddies.length === 0 ? (
+                    <div className="text-center py-12 space-y-3">
+                      <div className="w-16 h-16 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto">
+                        <Search className="h-8 w-8 text-muted-foreground/50" />
+                      </div>
+                      <h4 className="font-bold text-foreground">
+                        {t("student.myGroups.noBuddiesFound")}
+                      </h4>
+                      <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                        {t("student.myGroups.noBuddiesFoundDesc")}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {buddies.map((buddy) => (
+                        <BuddyCard
+                          key={buddy.id}
+                          buddy={buddy}
+                          groupId={activeGroup.id}
+                          onRequestSent={() => {
+                            queryClient.invalidateQueries({
+                              queryKey: ["available-buddies", activeGroup.id],
+                            });
+                            queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Right Column – Available Times (Saved rows with trash + Add form) */}
-          <div className="space-y-6 h-fit">
-            <AvailableTimeForm
-              key={activeGroup.id}
-              groupId={activeGroup.id}
-              savedTimes={currentGroupTimes}
-              onTimesChange={handleTimesChange}
-              onSuccess={refetchBuddies}
-            />
-          </div>
+          {hasBuddyEnabled && (
+            <div className="space-y-6 h-fit">
+              <AvailableTimeForm
+                key={activeGroup.id}
+                groupId={activeGroup.id}
+                savedTimes={currentGroupTimes}
+                onTimesChange={handleTimesChange}
+                onSuccess={refetchBuddies}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

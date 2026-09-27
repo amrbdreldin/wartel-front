@@ -207,9 +207,12 @@ export interface TamamHistoryResponseData {
 }
 
 export interface TamamSubmissionRequest {
-  pair_id: string | null;
+  group_id: number | string;
+  student_id: number | string;
   past_status_id: number;
-  present_status_id: number;
+  persent_status_id: number;
+  present_status_id?: number;
+  pair_id?: string | null;
 }
 
 export interface DashboardAlert {
@@ -226,17 +229,17 @@ export interface DashboardBuddy {
   id: number;
   full_name: string;
   phone: string;
-  role_id: string;
-  status_id: string;
-  parent_id: string | null;
-  enrollment_type_id: string;
-  badge_id: string | null;
-  timezone: string;
-  fcm_token: string | null;
-  otp: string | null;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
+  role_id?: string | number;
+  status_id?: string | number;
+  parent_id?: string | number | null;
+  enrollment_type_id?: string | number;
+  badge_id?: string | number | null;
+  timezone?: string;
+  fcm_token?: string | null;
+  otp?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
 }
 
 export interface DashboardTamamCard {

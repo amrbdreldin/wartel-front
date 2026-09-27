@@ -241,21 +241,6 @@ export function StudentDetailsSidebar({
           </button>
         </div>
 
-        {/* Single Navigation Tab (Focused only on Previous Attendance) */}
-        <div className="px-4 sm:px-6 pt-2.5 border-b border-border/60 bg-muted/20 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-black rounded-t-xl border-b-2 border-primary text-primary bg-background shadow-xs -mb-[1px]">
-              <History className="w-4 h-4 shrink-0 text-primary" />
-              <span>{t("historyTab") || "السجل السابق"}</span>
-              {totalSessions > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-primary/10 text-primary font-black">
-                  {totalSessions}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-5 pb-8">
           {/* Header Title & Subtitle */}

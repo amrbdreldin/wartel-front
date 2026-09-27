@@ -4,41 +4,60 @@ import { studentService } from "@/services/student.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     CheckCircle2, Heart, Info, Loader2,
-    Users, UserCheck, X
+    Users, UserCheck, X, Phone
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import type { TamamSubmissionRequest } from "@/types/student.types";
 
 interface TamamModalProps {
   isOpen: boolean;
   onClose: () => void;
   companionName?: string | null;
+  companionPhone?: string | null;
   presentStatus?: string;
   isStudentChild?: boolean;
   hasBuddy?: boolean;
   groupName?: string;
+  groupId?: number | string;
+  studentId?: number | string;
 }
 
-export function TamamModal({ isOpen, onClose, companionName, presentStatus, isStudentChild, hasBuddy, groupName }: TamamModalProps) {
+export function TamamModal({
+  isOpen,
+  onClose,
+  companionName,
+  companionPhone,
+  presentStatus,
+  isStudentChild,
+  hasBuddy,
+  groupName,
+  groupId,
+  studentId,
+}: TamamModalProps) {
   const t = useTranslations();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const [pastChecked, setPastChecked] = useState(false);
   const [presentChecked, setPresentChecked] = useState(false);
 
+  const effectiveStudentId = studentId ?? user?.id;
+
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
   const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked);
 
-  // If student is child, or explicitly has no buddy, or companion name is missing -> perform self tamam
-  const isSelfTamam = isStudentChild || hasBuddy === false || !companionName;
+  // If companion name is missing or explicitly has no buddy -> perform self tamam
+  const isSelfTamam = !companionName || hasBuddy === false;
 
   // Mutation for submitting Tamam
   const submitTamamMutation = useMutation({
-    mutationFn: (data: { pair_id: string | null; past_status_id: number; present_status_id: number }) =>
+    mutationFn: (data: TamamSubmissionRequest) =>
       studentService.submitTamam(data),
     onSuccess: (res: { success?: boolean; errors?: Record<string, string[]>; message?: string }) => {
       if (res?.success) {
@@ -63,13 +82,21 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
   });
 
   const handleConfirmTamam = () => {
-    // If self tamam (no buddy or child), pair_id is null
-    const pairId = isSelfTamam ? null : "550e8400-e29b-41d4-a716-446655440000";
-    
+    if (!groupId) {
+      toast.error(t("common.errorOccurred"));
+      return;
+    }
+    if (!effectiveStudentId) {
+      toast.error(t("common.errorOccurred"));
+      return;
+    }
+
     setIsSubmitting(true);
     submitTamamMutation.mutate({
-      pair_id: pairId,
+      group_id: Number(groupId) || groupId,
+      student_id: Number(effectiveStudentId) || effectiveStudentId,
       past_status_id: pastChecked ? 2 : 3,
+      persent_status_id: presentChecked ? 2 : 3,
       present_status_id: presentChecked ? 2 : 3,
     });
   };
@@ -156,7 +183,15 @@ export function TamamModal({ isOpen, onClose, companionName, presentStatus, isSt
                                 <UserCheck className="h-8 w-8 text-primary" />
                             </div>
                             <h4 className="text-xl font-bold text-foreground mb-1">{t("student.rafeqaName")}: {companionName}</h4>
-                            <p className="text-primary font-bold text-sm tracking-wide">{t("student.confirmAttendance") || "تأكيد حضور الرفيقة"}</p>
+                            {companionPhone && (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold mt-1">
+                                <Phone className="w-3.5 h-3.5 text-primary" />
+                                <a href={`tel:${companionPhone}`} dir="ltr" className="hover:text-primary transition-colors font-bold">
+                                  {companionPhone}
+                                </a>
+                              </div>
+                            )}
+                            <p className="text-primary font-bold text-sm tracking-wide mt-2">{t("student.confirmAttendance") || "تأكيد حضور الرفيقة"}</p>
                         </div>
                     )}
 
