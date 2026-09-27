@@ -25,10 +25,21 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Disable production source maps to save memory
+  productionBrowserSourceMaps: false,
+
   // Memory & CPU optimizations for resource-constrained build environments
   experimental: {
     webpackMemoryOptimizations: true,
     cpus: 1,
+  },
+
+  webpack: (config, { dev }) => {
+    // Disable Webpack persistent cache during production build to prevent memory bloat and OOM
+    if (!dev) {
+      config.cache = false;
+    }
+    return config;
   },
   
   // Image optimization
