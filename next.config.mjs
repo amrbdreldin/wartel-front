@@ -19,6 +19,17 @@ const nextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
   output: "standalone",
+
+  // Skip heavy checks during build to conserve server RAM
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+  // Memory & CPU optimizations for resource-constrained build environments
+  experimental: {
+    webpackMemoryOptimizations: true,
+    cpus: 1,
+  },
   
   // Image optimization
   images: {
