@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   HelpCircle,
+  MessageSquare,
   Sparkles,
   Trophy,
   User,
@@ -16,7 +17,6 @@ import {
 import type { StudentPreviousSession } from "@/types/student.types";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { cn } from "@/lib/utils";
-import { SessionDetailsModal } from "./SessionDetailsModal";
 
 interface PreviousSessionsTableProps {
   sessions: StudentPreviousSession[];
@@ -35,7 +35,6 @@ export function PreviousSessionsTable({
 }: PreviousSessionsTableProps) {
   const t = useTranslations();
   const [activeFilter, setActiveFilter] = React.useState<FilterType>("all");
-  const [selectedSession, setSelectedSession] = React.useState<StudentPreviousSession | null>(null);
 
   // Filter data based on selected filter pill
   const filteredData = React.useMemo(() => {
@@ -65,16 +64,6 @@ export function PreviousSessionsTable({
   }, [sessions, activeFilter]);
 
   const columns: Column<StudentPreviousSession>[] = [
-    {
-      key: "session_id",
-      header: t("student.previousSessions.table.sessionId"),
-      className: "w-20 font-bold text-muted-foreground",
-      render: (row) => (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-muted text-xs font-mono font-bold">
-          #{row.session_id}
-        </span>
-      ),
-    },
     {
       key: "group_name",
       header: t("student.previousSessions.table.groupName"),
@@ -244,22 +233,23 @@ export function PreviousSessionsTable({
       },
     },
     {
-      key: "actions",
-      header: t("student.previousSessions.table.details") || "التفاصيل",
-      className: "text-center w-24",
-      render: (row) => (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedSession(row);
-          }}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground font-bold text-xs transition-all duration-200 border border-primary/20 hover:border-primary active:scale-95 cursor-pointer shadow-xs"
-          aria-label={`${t("student.previousSessions.table.details")} #${row.session_id}`}
-        >
-          <span>{t("student.previousSessions.table.details")}</span>
-        </button>
-      ),
+      key: "teacher_notes",
+      header: t("student.previousSessions.table.teacherNotes"),
+      className: "min-w-[180px] max-w-xs",
+      render: (row) => {
+        const note = row.comment || row.notes;
+        if (!note) {
+          return <span className="text-muted-foreground/40 text-sm">—</span>;
+        }
+        return (
+          <div className="flex items-start gap-2" title={note}>
+            <MessageSquare className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-xs md:text-sm text-foreground/90 font-medium leading-relaxed line-clamp-2">
+              {note}
+            </p>
+          </div>
+        );
+      },
     },
   ];
 
@@ -326,30 +316,19 @@ export function PreviousSessionsTable({
   );
 
   return (
-    <>
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        isLoading={isLoading}
-        isError={isError}
-        errorText={resolvedErrorText}
-        noDataText={t("student.previousSessions.noSessions")}
-        searchable
-        searchPlaceholder={t("student.previousSessions.searchPlaceholder")}
-        searchKeys={["group_name", "teacher_name", "scheduled_at_formatted"]}
-        pageSize={10}
-        onRowClick={(row) => setSelectedSession(row)}
-        extraControls={extraControls}
-        className="border-border/60"
-      />
-
-      <SessionDetailsModal
-        session={selectedSession}
-        open={!!selectedSession}
-        onOpenChange={(open) => {
-          if (!open) setSelectedSession(null);
-        }}
-      />
-    </>
+    <DataTable
+      columns={columns}
+      data={filteredData}
+      isLoading={isLoading}
+      isError={isError}
+      errorText={resolvedErrorText}
+      noDataText={t("student.previousSessions.noSessions")}
+      searchable
+      searchPlaceholder={t("student.previousSessions.searchPlaceholder")}
+      searchKeys={["group_name", "teacher_name", "scheduled_at_formatted", "comment", "notes"]}
+      pageSize={10}
+      extraControls={extraControls}
+      className="border-border/60"
+    />
   );
 }

@@ -837,7 +837,8 @@
         "actions": "الإجراءات",
         "details": "التفاصيل",
         "viewDetails": "عرض التفاصيل",
-        "hideDetails": "إخفاء التفاصيل"
+        "hideDetails": "إخفاء التفاصيل",
+        "teacherNotes": "ملاحظات المعلم/ـة"
       },
       "status": {
         "completed": "مكتملة",
@@ -1230,6 +1231,10 @@
     "recordedBy": "رصد بواسطة: {name}",
     "pointsCount": "{points} درجة",
     "degreeLabel": "التقدير: {degree}",
+    "absentOrExcused": "غياب / عذر",
+    "noMatchingRecords": "لا توجد سجلات مطابقة لهذا الفلتر",
+    "resetFilter": "عرض جميع السجلات",
+    "filterAll": "الكل",
     "scheduledAt": "موعد الحلقة",
     "welcomeTitle": "أهلاً بك/ــكِ أستاذة {name}",
     "smartRequestsSystem": "نظام تأمين بدائل الحلقات",

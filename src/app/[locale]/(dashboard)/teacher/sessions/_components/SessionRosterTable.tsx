@@ -480,7 +480,7 @@ export function SessionRosterTable({
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20 transition-all shadow-xs active:scale-95 ms-auto"
                 >
                   <History className="w-3.5 h-3.5" />
-                  <span>{t("attendanceHistory") || "السجل السابق والتفاصيل"}</span>
+                  <span>{t("attendanceHistory") || "السجل السابق"}</span>
                 </button>
               </div>
             </div>

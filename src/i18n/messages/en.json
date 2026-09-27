@@ -837,7 +837,8 @@
         "actions": "Actions",
         "details": "Details",
         "viewDetails": "View Details",
-        "hideDetails": "Hide Details"
+        "hideDetails": "Hide Details",
+        "teacherNotes": "Teacher Notes"
       },
       "status": {
         "completed": "Completed",
@@ -1230,6 +1231,10 @@
     "recordedBy": "Recorded by: {name}",
     "pointsCount": "{points} pts",
     "degreeLabel": "Degree: {degree}",
+    "absentOrExcused": "Absent / Excused",
+    "noMatchingRecords": "No records match this filter",
+    "resetFilter": "Show all records",
+    "filterAll": "All",
     "scheduledAt": "Scheduled Time",
     "welcomeTitle": "Welcome, Teacher {name}",
     "smartRequestsSystem": "Halaqas Substitute Protection System",
