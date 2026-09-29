@@ -217,10 +217,15 @@ export interface TamamSubmissionRequest {
 
 export interface DashboardAlert {
   id: number;
-  student_id: string;
-  level_id: string;
-  reason_id: string;
-  status_id: string;
+  title?: string;
+  type?: "bad" | "good" | string;
+  student_id: string | number;
+  level_id: string | number;
+  level_name?: string;
+  reason_id: string | number;
+  reason_name?: string;
+  status_id: string | number;
+  status_name?: string;
   issued_at: string;
   deleted_at: string | null;
 }
