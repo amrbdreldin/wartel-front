@@ -477,8 +477,8 @@ export interface WerdRecord {
 
 export interface AvailableBuddyTime {
   id: number;
-  day: string;
-  day_name: string;
+  day?: string;
+  day_name?: string;
   start_time: string;
   end_time: string;
 }
@@ -491,7 +491,7 @@ export interface AvailableBuddy {
 }
 
 export interface AvailableTimeSlot {
-  day: string;
+  day?: string;
   start_time: string;
   end_time: string;
 }

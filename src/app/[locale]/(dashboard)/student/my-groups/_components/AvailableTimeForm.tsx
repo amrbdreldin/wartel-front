@@ -12,8 +12,6 @@ import type { AvailableTimeSlot, AvailableBuddyTime } from "@/types/student.type
 // Available Time Form – Direct input rows for availability
 // ============================================================
 
-const DAYS = ["sat", "sun", "mon", "tue", "wed", "thu", "fri"] as const;
-
 const DAY_MAP: Record<string, string> = {
   "السبت": "sat",
   "الأحد": "sun",
@@ -76,10 +74,10 @@ const normalizeTimeTo24h = (timeStr?: string): string => {
 
 const mapSavedTimesToSlots = (times?: AvailableBuddyTime[]): AvailableTimeSlot[] => {
   if (!times || times.length === 0) {
-    return [{ day: "", start_time: "", end_time: "" }];
+    return [{ start_time: "", end_time: "" }];
   }
   return times.map((item) => ({
-    day: normalizeDay(item.day || item.day_name),
+    ...(item.day ? { day: normalizeDay(item.day || item.day_name) } : {}),
     start_time: normalizeTimeTo24h(item.start_time),
     end_time: normalizeTimeTo24h(item.end_time),
   }));
@@ -112,19 +110,18 @@ export function AvailableTimeForm({
   }, [groupId, savedTimes]);
 
   const addSlot = () => {
-    setSlots((prev) => [...prev, { day: "", start_time: "", end_time: "" }]);
+    setSlots((prev) => [...prev, { start_time: "", end_time: "" }]);
   };
 
   const removeSlot = (index: number) => {
     const slotToRemove = slots[index];
     const hasContent =
       slotToRemove &&
-      (slotToRemove.day.trim() !== "" ||
-        slotToRemove.start_time.trim() !== "" ||
-        slotToRemove.end_time.trim() !== "");
+      ((slotToRemove.start_time && slotToRemove.start_time.trim() !== "") ||
+        (slotToRemove.end_time && slotToRemove.end_time.trim() !== ""));
 
     if (slots.length <= 1) {
-      setSlots([{ day: "", start_time: "", end_time: "" }]);
+      setSlots([{ start_time: "", end_time: "" }]);
     } else {
       setSlots((prev) => prev.filter((_, i) => i !== index));
     }
@@ -162,9 +159,8 @@ export function AvailableTimeForm({
     // Filter filled slots
     const filledSlots = slots.filter(
       (slot) =>
-        slot.day.trim() !== "" ||
-        slot.start_time.trim() !== "" ||
-        slot.end_time.trim() !== ""
+        Boolean(slot.start_time && slot.start_time.trim() !== "") ||
+        Boolean(slot.end_time && slot.end_time.trim() !== "")
     );
 
     // If user cleared all slots and wants to delete all availability
@@ -178,7 +174,7 @@ export function AvailableTimeForm({
         if (res?.success) {
           toast.success(res?.message || t("student.myGroups.timesClearedSuccess"));
           onTimesChange([]);
-          setSlots([{ day: "", start_time: "", end_time: "" }]);
+          setSlots([{ start_time: "", end_time: "" }]);
           onSuccess?.();
         } else {
           toast.error(res?.message || t("common.error"));
@@ -193,7 +189,7 @@ export function AvailableTimeForm({
 
     // Validate each filled slot
     for (const slot of filledSlots) {
-      if (!slot.day || !slot.start_time || !slot.end_time) {
+      if (!slot.start_time || !slot.end_time) {
         toast.error(t("student.myGroups.allFieldsRequired"));
         return;
       }
@@ -203,16 +199,14 @@ export function AvailableTimeForm({
       }
     }
 
-    // Check for conflicting overlapping slots on the same day
+    // Check for conflicting overlapping slots
     for (let i = 0; i < filledSlots.length; i++) {
       for (let j = i + 1; j < filledSlots.length; j++) {
         const a = filledSlots[i];
         const b = filledSlots[j];
-        if (a.day === b.day) {
-          if (a.start_time < b.end_time && b.start_time < a.end_time) {
-            toast.error(t("student.myGroups.timeConflict"));
-            return;
-          }
+        if (a.start_time < b.end_time && b.start_time < a.end_time) {
+          toast.error(t("student.myGroups.timeConflict"));
+          return;
         }
       }
     }
@@ -221,7 +215,11 @@ export function AvailableTimeForm({
     try {
       const res = await studentService.submitAvailableTime({
         group_id: groupId,
-        slots: filledSlots,
+        slots: filledSlots.map((s) => ({
+          ...(s.day ? { day: s.day } : {}),
+          start_time: s.start_time,
+          end_time: s.end_time,
+        })),
       });
 
       if (res?.success) {
@@ -271,23 +269,22 @@ export function AvailableTimeForm({
               </p>
             </div>
           </div>
+
+          {/* Add Slot Button (Top Corner / Plus icon only with hover title) */}
+          <button
+            type="button"
+            onClick={addSlot}
+            className="w-11 h-11 rounded-2xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground border border-primary/20 flex items-center justify-center transition-all duration-300 shadow-2xs hover:shadow-md hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+            title={t("student.myGroups.addNewTime")}
+            aria-label={t("student.myGroups.addNewTime")}
+          >
+            <Plus className="h-5 w-5" />
+          </button>
         </div>
       </div>
 
       <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Top Add Slot Trigger Button / Header */}
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={addSlot}
-              className="group flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary/80 transition-colors cursor-pointer"
-            >
-              <Plus className="h-4 w-4 transition-transform group-hover:rotate-90 duration-200" />
-              <span>{t("student.myGroups.addNewSlotSubtitle")}</span>
-            </button>
-          </div>
-
           {/* Time Slot Input Rows */}
           <div className="space-y-4">
             {slots.map((slot, index) => (
@@ -311,39 +308,15 @@ export function AvailableTimeForm({
                   <Trash2 className="h-4 w-4" />
                 </button>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-1">
-                  {/* Day Select */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-1">
+                  {/* Start Time / From */}
                   <div className="space-y-1.5">
                     <label
                       className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 cursor-pointer"
-                      htmlFor={`day-${index}`}
-                    >
-                      <span>{t("student.myGroups.day")}</span>
-                      <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
-                    </label>
-                    <select
-                      id={`day-${index}`}
-                      value={slot.day}
-                      onChange={(e) => updateSlot(index, "day", e.target.value)}
-                      className="w-full bg-background border border-border/80 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer"
-                      aria-label={t("student.myGroups.selectDay")}
-                    >
-                      <option value="">{t("student.myGroups.selectDay")}</option>
-                      {DAYS.map((day) => (
-                        <option key={day} value={day}>
-                          {t(`student.myGroups.${day}`)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Start Time */}
-                  <div className="space-y-1.5">
-                    <label
-                      className="text-xs font-semibold text-muted-foreground block cursor-pointer"
                       htmlFor={`start-${index}`}
                     >
-                      {t("student.myGroups.startTime")}
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
+                      <span>{t("student.myGroups.availableTimeFrom")}</span>
                     </label>
                     <input
                       id={`start-${index}`}
@@ -356,17 +329,18 @@ export function AvailableTimeForm({
                         } catch {}
                       }}
                       className="w-full bg-background border border-border/80 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:cursor-pointer"
-                      aria-label={t("student.myGroups.startTime")}
+                      aria-label={t("student.myGroups.availableTimeFrom")}
                     />
                   </div>
 
-                  {/* End Time */}
+                  {/* End Time / To */}
                   <div className="space-y-1.5">
                     <label
-                      className="text-xs font-semibold text-muted-foreground block cursor-pointer"
+                      className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 cursor-pointer"
                       htmlFor={`end-${index}`}
                     >
-                      {t("student.myGroups.endTime")}
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
+                      <span>{t("student.myGroups.availableTimeTo")}</span>
                     </label>
                     <input
                       id={`end-${index}`}
@@ -379,7 +353,7 @@ export function AvailableTimeForm({
                         } catch {}
                       }}
                       className="w-full bg-background border border-border/80 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:cursor-pointer"
-                      aria-label={t("student.myGroups.endTime")}
+                      aria-label={t("student.myGroups.availableTimeTo")}
                     />
                   </div>
                 </div>
@@ -388,21 +362,12 @@ export function AvailableTimeForm({
           </div>
 
           {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={addSlot}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-dashed border-primary/30 text-primary font-bold text-sm hover:bg-primary/5 hover:border-primary/50 transition-all duration-300 cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              {t("student.myGroups.addSlot")}
-            </button>
-
+          <div className="pt-2">
             <button
               type="submit"
               disabled={isSaving}
               className={cn(
-                "flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-md shadow-primary/20 hover:bg-primary/90 transition-all duration-300 sm:ms-auto cursor-pointer",
+                "w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm shadow-md shadow-primary/20 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 cursor-pointer",
                 isSaving && "opacity-60 cursor-not-allowed"
               )}
             >

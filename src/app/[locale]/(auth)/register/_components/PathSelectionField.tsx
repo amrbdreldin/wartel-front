@@ -53,6 +53,36 @@ function getTrackInfo(trackName: string) {
   };
 }
 
+const DAY_KEY_MAP: Record<string, "sat" | "sun" | "mon" | "tue" | "wed" | "thu" | "fri"> = {
+  "السبت": "sat",
+  "الأحد": "sun",
+  "الاحد": "sun",
+  "الإثنين": "mon",
+  "الاثنين": "mon",
+  "الثلاثاء": "tue",
+  "الثلاثا": "tue",
+  "الأربعاء": "wed",
+  "الاربعاء": "wed",
+  "الخميس": "thu",
+  "الجمعة": "fri",
+  "الجمعه": "fri",
+  "sat": "sat",
+  "sun": "sun",
+  "mon": "mon",
+  "tue": "tue",
+  "wed": "wed",
+  "wen": "wed",
+  "thu": "thu",
+  "fri": "fri",
+  "saturday": "sat",
+  "sunday": "sun",
+  "monday": "mon",
+  "tuesday": "tue",
+  "wednesday": "wed",
+  "thursday": "thu",
+  "friday": "fri",
+};
+
 export function PathSelectionField({ 
   enrollmentTypes, 
   allTracks = [],
@@ -119,17 +149,46 @@ export function PathSelectionField({
     }
   }, [academyType, values.enrollment_type_id, setFieldValue]);
 
-  const formatSessionTime = (timeStr: string | null) => {
+  const formatSessionDay = (dayStr?: string) => {
+    if (!dayStr) return "";
+    const trimmed = dayStr.trim();
+    const lower = trimmed.toLowerCase();
+    const mappedKey = DAY_KEY_MAP[trimmed] || DAY_KEY_MAP[lower];
+    if (mappedKey) {
+      return tAuth(mappedKey);
+    }
+    return dayStr;
+  };
+
+  const formatSessionTime = (timeStr: string | null | undefined) => {
     if (!timeStr) return null;
-    const parts = timeStr.split(":");
-    if (parts.length < 2) return { time: timeStr, period: "am" };
-    const hours = parseInt(parts[0], 10);
-    const minutes = parts[1];
-    const ampm = hours >= 12 ? "pm" : "am";
-    const displayHours = hours % 12 || 12;
+    const cleanStr = timeStr.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).trim();
+    const match = cleanStr.match(/(\d{1,2}):(\d{1,2})/);
+    if (!match) return { time: timeStr, period: "" };
+
+    const rawHours = parseInt(match[1], 10);
+    const minutes = match[2].padStart(2, "0");
+
+    const isExplicitPm = /م|pm/i.test(cleanStr);
+    const isExplicitAm = /ص|am/i.test(cleanStr);
+
+    let period: "am" | "pm";
+    let displayHours: number;
+
+    if (isExplicitPm) {
+      period = "pm";
+      displayHours = rawHours % 12 || 12;
+    } else if (isExplicitAm) {
+      period = "am";
+      displayHours = rawHours % 12 || 12;
+    } else {
+      period = rawHours >= 12 ? "pm" : "am";
+      displayHours = rawHours % 12 || 12;
+    }
+
     return {
       time: `${displayHours}:${minutes}`,
-      period: ampm
+      period,
     };
   };
 
@@ -191,10 +250,10 @@ export function PathSelectionField({
                                 : "bg-muted/50 border-border/50 text-muted-foreground group-hover/card:bg-muted group-hover/card:text-foreground"
                             )}
                           >
-                            <span className="capitalize">{tAuth(sd.day)}</span>
+                            <span className="capitalize">{formatSessionDay(sd.day)}</span>
                             {formatted && (
                               <span className="opacity-85 font-semibold">
-                                ({formatted.time} {tAuth(formatted.period)})
+                                ({formatted.time}{formatted.period ? ` ${tAuth(formatted.period)}` : ""})
                               </span>
                             )}
                           </div>

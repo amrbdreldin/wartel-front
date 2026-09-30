@@ -23,7 +23,8 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
   const [isRequested, setIsRequested] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const getDayLabel = (day: string) => {
+  const getDayLabel = (day?: string) => {
+    if (!day) return "";
     try {
       return t(`student.myGroups.${day}` as Parameters<typeof t>[0]) || day;
     } catch {
@@ -110,8 +111,12 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
                   className="flex items-center gap-1.5 bg-primary/5 border border-primary/10 rounded-xl px-3 py-1.5 text-xs font-medium text-primary transition-colors group-hover:bg-primary/10"
                 >
                   <Clock className="h-3 w-3 text-primary shrink-0" />
-                  <span className="font-bold">{time.day_name || getDayLabel(time.day)}</span>
-                  <span className="text-muted-foreground">·</span>
+                  {(time.day_name || (time.day && getDayLabel(time.day))) && (
+                    <>
+                      <span className="font-bold">{time.day_name || getDayLabel(time.day)}</span>
+                      <span className="text-muted-foreground">·</span>
+                    </>
+                  )}
                   <span dir="ltr">
                     {formatTime(time.start_time)} - {formatTime(time.end_time)}
                   </span>
