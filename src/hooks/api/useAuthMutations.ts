@@ -179,14 +179,15 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
     queryKey: ["register", "form-data", "role", resolvedRoleId],
     queryFn: async () => {
       const res = await authService.getRegisterData(resolvedRoleId, { lang });
+      const tracks = res?.tracks ?? (res as any)?.data?.tracks ?? [];
       return {
-        tracks: res.tracks,
+        tracks,
         user_roles: [],
         enrollment_types: [
           {
             id: 1,
             name: "Academy",
-            tracks: res.tracks,
+            tracks,
           },
         ],
       } as RegisterFormData;

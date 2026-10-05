@@ -26,7 +26,7 @@ export function InstructionsContent() {
 
   // Sync activeTab with typeParam if present
   useEffect(() => {
-    if (typeParam === "women") {
+    if (typeParam === "women" || typeParam === "student") {
       setActiveTab("women");
     } else if (typeParam === "parent") {
       setActiveTab("children");

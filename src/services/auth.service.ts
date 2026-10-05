@@ -142,7 +142,15 @@ export const authService = {
           role_id: Number(roleId),
         },
       },
-    }).then((r) => r.data);
+    }).then((r) => {
+      if ((r as any)?.data?.tracks !== undefined) {
+        return (r as any).data as RegisterDataResponse;
+      }
+      if ((r as any)?.tracks !== undefined) {
+        return r as unknown as RegisterDataResponse;
+      }
+      return ((r as any)?.data ?? r) as RegisterDataResponse;
+    });
   },
 };
 

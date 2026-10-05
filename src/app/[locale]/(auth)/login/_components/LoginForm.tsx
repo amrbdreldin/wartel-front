@@ -16,11 +16,12 @@ import { ArrowLeft, ArrowRight, LogIn, AlertCircle, CheckCircle2, UserCheck } fr
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useLoginMutation } from "@/hooks/api/useAuthMutations";
+import { useLoginMutation, useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
+import { cn } from "@/lib/utils";
 
 // ============================================================
 // LoginForm – extracted form component for maintenance ease
@@ -35,6 +36,11 @@ export function LoginForm() {
   const router = useRouter();
   const { login: handleLoginState } = useAuth();
   const { mutate: login, isPending } = useLoginMutation();
+
+  // Fetch register data for student (role_id = 1) to check if tracks are available
+  const { data: registerData } = useRegisterFormDataQuery(1);
+  const studentTracks = registerData?.tracks ?? [];
+  const hasStudentTracks = studentTracks.length > 0;
 
   const [fcmToken, setFcmToken] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
@@ -149,14 +155,7 @@ export function LoginForm() {
                   />
 
                   {/* Quick links: Reactivation & Reset password */}
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setReactivationDialogOpen(true)}
-                      className="text-xs text-muted-foreground hover:text-primary hover:underline transition-colors font-medium text-start cursor-pointer"
-                    >
-                      {t("auth.terminatedAccountQuestion")}
-                    </button>
+                  <div className="flex justify-end gap-2">
                     <button
                       type="button"
                       onClick={() => setResetDialogOpen(true)}
@@ -200,14 +199,16 @@ export function LoginForm() {
                         {t("auth.dontHaveAccount")}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                      {/* <Link
-                        href={`/${locale}/instructions?type=student`}
-                        className="flex items-center justify-center h-11 rounded-xl border border-primary/20 text-xs font-black text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 gap-1.5"
-                      >
-                        {t("auth.registerAsStudent")}
-                        {isRTL ? <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" /> : <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />}
-                      </Link> */}
+                    <div className={cn("grid gap-3 w-full", hasStudentTracks ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
+                      {hasStudentTracks && (
+                        <Link
+                          href={`/${locale}/instructions?type=student`}
+                          className="flex items-center justify-center h-11 rounded-xl border border-primary/20 text-xs font-black text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 gap-1.5"
+                        >
+                          {t("auth.registerAsStudent")}
+                          {isRTL ? <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" /> : <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />}
+                        </Link>
+                      )}
                       <Link
                         href={`/${locale}/instructions?type=parent`}
                         className="flex items-center justify-center h-11 rounded-xl border border-accent/20 text-xs font-black text-accent bg-accent/5 hover:bg-accent/10 hover:border-accent/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 gap-1.5"
