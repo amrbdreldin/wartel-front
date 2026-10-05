@@ -12,6 +12,8 @@ export interface Notification {
   message: string;
   is_read: boolean;
   created_at: string;
+  image_url?: string | null;
+  url?: string | null;
   metadata?: any;
 }
 

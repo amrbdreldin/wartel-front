@@ -5,6 +5,8 @@ export interface GlobalNotification {
   id: number;
   message_body: string;
   created_at: string;
+  image_url?: string | null;
+  url?: string | null;
 }
 
 export interface GlobalNotificationsResponse {

@@ -64,6 +64,8 @@ export interface StudentNotification {
   message: string;
   is_read: boolean;
   created_at: string;
+  image_url?: string | null;
+  url?: string | null;
 }
 
 export interface LibraryCourse {

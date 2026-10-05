@@ -1522,7 +1522,20 @@
     "blocked_guide": "⚠️ Notifications are blocked in your browser. To receive critical registration updates, please click the lock/settings icon next to the URL and set Notifications to 'Allow'.",
     "newNotification": "New Notification",
     "globalNotificationsTitle": "Urgent Alerts",
-    "noGlobalNotifications": "No urgent alerts currently"
+    "noGlobalNotifications": "No urgent alerts currently",
+    "newAlertsCount": "{count} new",
+    "loadingAlerts": "Loading alerts...",
+    "noUrgentAlertsDesc": "Your account is up to date and there are no new alerts currently.",
+    "clickToEnlarge": "Click to enlarge",
+    "viewFullImage": "View full size image",
+    "notificationImage": "Notification Image",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "resetZoom": "Reset Zoom",
+    "openImageInNewTab": "Open image in new tab",
+    "openAttachedLink": "Open attached link",
+    "imageLoadError": "Failed to load image",
+    "close": "Close"
   },
   "unread": "{count} unread",
   "warningsTable": {

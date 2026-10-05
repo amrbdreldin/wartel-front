@@ -14,7 +14,16 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 import { UserRole } from "@/types/enums";
-import { Bell, Menu, ArrowLeftRight, GraduationCap } from "lucide-react";
+import {
+  Bell,
+  Menu,
+  ArrowLeftRight,
+  GraduationCap,
+  ZoomIn,
+  Maximize2,
+  ExternalLink,
+  ImageIcon,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,7 +32,8 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { PARENT_TOKEN_KEY, PARENT_USER_KEY } from "@/lib/constants";
 import { toast } from "sonner";
-import { useGlobalNotifications } from "@/hooks/api/useGlobalNotifications";
+import { useGlobalNotifications, type GlobalNotification } from "@/hooks/api/useGlobalNotifications";
+import { NotificationImageModal } from "@/components/common/NotificationImageModal";
 
 // ============================================================
 // Topbar – Dashboard top navigation bar
@@ -37,12 +47,14 @@ interface TopbarProps {
 
 export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
   const t = useTranslations("common");
+  const tNotif = useTranslations("notifications");
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const { user, restoreParentSession } = useAuth();
 
   const [hasParentSession, setHasParentSession] = useState(false);
+  const [previewNotification, setPreviewNotification] = useState<GlobalNotification | null>(null);
   const [isRestoringTeacher, setIsRestoringTeacher] = useState(false);
 
   useEffect(() => {
@@ -221,25 +233,25 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
               </span>
             )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0 rounded-2xl shadow-xl border border-border/80 bg-popover text-popover-foreground overflow-hidden max-h-[450px] flex flex-col">
+          <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0 rounded-2xl shadow-xl border border-border/80 bg-popover text-popover-foreground overflow-hidden max-h-[480px] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/20">
               <span className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
                 <Bell className="h-4 w-4 text-primary" />
-                {locale === "ar" ? "التنبيهات العاجلة" : "Urgent Alerts"}
+                {tNotif("globalNotificationsTitle")}
               </span>
               {unreadGlobalCount > 0 && (
                 <Badge variant="outline" className="text-[10px] font-sans border-primary/20 bg-primary/5 text-primary">
-                  {locale === "ar" ? `${unreadGlobalCount} جديدة` : `${unreadGlobalCount} new`}
+                  {tNotif("newAlertsCount", { count: unreadGlobalCount })}
                 </Badge>
               )}
             </div>
 
             {/* Notifications List */}
-            <div className="flex-1 overflow-y-auto py-1 max-h-[320px]">
+            <div className="flex-1 overflow-y-auto py-1 max-h-[350px]">
               {globalNotifsLoading ? (
                 <div className="p-8 text-center text-xs text-muted-foreground animate-pulse">
-                  {locale === "ar" ? "جاري تحميل التنبيهات..." : "Loading alerts..."}
+                  {tNotif("loadingAlerts")}
                 </div>
               ) : globalNotifs.length === 0 ? (
                 <div className="p-8 text-center flex flex-col items-center justify-center gap-3">
@@ -248,10 +260,10 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
                   </div>
                   <div className="text-center">
                     <p className="text-xs font-bold text-foreground">
-                      {locale === "ar" ? "لا توجد تنبيهات عاجلة حالياً" : "No urgent alerts currently"}
+                      {tNotif("noGlobalNotifications")}
                     </p>
                     <p className="text-[10px] text-muted-foreground mt-1">
-                      {locale === "ar" ? "حسابك محدث بالكامل." : "Your account is up to date."}
+                      {tNotif("noUrgentAlertsDesc")}
                     </p>
                   </div>
                 </div>
@@ -271,11 +283,70 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
                         }`}>
                           <Bell className="w-4 h-4" />
                         </div>
-                        <div className="flex-1 min-w-0 space-y-1">
-                          <p className="text-xs font-bold text-foreground leading-relaxed break-words">
-                            {notif.message_body}
-                          </p>
-                          <p className="text-[9px] font-sans text-muted-foreground">
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          {notif.message_body?.trim() ? (
+                            <p className="text-xs font-bold text-foreground leading-relaxed break-words">
+                              {notif.message_body}
+                            </p>
+                          ) : notif.image_url ? (
+                            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                              <ImageIcon className="w-3.5 h-3.5 text-primary" />
+                              <span>{tNotif("notificationImage")}</span>
+                            </p>
+                          ) : null}
+
+                          {/* Image preview thumbnail if present */}
+                          {notif.image_url && (
+                            <div
+                              role="button"
+                              tabIndex={0}
+                              aria-label={tNotif("viewFullImage")}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewNotification(notif);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setPreviewNotification(notif);
+                                }
+                              }}
+                              className="relative group/notif-img block w-full overflow-hidden rounded-xl border border-border/70 bg-muted/30 cursor-pointer transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={notif.image_url}
+                                alt={notif.message_body || tNotif("notificationImage")}
+                                className="w-full h-32 sm:h-36 object-cover transition-transform duration-300 group-hover/notif-img:scale-105"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover/notif-img:opacity-100 transition-opacity duration-200 flex items-end justify-between p-2.5 text-white">
+                                <span className="text-[11px] font-bold flex items-center gap-1.5 drop-shadow">
+                                  <ZoomIn className="w-3.5 h-3.5" />
+                                  {tNotif("clickToEnlarge")}
+                                </span>
+                                <span className="text-[10px] bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full font-medium">
+                                  <Maximize2 className="w-3 h-3" />
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {notif.url && (
+                            <a
+                              href={notif.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span>{tNotif("openAttachedLink")}</span>
+                            </a>
+                          )}
+
+                          <p className="text-[9px] font-sans text-muted-foreground pt-0.5">
                             {notif.created_at}
                           </p>
                         </div>
@@ -306,6 +377,14 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
         <LogoutConfirmDialog
           open={logoutDialogOpen}
           onOpenChange={setLogoutDialogOpen}
+        />
+
+        <NotificationImageModal
+          notification={previewNotification}
+          open={!!previewNotification}
+          onOpenChange={(open) => {
+            if (!open) setPreviewNotification(null);
+          }}
         />
       </div>
     </header>

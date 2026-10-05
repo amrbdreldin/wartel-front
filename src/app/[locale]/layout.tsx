@@ -164,6 +164,7 @@ export default async function LocaleLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${tajawal.variable} ${inter.variable} ${
           dir === "rtl" ? "font-arabic" : "font-sans"
         } antialiased`}

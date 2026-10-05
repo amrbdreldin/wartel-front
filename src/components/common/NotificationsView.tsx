@@ -14,7 +14,9 @@ import {
   ShieldCheck,
   ArrowRight,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
+  ZoomIn,
+  Maximize2,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { useState, useEffect } from "react";
@@ -23,6 +25,7 @@ import { teacherService } from "@/services/teacher.service";
 import type { Notification } from "@/store/slices/notificationSlice";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { NotificationImageModal, type NotificationModalData } from "@/components/common/NotificationImageModal";
 
 interface NotificationsViewProps {
   showTelegramSync?: boolean;
@@ -41,6 +44,7 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
   const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
   const [activeTab, setActiveTab] = useState<"all" | "urgent" | "admin" | "chat">("all");
   const [mainTab, setMainTab] = useState<"notifications" | "warnings">("notifications");
+  const [previewNotification, setPreviewNotification] = useState<NotificationModalData | null>(null);
 
   // Sync local state when API data changes
   useEffect(() => {
@@ -455,6 +459,55 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
                       <p className="text-xs text-foreground/80 font-bold leading-relaxed mt-3">
                         {notif.message.startsWith("notif") ? t(notif.message) : notif.message}
                       </p>
+
+                      {notif.image_url && (
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          aria-label={t("notifications.viewFullImage") || "عرض الصورة بالحجم الكامل"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewNotification({
+                              id: notif.id,
+                              message_body: notif.message,
+                              image_url: notif.image_url,
+                              created_at: notif.created_at,
+                              url: notif.url,
+                            });
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setPreviewNotification({
+                                id: notif.id,
+                                message_body: notif.message,
+                                image_url: notif.image_url,
+                                created_at: notif.created_at,
+                                url: notif.url,
+                              });
+                            }
+                          }}
+                          className="mt-3 relative group/notif-img block w-full overflow-hidden rounded-2xl border border-border/70 bg-muted/30 cursor-pointer transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={notif.image_url}
+                            alt={notif.title || "صورة الإشعار"}
+                            className="w-full h-40 sm:h-48 object-cover transition-transform duration-300 group-hover/notif-img:scale-105"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover/notif-img:opacity-100 transition-opacity duration-200 flex items-end justify-between p-3 text-white">
+                            <span className="text-xs font-bold flex items-center gap-1.5 drop-shadow">
+                              <ZoomIn className="w-4 h-4" />
+                              {t("notifications.clickToEnlarge") || "انقر للتكبير"}
+                            </span>
+                            <span className="text-[10px] bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full font-medium">
+                              <Maximize2 className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex justify-between items-center pt-4 border-t border-border/30 mt-4">
@@ -559,6 +612,13 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
         </div>
       )}
 
+      <NotificationImageModal
+        notification={previewNotification}
+        open={!!previewNotification}
+        onOpenChange={(open) => {
+          if (!open) setPreviewNotification(null);
+        }}
+      />
     </div>
   );
 }

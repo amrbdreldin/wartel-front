@@ -1521,7 +1521,20 @@
     "blocked_guide": "⚠️ الإشعارات محظورة في متصفحك. لتلقي تحديثات التسجيل الهامة، يرجى الضغط على أيقونة القفل/الإعدادات بجانب رابط الموقع وتفعيل الإشعارات.",
     "newNotification": "إشعار جديد",
     "globalNotificationsTitle": "التنبيهات العاجلة",
-    "noGlobalNotifications": "لا توجد تنبيهات عاجلة حالياً"
+    "noGlobalNotifications": "لا توجد تنبيهات عاجلة حالياً",
+    "newAlertsCount": "{count} جديدة",
+    "loadingAlerts": "جاري تحميل التنبيهات...",
+    "noUrgentAlertsDesc": "حسابك محدث بالكامل ولا توجد تنبيهات جديدة حالياً.",
+    "clickToEnlarge": "انقر للتكبير",
+    "viewFullImage": "عرض الصورة بالحجم الكامل",
+    "notificationImage": "صورة الإشعار",
+    "zoomIn": "تكبير الصورة",
+    "zoomOut": "تصغير الصورة",
+    "resetZoom": "إعادة ضبط التكبير",
+    "openImageInNewTab": "فتح الصورة في نافذة جديدة",
+    "openAttachedLink": "زيارة الرابط المرفق",
+    "imageLoadError": "تعذر تحميل الصورة",
+    "close": "إغلاق"
   },
   "unread": "{count} غير مقروء",
   "warningsTable": {
