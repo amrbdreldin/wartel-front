@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { teacherService } from "@/services/teacher.service";
 import { useTeacherSessionAttendance, useTeacherDashboard } from "@/hooks/api/useTeacherQueries";
@@ -9,6 +9,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SubmitSessionAttendancePayload } from "@/types/teacher.types";
+import {
+  getSessionDraft,
+  saveSessionDraft,
+  clearSessionDraft,
+  type StudentDraftData,
+} from "@/utils/sessionDraftStorage";
 
 import { SessionHeader } from "./_components/SessionHeader";
 import { SessionRosterTable } from "./_components/SessionRosterTable";
@@ -107,6 +113,10 @@ export default function TeacherSessionsPage() {
   const [copied, setCopied] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isExam, setIsExam] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+
+  const isUserModified = useRef(false);
+  const hasNotifiedDraftRestored = useRef(false);
 
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [noteContent, setNoteContent] = useState("");
@@ -213,10 +223,13 @@ export default function TeacherSessionsPage() {
 
   const subtitle = t("sessionSubtitle", { date: formattedDate, track: trackName });
 
-  // Reset roster and locked state when session ID changes to avoid leaking states across sessions
+  // Reset roster, locked, and draft state when session ID changes to avoid leaking states across sessions
   useEffect(() => {
     setRoster([]);
     setLocked(false);
+    setHasDraft(false);
+    isUserModified.current = false;
+    hasNotifiedDraftRestored.current = false;
   }, [sessionId]);
 
   // Auto-lock table if attendance has already been recorded in database
@@ -227,13 +240,21 @@ export default function TeacherSessionsPage() {
       );
       if (isAlreadyRecorded) {
         setLocked(true);
+        if (sessionId) {
+          clearSessionDraft(sessionId);
+          setHasDraft(false);
+        }
       }
     }
-  }, [attendanceRes]);
+  }, [attendanceRes, sessionId]);
 
   // Sync state when attendance API responds
   useEffect(() => {
     if (attendanceRes) {
+      const isAlreadyRecorded = attendanceRes.some(
+        (record) => record.recorded_by !== null && record.recorded_by !== undefined
+      );
+
       const mapped = attendanceRes.map((record) => {
         let decision: AttendanceDecision = "present";
         if (record.status_id === "2" || record.status_id === 2 || record.status?.name === "absent") {
@@ -266,6 +287,30 @@ export default function TeacherSessionsPage() {
       setRoster((prevRoster) => {
         // Initial load or after session reset
         if (!prevRoster || prevRoster.length === 0) {
+          if (!isAlreadyRecorded && sessionId) {
+            const draft = getSessionDraft(sessionId);
+            if (draft && draft.students && Object.keys(draft.students).length > 0) {
+              setHasDraft(true);
+              if (typeof draft.isExam === "boolean") {
+                setIsExam(draft.isExam);
+              }
+              if (!hasNotifiedDraftRestored.current) {
+                hasNotifiedDraftRestored.current = true;
+                toast.info(t("draftRestored") || "تمت استعادة المسودة المحفوظة لهذا اليوم بنجاح");
+              }
+              return mapped.map((student) => {
+                const studentDraft = draft.students[student.id];
+                if (!studentDraft) return student;
+                return {
+                  ...student,
+                  decision: studentDraft.decision ?? student.decision,
+                  score: studentDraft.score !== undefined ? studentDraft.score : student.score,
+                  notes: studentDraft.notes !== undefined ? studentDraft.notes : student.notes,
+                  secret_note: studentDraft.secret_note !== undefined ? studentDraft.secret_note : student.secret_note,
+                };
+              });
+            }
+          }
           return mapped;
         }
 
@@ -288,7 +333,7 @@ export default function TeacherSessionsPage() {
         });
       });
     }
-  }, [attendanceRes, resolvedGroupId, resolvedGroupName, t]);
+  }, [attendanceRes, resolvedGroupId, resolvedGroupName, sessionId, t]);
 
   // Sync Meeting URL if present (with fallbacks if roster is empty)
   useEffect(() => {
@@ -317,6 +362,11 @@ export default function TeacherSessionsPage() {
   const submitAttendanceMutation = useMutation({
     mutationFn: (payload: SubmitSessionAttendancePayload) => teacherService.submitSessionAttendance(sessionId, payload),
     onSuccess: (res) => {
+      if (sessionId) {
+        clearSessionDraft(sessionId);
+        setHasDraft(false);
+        isUserModified.current = false;
+      }
       toast.success(res?.message || t("gradesSaved") || "تم الحفظ بنجاح");
       queryClient.invalidateQueries({ queryKey: ["teacher", "sessionAttendance", sessionId] });
       refetchAttendance();
@@ -348,17 +398,63 @@ export default function TeacherSessionsPage() {
     }
   };
 
+  const buildStudentsDraft = (currentRoster: StudentRecord[]): Record<string, StudentDraftData> => {
+    const draft: Record<string, StudentDraftData> = {};
+    for (const s of currentRoster) {
+      draft[s.id] = {
+        decision: s.decision,
+        score: s.score,
+        notes: s.notes,
+        secret_note: s.secret_note,
+      };
+    }
+    return draft;
+  };
+
+  // Debounced auto-save to localStorage when teacher modifies anything
+  useEffect(() => {
+    if (!isUserModified.current || !sessionId || locked || roster.length === 0) return;
+
+    const timer = setTimeout(() => {
+      saveSessionDraft(sessionId, {
+        students: buildStudentsDraft(roster),
+        isExam,
+      });
+      setHasDraft(true);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [roster, isExam, sessionId, locked]);
+
+  // Synchronous flush before page unload or refresh
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isUserModified.current && sessionId && !locked && roster.length > 0) {
+        saveSessionDraft(sessionId, {
+          students: buildStudentsDraft(roster),
+          isExam,
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [roster, isExam, sessionId, locked]);
+
   const handleScoreChange = (id: string, value: string) => {
     if (value !== "" && (!/^\d*\.?\d*$/.test(value) || parseFloat(value) > MAX_SCORE)) return;
+    isUserModified.current = true;
     setRoster((prev) => prev.map((s) => (s.id === id ? { ...s, score: value } : s)));
   };
 
   const handleNotesChange = (id: string, value: string) => {
+    isUserModified.current = true;
     setRoster((prev) => prev.map((s) => (s.id === id ? { ...s, notes: value } : s)));
   };
 
   const handleSaveNote = () => {
     if (selectedStudentForNote) {
+      isUserModified.current = true;
       setRoster((prev) =>
         prev.map((s) =>
           s.id === selectedStudentForNote.id ? { ...s, secret_note: noteContent } : s
@@ -373,12 +469,32 @@ export default function TeacherSessionsPage() {
 
   const setDecision = (id: string, decision: AttendanceDecision) => {
     if (locked) return;
+    isUserModified.current = true;
     setRoster((prev) => prev.map((s) => (s.id === id ? { ...s, decision } : s)));
   };
 
   const markAllPresent = () => {
     if (locked) return;
+    isUserModified.current = true;
     setRoster((prev) => prev.map((s) => ({ ...s, decision: "present" })));
+  };
+
+  const handleIsExamChange = (val: boolean) => {
+    if (locked) return;
+    isUserModified.current = true;
+    setIsExam(val);
+  };
+
+  const handleClearDraft = () => {
+    if (sessionId) {
+      clearSessionDraft(sessionId);
+      setHasDraft(false);
+      isUserModified.current = false;
+      hasNotifiedDraftRestored.current = false;
+      toast.success(t("draftCleared") || "تم مسح المسودة واستعادة البيانات الأصلية");
+      setRoster([]);
+      refetchAttendance();
+    }
   };
 
   const handleConfirm = () => {
@@ -520,7 +636,9 @@ export default function TeacherSessionsPage() {
         t={t}
         hasPoints={hasPoints}
         isExam={isExam}
-        onIsExamChange={setIsExam}
+        onIsExamChange={handleIsExamChange}
+        hasDraft={hasDraft}
+        onClearDraft={handleClearDraft}
       />
 
       {/* Secret Note Dialog */}

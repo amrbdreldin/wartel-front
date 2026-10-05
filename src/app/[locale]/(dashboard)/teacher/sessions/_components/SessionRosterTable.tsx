@@ -47,6 +47,8 @@ interface SessionRosterTableProps {
   hasPoints: boolean;
   isExam: boolean;
   onIsExamChange: (val: boolean) => void;
+  hasDraft?: boolean;
+  onClearDraft?: () => void;
 }
 
 export function SessionRosterTable({
@@ -69,6 +71,8 @@ export function SessionRosterTable({
   hasPoints,
   isExam,
   onIsExamChange,
+  hasDraft = false,
+  onClearDraft,
 }: SessionRosterTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -99,6 +103,27 @@ export function SessionRosterTable({
           <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
             {t("joinedLinkCount", { count: detectedCount })}
           </span>
+          {hasDraft && !locked && (
+            <>
+              <span>•</span>
+              <div className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 animate-in fade-in duration-300">
+                  <Save className="w-3.5 h-3.5 shrink-0" />
+                  <span>{t("draftSaved")}</span>
+                </span>
+                {onClearDraft && (
+                  <button
+                    type="button"
+                    onClick={onClearDraft}
+                    className="text-xs text-muted-foreground hover:text-destructive underline decoration-dotted transition-colors cursor-pointer"
+                    title={t("clearDraft")}
+                  >
+                    {t("clearDraft")}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
