@@ -1,11 +1,12 @@
 "use client";
 
-import { HelpCircle, MessageSquare, Send } from "lucide-react";
+import { Headphones, HelpCircle, MessageSquare, Send } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 
 export function FaqSupportCards() {
   const t = useTranslations("student.faq");
+  const tNav = useTranslations("nav");
   const locale = useLocale();
 
   return (
@@ -44,6 +45,15 @@ export function FaqSupportCards() {
           >
             <MessageSquare className="w-4 h-4 text-primary" />
             <span>{t("openMessages")}</span>
+          </Link>
+
+          {/* Tickets System Button */}
+          <Link
+            href={`/${locale}/student/contact-us`}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-bold hover:bg-primary/15 transition-all"
+          >
+            <Headphones className="w-4 h-4 text-primary" />
+            <span>{tNav("contactUs")}</span>
           </Link>
         </div>
       </div>

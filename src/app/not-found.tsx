@@ -3,7 +3,7 @@
 import { routing } from "@/i18n/routing";
 import { redirect } from "next/navigation";
 
-// Root level Not Found simply redirects to the default locale (ar)
+// Root level Not Found
 export default function NotFound() {
-  redirect(`/${routing.defaultLocale}`);
+  return <div>Root 404 Not Found</div>;
 }

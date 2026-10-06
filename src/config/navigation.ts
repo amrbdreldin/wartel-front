@@ -1,6 +1,6 @@
 import { UserRole } from "@/types/enums";
 import {
-  Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, HelpCircle, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
+  Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
   type LucideIcon
 } from "lucide-react";
 
@@ -55,6 +55,7 @@ const studentNavigation: NavGroup[] = [
       { labelKey: "nav.messages", href: "/student/messages", icon: MessageSquare },
       { labelKey: "nav.library", href: "/student/library", icon: Library },
       { labelKey: "nav.faq", href: "/student/faq", icon: HelpCircle },
+      { labelKey: "nav.contactUs", href: "/student/contact-us", icon: Headphones },
     ],
   },
 ];
@@ -70,7 +71,7 @@ const teacherNavigation: NavGroup[] = [
       { labelKey: "nav.messages", href: "/teacher/messages", icon: MessageSquare },
       { labelKey: "nav.requests", href: "/teacher/requests", icon: ClipboardList },
       { labelKey: "nav.children", href: "/teacher/children", icon: Baby },
-
+      { labelKey: "nav.contactUs", href: "/teacher/contact-us", icon: Headphones },
     ],
   },
 ];
@@ -81,6 +82,7 @@ const parentNavigation: NavGroup[] = [
   {
     items: [
       { labelKey: "nav.dashboard", href: "/parent", icon: LayoutDashboard },
+      { labelKey: "nav.contactUs", href: "/parent/contact-us", icon: Headphones },
     ],
   },
 ];
