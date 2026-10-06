@@ -19,10 +19,11 @@ import {
   Maximize2,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTeacherNotifications, useTeacherWarnings } from "@/hooks/api/useTeacherQueries";
 import { teacherService } from "@/services/teacher.service";
 import type { Notification } from "@/store/slices/notificationSlice";
+import type { WarningListItem } from "@/types/student.types";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { NotificationImageModal, type NotificationModalData } from "@/components/common/NotificationImageModal";
@@ -42,16 +43,16 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
 
   // Local state for notifications to enable instant UI updates
   const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
+  const [prevResponseData, setPrevResponseData] = useState<Notification[] | undefined>(response?.data);
   const [activeTab, setActiveTab] = useState<"all" | "urgent" | "admin" | "chat">("all");
   const [mainTab, setMainTab] = useState<"notifications" | "warnings">("notifications");
   const [previewNotification, setPreviewNotification] = useState<NotificationModalData | null>(null);
 
-  // Sync local state when API data changes
-  useEffect(() => {
-    if (response?.data) {
-      setLocalNotifications(response.data);
-    }
-  }, [response]);
+  // Sync local state when API data changes without cascading effects
+  if (response?.data !== prevResponseData) {
+    setPrevResponseData(response?.data);
+    setLocalNotifications(response?.data ?? []);
+  }
 
   const unreadCount = localNotifications.filter((n) => !n.is_read).length;
 
@@ -375,14 +376,14 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
             {/* Filter Pills */}
             <nav className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide pt-1" aria-label="Filter notifications">
               {[
-                { id: "all", label: t("student.filterAll") },
-                { id: "urgent", label: t("student.filterUrgent") },
-                { id: "admin", label: t("student.filterAdmin") },
-                { id: "chat", label: t("student.filterPrivate") },
+                { id: "all" as const, label: t("student.filterAll") },
+                { id: "urgent" as const, label: t("student.filterUrgent") },
+                { id: "admin" as const, label: t("student.filterAdmin") },
+                { id: "chat" as const, label: t("student.filterPrivate") },
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id)}
                   aria-current={activeTab === tab.id ? "page" : undefined}
                   className={cn(
                     "whitespace-nowrap px-5 py-1.5 rounded-full font-bold text-xs transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary",
@@ -569,7 +570,7 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/30">
-                  {warnings.map((warning: any, idx: number) => {
+                  {warnings.map((warning: WarningListItem, idx: number) => {
                     const isActive = String(warning.status_id) === "1" || warning.status_name === "مفعل";
                     return (
                       <tr 

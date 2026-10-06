@@ -10,7 +10,7 @@ import {
   ResponsiveDialogTitle,
 } from "@/components/ui/responsive-dialog";
 import { useCreateContactThread } from "@/hooks/api/useContactQueries";
-import { ImageIcon, Loader2, Send, UploadCloud, X } from "lucide-react";
+import { Loader2, Send, UploadCloud, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRef, useState } from "react";
@@ -119,9 +119,10 @@ export function CreateTicketModal({
             onTicketCreated(createdId);
           }
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
+          const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
           const errMsg =
-            err?.response?.data?.message || err?.message || t("errorLoading");
+            errorObj?.response?.data?.message || errorObj?.message || t("errorLoading");
           toast.error(errMsg);
         },
       }

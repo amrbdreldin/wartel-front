@@ -5,12 +5,11 @@ import { cn } from "@/lib/utils";
 import {
   Clock,
   Headphones,
-  LifeBuoy,
   MessageSquare,
   MessageSquareCheck,
   Plus,
 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { CreateTicketModal } from "./CreateTicketModal";
@@ -19,7 +18,6 @@ import { TicketList } from "./TicketList";
 
 function ContactUsViewInner() {
   const t = useTranslations("contactUs");
-  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,13 +38,16 @@ function ContactUsViewInner() {
   } = useContactThreads({ page, per_page: 15 });
 
   const threadsData = threadsResponse?.data;
-  const threads = threadsData?.data || [];
+  const threads = useMemo(() => threadsData?.data ?? [], [threadsData?.data]);
 
   // If no ticket selected yet and desktop view, auto-select the first ticket
   useEffect(() => {
     if (!selectedTicketId && threads.length > 0 && typeof window !== "undefined") {
       if (window.innerWidth >= 1024) {
-        setSelectedTicketId(threads[0].id);
+        const timer = setTimeout(() => {
+          setSelectedTicketId(threads[0].id);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [threads, selectedTicketId]);

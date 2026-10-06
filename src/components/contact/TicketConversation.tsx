@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import type { ContactMessage } from "@/types/contact.types";
 import {
   AlertCircle,
-  ArrowLeft,
   ArrowRight,
   Check,
   CheckCheck,
@@ -23,7 +22,6 @@ import {
   RefreshCw,
   Send,
   Shield,
-  UploadCloud,
   User,
   X,
 } from "lucide-react";
@@ -149,9 +147,10 @@ export function TicketConversation({
           handleRemoveFile();
           refetch();
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
+          const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
           const errMsg =
-            err?.response?.data?.message || err?.message || t("errorLoading");
+            errorObj?.response?.data?.message || errorObj?.message || t("errorLoading");
           toast.error(errMsg);
         },
       }

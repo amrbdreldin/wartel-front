@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,15 +47,16 @@ export function NotificationImageModal({
   const [zoom, setZoom] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [prevKey, setPrevKey] = useState<string | null>(null);
 
-  // Reset state whenever notification changes or modal opens
-  useEffect(() => {
-    if (open) {
-      setZoom(1);
-      setIsLoading(true);
-      setHasError(false);
-    }
-  }, [open, notification?.id, notification?.image_url]);
+  // Reset state during render whenever modal opens with a new notification
+  const currentKey = open ? `${notification?.id}_${notification?.image_url}` : null;
+  if (open && currentKey !== prevKey) {
+    setPrevKey(currentKey);
+    setZoom(1);
+    setIsLoading(true);
+    setHasError(false);
+  }
 
   if (!notification || !notification.image_url) {
     return null;

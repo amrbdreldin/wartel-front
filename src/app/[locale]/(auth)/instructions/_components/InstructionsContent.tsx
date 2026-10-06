@@ -4,7 +4,7 @@ import { Check, Info, ArrowLeft, ArrowRight, BookOpen, Users, ShieldCheck } from
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -21,17 +21,20 @@ export function InstructionsContent() {
   const searchParams = useSearchParams();
   const typeParam = searchParams.get("type"); // "women" or "parent"
 
-  const [activeTab, setActiveTab] = useState<"women" | "children">("women");
+  const initialTab = typeParam === "parent" ? "children" : "women";
+  const [activeTab, setActiveTab] = useState<"women" | "children">(initialTab);
+  const [prevTypeParam, setPrevTypeParam] = useState(typeParam);
   const [hasAgreed, setHasAgreed] = useState(false);
 
-  // Sync activeTab with typeParam if present
-  useEffect(() => {
+  // Sync activeTab if typeParam changes
+  if (typeParam !== prevTypeParam) {
+    setPrevTypeParam(typeParam);
     if (typeParam === "women" || typeParam === "student") {
       setActiveTab("women");
     } else if (typeParam === "parent") {
       setActiveTab("children");
     }
-  }, [typeParam]);
+  }
 
   // Safely fetch translated arrays with fallbacks
   let womenItems: string[] = [];

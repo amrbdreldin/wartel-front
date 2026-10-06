@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { ContactThread, ContactThreadsData } from "@/types/contact.types";
+import type { ContactThreadsData } from "@/types/contact.types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -40,7 +40,7 @@ export function TicketList({
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const threads = threadsData?.data || [];
+  const threads = useMemo(() => threadsData?.data ?? [], [threadsData?.data]);
   const meta = threadsData?.meta;
 
   const formatDate = (dateStr?: string | null) => {

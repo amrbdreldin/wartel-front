@@ -143,13 +143,14 @@ export const authService = {
         },
       },
     }).then((r) => {
-      if ((r as any)?.data?.tracks !== undefined) {
-        return (r as any).data as RegisterDataResponse;
+      const resp = r as unknown as { data?: RegisterDataResponse; tracks?: unknown };
+      if (resp?.data?.tracks !== undefined) {
+        return resp.data;
       }
-      if ((r as any)?.tracks !== undefined) {
-        return r as unknown as RegisterDataResponse;
+      if (resp?.tracks !== undefined) {
+        return resp as unknown as RegisterDataResponse;
       }
-      return ((r as any)?.data ?? r) as RegisterDataResponse;
+      return ((resp?.data ?? resp) as RegisterDataResponse);
     });
   },
 };
