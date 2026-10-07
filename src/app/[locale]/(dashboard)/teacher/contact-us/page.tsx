@@ -2,9 +2,9 @@ import { ContactUsView } from "@/components/contact/ContactUsView";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "تواصل معنا - نظام التذاكر للمعلمين | أكاديمية ورتل",
+  title: "تواصل معنا - الرسائل والدعم الفني للمعلمين | أكاديمية ورتل",
   description:
-    "تواصل مع إدارة أكاديمية ورتل واستفسر عن الحلقات والطلبات وتابع تذاكر الدعم الفني بكل سهولة.",
+    "تواصل مع إدارة أكاديمية ورتل واستفسر عن الحلقات والطلبات وتابع رسائل الدعم الفني بكل سهولة.",
 };
 
 export default function TeacherContactUsPage() {

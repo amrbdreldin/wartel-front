@@ -22,6 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 type ResponsiveDialogProps = React.ComponentProps<typeof Dialog>;
 
@@ -60,7 +61,11 @@ export function ResponsiveDialogContent({ children, className, ...props }: React
   
   if (isMobile) {
     return (
-      <SheetContent side="bottom" className={className} {...props}>
+      <SheetContent
+        side="bottom"
+        className={cn("p-4 sm:p-6 overflow-y-auto", className)}
+        {...props}
+      >
         {children}
       </SheetContent>
     );
@@ -78,14 +83,14 @@ export function ResponsiveDialogHeader({ children, className, ...props }: React.
   
   if (isMobile) {
     return (
-      <SheetHeader className={className} {...props}>
+      <SheetHeader className={cn("p-0 pe-8 ltr:pr-8 rtl:pl-8 mb-2", className)} {...props}>
         {children}
       </SheetHeader>
     );
   }
 
   return (
-    <DialogHeader className={className} {...props}>
+    <DialogHeader className={cn("pe-8 ltr:pr-8 rtl:pl-8", className)} {...props}>
       {children}
     </DialogHeader>
   );

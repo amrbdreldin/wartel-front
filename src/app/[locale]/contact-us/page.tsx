@@ -3,9 +3,9 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "تواصل معنا - نظام التذاكر | أكاديمية ورتل",
+  title: "تواصل معنا - نظام الرسائل والدعم الفني | أكاديمية ورتل",
   description:
-    "تواصل مع إدارة أكاديمية ورتل واستفسر عن الحلقات وتابع تذاكر الدعم الفني بكل سهولة.",
+    "تواصل مع إدارة أكاديمية ورتل واستفسر عن الحلقات وتابع رسائل الدعم الفني بكل سهولة.",
 };
 
 export default async function GeneralContactUsPage({

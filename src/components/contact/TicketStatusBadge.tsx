@@ -26,11 +26,13 @@ export function TicketStatusBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20",
+          "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap",
           className
         )}
       >
-        {showIcon && <Clock className="w-3.5 h-3.5 shrink-0 animate-pulse text-amber-600 dark:text-amber-400" />}
+        {showIcon && (
+          <Clock className="hidden sm:inline-block w-3.5 h-3.5 shrink-0 animate-pulse text-amber-600 dark:text-amber-400" />
+        )}
         <span>{label || t("pendingAdmin")}</span>
       </span>
     );
@@ -40,11 +42,13 @@ export function TicketStatusBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20",
+          "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap",
           className
         )}
       >
-        {showIcon && <MessageSquareDot className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />}
+        {showIcon && (
+          <MessageSquareDot className="hidden sm:inline-block w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        )}
         <span>{label || t("pendingUser")}</span>
       </span>
     );
@@ -54,11 +58,11 @@ export function TicketStatusBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border",
+          "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border whitespace-nowrap",
           className
         )}
       >
-        {showIcon && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+        {showIcon && <CheckCircle2 className="hidden sm:inline-block w-3.5 h-3.5 shrink-0" />}
         <span>{label || t("closedTickets")}</span>
       </span>
     );

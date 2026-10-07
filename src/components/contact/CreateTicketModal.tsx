@@ -131,20 +131,23 @@ export function CreateTicketModal({
 
   return (
     <ResponsiveDialog open={open} onOpenChange={handleClose}>
-      <ResponsiveDialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
+      <ResponsiveDialogContent className="sm:max-w-xl max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
+        {/* Subtle mobile sheet drag handle */}
+        <div className="sm:hidden w-12 h-1.5 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-2.5 shrink-0" />
+
         <ResponsiveDialogHeader className="space-y-1 text-start">
-          <ResponsiveDialogTitle className="text-xl font-bold text-foreground">
+          <ResponsiveDialogTitle className="text-lg sm:text-xl font-bold text-foreground">
             {t("newTicketTitle")}
           </ResponsiveDialogTitle>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             {t("newTicketSubtitle")}
           </p>
         </ResponsiveDialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 pt-3">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 pt-2">
           {/* Subject Field */}
-          <div className="space-y-2">
-            <Label htmlFor="ticket-subject" className="text-sm font-semibold text-foreground">
+          <div className="space-y-1.5">
+            <Label htmlFor="ticket-subject" className="text-xs sm:text-sm font-semibold text-foreground">
               {t("subject")} <span className="text-destructive">*</span>
             </Label>
             <Input
@@ -157,7 +160,7 @@ export function CreateTicketModal({
               placeholder={t("subjectPlaceholder")}
               disabled={isPending}
               maxLength={150}
-              className="h-11 rounded-xl bg-card border-border"
+              className="h-10 sm:h-11 rounded-xl bg-card border-border text-sm"
               autoFocus
             />
             {errors.subject && (
@@ -168,8 +171,8 @@ export function CreateTicketModal({
           </div>
 
           {/* Message Field */}
-          <div className="space-y-2">
-            <Label htmlFor="ticket-message" className="text-sm font-semibold text-foreground">
+          <div className="space-y-1.5">
+            <Label htmlFor="ticket-message" className="text-xs sm:text-sm font-semibold text-foreground">
               {t("message")} <span className="text-destructive">*</span>
             </Label>
             <textarea
@@ -182,7 +185,7 @@ export function CreateTicketModal({
               }}
               placeholder={t("messagePlaceholder")}
               disabled={isPending}
-              className="w-full rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-y min-h-[100px]"
+              className="w-full rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-y min-h-[90px] sm:min-h-[110px]"
             />
             {errors.message && (
               <p className="text-xs text-destructive animate-in fade-in">
@@ -192,8 +195,8 @@ export function CreateTicketModal({
           </div>
 
           {/* Optional Attachment */}
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-foreground">
+          <div className="space-y-1.5">
+            <Label className="text-xs sm:text-sm font-semibold text-foreground">
               {t("attachFileOptional")}
             </Label>
 
@@ -211,10 +214,10 @@ export function CreateTicketModal({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isPending}
-                className="w-full flex flex-col items-center justify-center gap-2 p-5 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-2xl transition-all cursor-pointer group text-center"
+                className="w-full flex flex-col items-center justify-center gap-1.5 p-3.5 sm:p-4 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-2xl transition-all cursor-pointer group text-center"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <UploadCloud className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <UploadCloud className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-foreground">
@@ -226,8 +229,8 @@ export function CreateTicketModal({
                 </div>
               </button>
             ) : (
-              <div className="relative flex items-center gap-3 p-3 bg-muted/50 border border-border rounded-2xl">
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-border bg-background">
+              <div className="relative flex items-center gap-3 p-2.5 sm:p-3 bg-muted/50 border border-border rounded-2xl">
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 border border-border bg-background">
                   <Image
                     src={previewUrl}
                     alt="Attachment preview"
@@ -265,13 +268,13 @@ export function CreateTicketModal({
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
               disabled={isPending}
-              className="rounded-xl px-5"
+              className="rounded-xl px-5 h-10 sm:h-10 w-full sm:w-auto cursor-pointer"
             >
               {t("cancel")}
             </Button>
@@ -279,7 +282,7 @@ export function CreateTicketModal({
             <Button
               type="submit"
               disabled={isPending}
-              className="rounded-xl px-6 bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 flex items-center gap-2 cursor-pointer"
+              className="rounded-xl px-6 h-10 sm:h-10 bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
             >
               {isPending ? (
                 <>

@@ -113,44 +113,44 @@ function ContactUsViewInner() {
 
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3.5 mt-3.5 pt-3.5 border-t border-border/40">
-          <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-card/70 backdrop-blur-xs border border-border/60 hover:bg-card/90 transition-all">
-            <div className="min-w-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate font-medium">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-card/70 backdrop-blur-xs border border-border/60 hover:bg-card/90 transition-all">
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] sm:text-xs text-muted-foreground font-medium leading-tight">
                 {t("totalTickets")}
               </p>
-              <p className="text-sm sm:text-lg md:text-xl font-bold text-foreground leading-tight mt-0.5">
+              <p className="text-sm sm:text-lg md:text-xl font-bold text-foreground leading-tight mt-1 sm:mt-0.5">
                 {stats.total}
               </p>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-primary/10 text-primary items-center justify-center shrink-0">
               <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-card/70 backdrop-blur-xs border border-border/60 hover:bg-card/90 transition-all">
-            <div className="min-w-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate font-medium">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-card/70 backdrop-blur-xs border border-border/60 hover:bg-card/90 transition-all">
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] sm:text-xs text-muted-foreground font-medium leading-tight">
                 {t("pendingAdmin")}
               </p>
-              <p className="text-sm sm:text-lg md:text-xl font-bold text-amber-600 dark:text-amber-400 leading-tight mt-0.5">
+              <p className="text-sm sm:text-lg md:text-xl font-bold text-amber-600 dark:text-amber-400 leading-tight mt-1 sm:mt-0.5">
                 {stats.pendingAdmin}
               </p>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 items-center justify-center shrink-0">
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-card/70 backdrop-blur-xs border border-border/60 hover:bg-card/90 transition-all">
-            <div className="min-w-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate font-medium">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl bg-card/70 backdrop-blur-xs border border-border/60 hover:bg-card/90 transition-all">
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] sm:text-xs text-muted-foreground font-medium leading-tight">
                 {t("pendingUser")}
               </p>
-              <p className="text-sm sm:text-lg md:text-xl font-bold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5">
+              <p className="text-sm sm:text-lg md:text-xl font-bold text-emerald-600 dark:text-emerald-400 leading-tight mt-1 sm:mt-0.5">
                 {stats.pendingUser}
               </p>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 items-center justify-center shrink-0">
               <MessageSquareCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>

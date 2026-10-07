@@ -235,7 +235,7 @@ export function TicketList({
 
                 <h3
                   className={cn(
-                    "text-sm font-bold line-clamp-1 mb-1 transition-colors",
+                    "text-sm font-bold line-clamp-2 leading-snug mb-1 transition-colors",
                     isSelected ? "text-primary" : "text-foreground group-hover:text-primary"
                   )}
                 >
