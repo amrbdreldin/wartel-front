@@ -5,38 +5,7 @@ import type { NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
-// Simple Edge Rate Limiter (Tracks requests per IP across Edge Node executions)
-const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
-const RATE_LIMIT = 50; // Max requests
-const RATE_WINDOW = 60 * 1000; // 1 minute window
-const CLEANUP_INTERVAL = 2 * 60 * 1000; // Run cleanup every 2 minutes
-const MAX_MAP_SIZE = 10_000; // Hard cap to prevent unbounded memory growth
-let lastCleanup = Date.now();
 
-// Purge stale entries AND enforce hard cap to prevent memory leak
-function cleanupRateLimitMap() {
-  const now = Date.now();
-
-  // 1. Remove entries older than 2× the rate window
-  for (const [ip, data] of rateLimitMap.entries()) {
-    if (now - data.timestamp > RATE_WINDOW * 2) {
-      rateLimitMap.delete(ip);
-    }
-  }
-
-  // 2. If still over the hard cap, evict the oldest entries until at 50% capacity
-  if (rateLimitMap.size > MAX_MAP_SIZE) {
-    const entries = [...rateLimitMap.entries()].sort(
-      (a, b) => a[1].timestamp - b[1].timestamp
-    );
-    const toRemove = entries.length - Math.floor(MAX_MAP_SIZE / 2);
-    for (let i = 0; i < toRemove; i++) {
-      rateLimitMap.delete(entries[i][0]);
-    }
-  }
-
-  lastCleanup = now;
-}
 
 export function middleware(request: NextRequest) {
   // Block aggressive crawler / scraper bots early to save bandwidth/compute
@@ -60,33 +29,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${targetLocale}`, request.url));
   }
 
-  // 2. Edge Rate Limiting (DOS Protection)
-  const ip = request.headers.get("x-forwarded-for") || "unknown";
-  if (ip !== "unknown" && !pathname.startsWith("/_next/")) {
-    const currentTime = Date.now();
-
-    // Cleanup: run on timer OR when map exceeds hard cap (Memory Leak fix)
-    if (currentTime - lastCleanup > CLEANUP_INTERVAL || rateLimitMap.size > MAX_MAP_SIZE) {
-      cleanupRateLimitMap();
-    }
-
-    const clientData = rateLimitMap.get(ip) || { count: 0, timestamp: currentTime };
-    
-    if (currentTime - clientData.timestamp > RATE_WINDOW) {
-      // Reset window
-      rateLimitMap.set(ip, { count: 1, timestamp: currentTime });
-    } else {
-      clientData.count++;
-      rateLimitMap.set(ip, clientData);
-      
-      if (clientData.count > RATE_LIMIT) {
-        return new NextResponse(JSON.stringify({ error: "Too Many Requests" }), {
-          status: 429,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-    }
-  }
 
   // 3. Execute localization routing
   const response = intlMiddleware(request);
