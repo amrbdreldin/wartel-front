@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Check,
   CheckCheck,
+  CheckCircle2,
   Clock,
   ExternalLink,
   HelpCircle,
@@ -67,6 +68,8 @@ export function TicketConversation({
 
   const thread = threadResponse?.data;
   const isPendingAdmin = String(thread?.status).toLowerCase() === "pending_admin";
+  const isClosed = String(thread?.status).toLowerCase() === "closed";
+  const cannotReply = isPendingAdmin || isClosed;
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return "";
@@ -127,7 +130,7 @@ export function TicketConversation({
 
   const handleSendReply = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!threadId || isPendingAdmin || isReplying) return;
+    if (!threadId || cannotReply || isReplying) return;
 
     if (!replyMessage.trim()) {
       toast.error(t("messageRequired"));
@@ -275,11 +278,17 @@ export function TicketConversation({
           </div>
         </div>
 
-        {/* Status description alert if pending admin */}
+        {/* Status description alert if pending admin or closed */}
         {isPendingAdmin && (
           <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs leading-relaxed animate-in fade-in">
             <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <p className="font-medium">{t("cannotReplyPendingAdmin")}</p>
+          </div>
+        )}
+        {isClosed && (
+          <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-muted/60 border border-border text-muted-foreground text-xs leading-relaxed animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="font-medium">{t("cannotReplyClosed")}</p>
           </div>
         )}
       </div>
@@ -397,13 +406,13 @@ export function TicketConversation({
 
       {/* Reply Input Area */}
       <div className="p-4 border-t border-border bg-card">
-        {isPendingAdmin ? (
+        {cannotReply ? (
           <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-muted/40 border border-border/80 text-center space-y-2 text-muted-foreground">
             <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
               <Lock className="w-4 h-4" />
             </div>
             <p className="text-xs font-medium text-foreground">
-              {t("cannotReplyPendingAdmin")}
+              {isClosed ? t("cannotReplyClosed") : t("cannotReplyPendingAdmin")}
             </p>
           </div>
         ) : (

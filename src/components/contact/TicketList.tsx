@@ -24,6 +24,7 @@ interface TicketListProps {
   onOpenCreateModal: () => void;
   currentPage: number;
   onPageChange: (page: number) => void;
+  canCreateTicket?: boolean;
 }
 
 export function TicketList({
@@ -34,6 +35,7 @@ export function TicketList({
   onOpenCreateModal,
   currentPage,
   onPageChange,
+  canCreateTicket,
 }: TicketListProps) {
   const t = useTranslations("contactUs");
   const locale = useLocale();
@@ -42,6 +44,12 @@ export function TicketList({
 
   const threads = useMemo(() => threadsData?.data ?? [], [threadsData?.data]);
   const meta = threadsData?.meta;
+
+  const totalTickets = meta?.total ?? threads.length;
+  const canCreate =
+    canCreateTicket !== undefined
+      ? canCreateTicket
+      : !isLoading && totalTickets === 0;
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return "";
@@ -106,14 +114,16 @@ export function TicketList({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenCreateModal}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all shadow-xs cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{t("newTicket")}</span>
-          </button>
+          {canCreate && (
+            <button
+              type="button"
+              onClick={onOpenCreateModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all shadow-xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>{t("newTicket")}</span>
+            </button>
+          )}
         </div>
 
         {/* Search Input */}
@@ -192,7 +202,7 @@ export function TicketList({
                 {searchQuery ? t("noSearchResultsDesc") : t("noTicketsDesc")}
               </p>
             </div>
-            {!searchQuery && (
+            {!searchQuery && canCreate && (
               <button
                 type="button"
                 onClick={onOpenCreateModal}

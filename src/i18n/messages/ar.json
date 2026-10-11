@@ -1658,6 +1658,7 @@
     "attachFileHint": "يدعم صور PNG, JPG, JPEG, WEBP حتى 5 ميجابايت",
     "removeFile": "إزالة الملف",
     "cannotReplyPendingAdmin": "لا يمكنك إرسال رد حالياً لأن الرسالة بانتظار رد الإدارة. يمكنك الرد بمجرد تلقي رد من فريق الدعم.",
+    "cannotReplyClosed": "لا يمكنك إرسال رد على هذه الرسالة لأنها مغلقة.",
     "sendReply": "إرسال الرد",
     "sending": "جاري الإرسال...",
     "createTicketSuccess": "تم إرسال الرسالة بنجاح",

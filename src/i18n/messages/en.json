@@ -1659,6 +1659,7 @@
     "attachFileHint": "Supports PNG, JPG, JPEG, WEBP up to 5MB",
     "removeFile": "Remove file",
     "cannotReplyPendingAdmin": "You cannot reply right now because this message is awaiting administration response. You can reply once the support team responds.",
+    "cannotReplyClosed": "You cannot reply to this message because it is closed.",
     "sendReply": "Send Reply",
     "sending": "Sending...",
     "createTicketSuccess": "Message sent successfully",

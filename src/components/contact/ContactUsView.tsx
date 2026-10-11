@@ -80,6 +80,9 @@ function ContactUsViewInner() {
     return { total, pendingAdmin, pendingUser };
   }, [threadsData?.meta?.total, threads]);
 
+  const hasMessages = stats.total >= 1;
+  const canCreateTicket = !isLoading && !hasMessages;
+
   return (
     <div className="space-y-4 sm:space-y-5 max-w-7xl mx-auto animate-in fade-in duration-500 pb-12">
       {/* Top Banner & Action */}
@@ -99,16 +102,18 @@ function ContactUsViewInner() {
             </p>
           </div>
 
-          <div className="shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer text-xs sm:text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t("newTicket")}</span>
-            </button>
-          </div>
+          {canCreateTicket && (
+            <div className="shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer text-xs sm:text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t("newTicket")}</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Quick Stats Grid */}
@@ -174,6 +179,7 @@ function ContactUsViewInner() {
             onOpenCreateModal={() => setIsCreateModalOpen(true)}
             currentPage={page}
             onPageChange={(newPage) => setPage(newPage)}
+            canCreateTicket={canCreateTicket}
           />
         </div>
 
@@ -193,7 +199,7 @@ function ContactUsViewInner() {
 
       {/* Create Ticket Modal */}
       <CreateTicketModal
-        open={isCreateModalOpen}
+        open={isCreateModalOpen && canCreateTicket}
         onOpenChange={setIsCreateModalOpen}
         onTicketCreated={(newId) => {
           handleSelectTicket(newId);
