@@ -401,6 +401,7 @@
     "excusesAndLeavesCenter": "مركز الأعذار والإجازات",
     "activeProtectionSystem": "نظام الحماية النشط لحسابك",
     "activeProtectionDesc": "بمجرد موافقة الإدارة على إجازتك المرفوعة، يتم إيقاف عداد الإنذارات تلقائياً حتى تاريخ العودة المتفق عليه.",
+    "warningsProtectionDesc": "الالتزام بحضور الحلقات وإتمام الورد المقرر يؤدي إلى رفع الإنذار السابق، ويمنح الطالبة فرصة جديدة للاستمرار بانتظام.",
     "submitNewRequest": "تقديم طلب جديد",
     "requestType": "نوع الطلب",
     "chooseType": "اختر النوع...",
@@ -774,7 +775,7 @@
       "noBuddiesFound": "لا توجد طالبات متاحات حالياً",
       "noBuddiesFoundDesc": "لم يتم العثور على طالبات متاحات في هذه المجموعة. جربي إضافة أوقاتك المتاحة ليتمكن الآخرون من إيجادك.",
       "availableTimes": "الأوقات المتاحة",
-      "addAvailableTime": "إضافة أوقاتي المتاحة",
+      "addAvailableTime": "البحث عن رفيقة",
       "addAvailableTimeDesc": "حددي الأوقات التي تناسبك للتسميع ليتمكن الآخرون من التواصل معك",
       "day": "اليوم",
       "startTime": "وقت البداية",
@@ -902,7 +903,10 @@
       "unassigned": "غير محدد",
       "groupPrefix": "مجموعة رقم",
       "openLink": "فتح الرابط",
-      "quickStats": "إحصائيات سريعة"
+      "quickStats": "إحصائيات سريعة",
+      "dateFrom": "من تاريخ",
+      "dateTo": "إلى تاريخ",
+      "clearDateFilter": "مسح فلتر التاريخ"
     },
     "faq": {
       "title": "مركز الأسئلة الشائعة",
@@ -1449,6 +1453,8 @@
     "action": "إجراء",
     "notDetected": "لم يُرصد دخولهم",
     "addSecretNote": "إضافة ملاحظة سرية",
+    "privateNote": "ملاحظات خاصة بالمعلمة",
+    "privateNotePlaceholder": "ملاحظة خاصة تظهر لكِ فقط...",
     "attendanceSummary": "حاضرة: {present} | غائبة/بعذر: {absent}",
     "studentDetails": "تفاصيل الطالب/ــة",
     "attendanceStatus": "حالة الحضور",
@@ -1539,7 +1545,10 @@
     "openImageInNewTab": "فتح الصورة في نافذة جديدة",
     "openAttachedLink": "زيارة الرابط المرفق",
     "imageLoadError": "تعذر تحميل الصورة",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "pageTitle": "الإشعارات",
+    "pageSubtitle": "كل الإشعارات والتنبيهات المرسلة إليكِ من الإدارة",
+    "viewAll": "عرض كل الإشعارات"
   },
   "unread": "{count} غير مقروء",
   "warningsTable": {

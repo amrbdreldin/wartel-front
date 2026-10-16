@@ -78,3 +78,19 @@ export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength) + "...";
 }
+
+/**
+ * Convert a raw exam mark to a percentage. The backend returns the raw mark
+ * (e.g. 10 out of total_marks 10), not a percentage.
+ */
+export function scoreToPercent(score: string | number | null | undefined, totalMarks?: string | number | null): number {
+  const value = parseFloat(String(score ?? "")) || 0;
+  const total = parseFloat(String(totalMarks ?? "")) || 0;
+  return total > 0 ? (value / total) * 100 : value;
+}
+
+/** Display a backend mark as-is, only dropping trailing zeros ("10.00" → "10") */
+export function formatMark(raw: string | number | null | undefined): string {
+  const n = parseFloat(String(raw ?? ""));
+  return Number.isFinite(n) ? String(n) : String(raw ?? "");
+}

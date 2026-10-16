@@ -9,13 +9,14 @@ import {
   HelpCircle,
   MessageSquare,
   Sparkles,
-  Trophy,
   User,
   Users,
+  X,
   XCircle,
 } from "lucide-react";
 import type { StudentPreviousSession } from "@/types/student.types";
 import { DataTable, Column } from "@/components/ui/DataTable";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { cn } from "@/lib/utils";
 
 interface PreviousSessionsTableProps {
@@ -29,6 +30,9 @@ interface PreviousSessionsTableProps {
   totalItems?: number;
   pageSize?: number;
   onPageChange?: (page: number) => void;
+  dateFrom?: string;
+  dateTo?: string;
+  onDateRangeChange?: (from: string, to: string) => void;
 }
 
 export function PreviousSessionsTable({
@@ -42,6 +46,9 @@ export function PreviousSessionsTable({
   totalItems,
   pageSize = 15,
   onPageChange,
+  dateFrom = "",
+  dateTo = "",
+  onDateRangeChange,
 }: PreviousSessionsTableProps) {
   const t = useTranslations();
 
@@ -102,7 +109,7 @@ export function PreviousSessionsTable({
     {
       key: "session_status",
       header: t("student.previousSessions.table.sessionStatus"),
-      className: "hidden lg:table-cell",
+      className: "min-w-[120px]",
       render: (row) => {
         const status = row.session_status;
         if (!status) return <span className="opacity-40">—</span>;
@@ -173,33 +180,10 @@ export function PreviousSessionsTable({
       },
     },
     {
-      key: "degree",
-      header: t("student.previousSessions.table.degree"),
-      className: "hidden xl:table-cell",
-      render: (row) => {
-        if (row.degree_name) {
-          return (
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-foreground bg-muted/50 px-2.5 py-1 rounded-md">
-              <Trophy className="w-3.5 h-3.5 text-warning-500" />
-              {row.degree_name}
-            </span>
-          );
-        }
-        if (row.degree !== null && row.degree !== undefined) {
-          return (
-            <span className="font-bold text-sm text-foreground">
-              {row.degree}
-            </span>
-          );
-        }
-        return <span className="text-muted-foreground/60 text-xs">—</span>;
-      },
-    },
-    {
       key: "points",
       header: t("student.previousSessions.table.points"),
       sortable: true,
-      className: "hidden sm:table-cell",
+      className: "min-w-[90px]",
       render: (row) => {
         const pointsVal = row.points;
         const displayVal =
@@ -249,9 +233,36 @@ export function PreviousSessionsTable({
       isError={isError}
       errorText={resolvedErrorText}
       noDataText={t("student.previousSessions.noSessions")}
-      searchable
-      searchPlaceholder={t("student.previousSessions.searchPlaceholder")}
-      searchKeys={["group_name", "teacher_name", "scheduled_at_formatted", "comment", "notes"]}
+      extraControls={
+        onDateRangeChange && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+            <DatePicker
+              value={dateFrom}
+              onChange={(from) => onDateRangeChange(from, dateTo)}
+              maxDate={dateTo}
+              placeholder={t("student.previousSessions.dateFrom")}
+              className="w-full sm:w-52"
+            />
+            <DatePicker
+              value={dateTo}
+              onChange={(to) => onDateRangeChange(dateFrom, to)}
+              minDate={dateFrom}
+              placeholder={t("student.previousSessions.dateTo")}
+              className="w-full sm:w-52"
+            />
+            {(dateFrom || dateTo) && (
+              <button
+                type="button"
+                onClick={() => onDateRangeChange("", "")}
+                aria-label={t("student.previousSessions.clearDateFilter")}
+                className="p-2.5 rounded-xl border border-border/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )
+      }
       pageSize={pageSize}
       manualPagination
       currentPage={currentPage}

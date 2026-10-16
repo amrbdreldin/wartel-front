@@ -21,14 +21,6 @@ interface GroupStudentsTableProps {
   toggleStudentNotes: (studentId: number) => void;
 }
 
-function getScoreBadge(score: number, t: (key: string) => string) {
-  if (score >= 90) return { label: t("gradeExcellent"), color: "bg-success-100 text-success-700 border-success-200" };
-  if (score >= 75) return { label: t("gradeVeryGood"), color: "bg-warning-100 text-warning-700 border-warning-200" };
-  if (score >= 65) return { label: t("gradeGood"), color: "bg-warning-100 text-warning-700 border-warning-200" };
-  if (score >= 50) return { label: t("gradePass"), color: "bg-info-100 text-info-700 border-info-200" };
-  return { label: t("gradeFail"), color: "bg-destructive/10 text-destructive border-destructive/20" };
-}
-
 export function GroupStudentsTable({
   students,
   trackName,
@@ -69,36 +61,6 @@ export function GroupStudentsTable({
           {student.track_name || trackName}
         </span>
       ),
-    },
-    {
-      key: "average_score",
-      header: t("averageScore"),
-      sortable: true,
-      render: (student) => (
-        <div className="space-y-1.5 max-w-[150px]">
-          <div className="flex justify-between items-center text-sm font-bold">
-            <span className="text-foreground">{student.average_score}%</span>
-          </div>
-          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-success-500 rounded-full transition-all duration-1000"
-              style={{ width: `${student.average_score}%` }}
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "evaluation",
-      header: t("evaluation"),
-      render: (student) => {
-        const scoreBadge = getScoreBadge(student.average_score, t);
-        return (
-          <span className={`text-sm font-black px-3 py-1.5 rounded-lg border ${scoreBadge.color}`}>
-            {scoreBadge.label}
-          </span>
-        );
-      },
     },
     {
       key: "notes",

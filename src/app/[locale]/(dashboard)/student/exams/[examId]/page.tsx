@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { clearExamDraft, getExamDraft, saveExamDraft } from "@/utils/examDraftStorage";
 
 // Helper to resolve media URLs
 const resolveMediaUrl = (url: string | null) => {
@@ -32,9 +33,10 @@ export default function TakeExamPage() {
   const locale = params.locale as string;
   const examId = params.examId as string;
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | number>>({});
-  
+  // Restore any in-progress answers cached on this device
+  const [currentStep, setCurrentStep] = useState(() => getExamDraft(examId)?.currentStep ?? 0);
+  const [answers, setAnswers] = useState<Record<string, string | number>>(() => getExamDraft(examId)?.answers ?? {});
+
   // Audio recorder states per question
   const [recordingStates, setRecordingStates] = useState<Record<string, "idle" | "recording" | "recorded">>({});
   const [recordingTimers, setRecordingTimers] = useState<Record<string, number>>({});
@@ -53,6 +55,7 @@ export default function TakeExamPage() {
     mutationFn: (answersPayload: Record<string, string | number>) => 
       studentService.submitExamAnswers(examId, answersPayload),
     onSuccess: (res) => {
+      clearExamDraft(examId);
       toast.success(res?.message || t("student.examSubmittedSuccessfully") || "تم تسليم الاختبار بنجاح");
       router.push(`/${locale}/student/exams/${examId}/result`);
     },
@@ -60,6 +63,21 @@ export default function TakeExamPage() {
       // Global error toast handles this
     }
   });
+
+  // Cache progress locally on every change. Recorded audio lives in a blob URL that
+  // can't survive a reload, so sound answers are left out of the draft.
+  const soundQuestionIds = examResponse?.data?.questions
+    ?.filter((q) => q.code === "sound")
+    .map((q) => String(q.id));
+  useEffect(() => {
+    if (submitMutation.isSuccess) return;
+    const persistable = Object.fromEntries(
+      Object.entries(answers).filter(([qid]) => !soundQuestionIds?.includes(qid))
+    );
+    saveExamDraft(examId, { answers: persistable, currentStep });
+    // soundQuestionIds is derived from the query data; its identity changes each render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, currentStep, examId, submitMutation.isSuccess]);
 
   if (isLoading) {
     return (
@@ -276,7 +294,7 @@ export default function TakeExamPage() {
         </div>
         <button 
           onClick={() => {
-            if (confirm(locale === "ar" ? "هل أنت/ــي متأكد/ة من الخروج؟ لن يتم حفظ إجاباتك." : "Are you sure you want to exit? Your answers will not be saved.")) {
+            if (confirm(locale === "ar" ? "هل أنت/ــي متأكد/ة من الخروج؟ سيتم الاحتفاظ بإجاباتك على هذا الجهاز لحين العودة (عدا التسجيلات الصوتية)." : "Are you sure you want to exit? Your answers are kept on this device until you return (except audio recordings).")) {
               router.push(`/${locale}/student`);
             }
           }}

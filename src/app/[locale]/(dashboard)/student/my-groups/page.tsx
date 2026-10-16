@@ -277,19 +277,13 @@ export default function MyGroupsPage() {
                 />
                 <span>{group.name}</span>
 
-                {group.has_tamam && (
+                {group.has_tamam && isCompleted && (
                   <span
                     className={cn(
                       "w-2 h-2 rounded-full shrink-0 transition-colors",
-                      isSelected
-                        ? isCompleted
-                          ? "bg-success-300"
-                          : "bg-warning-300"
-                        : isCompleted
-                        ? "bg-success-500"
-                        : "bg-warning-500"
+                      isSelected ? "bg-success-300" : "bg-success-500"
                     )}
-                    title={isCompleted ? t("student.statusCompleted") : t("student.statusPending")}
+                    title={t("student.statusCompleted")}
                   />
                 )}
               </button>

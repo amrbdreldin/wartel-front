@@ -102,22 +102,11 @@ export function TamamStatsCard({
             </div>
           </div>
 
-          {activeTargetGroup.has_tamam && (
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-xl border shrink-0",
-                isCompleted
-                  ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
-                  : "bg-warning-500/10 text-warning-600 border-warning-500/20"
-              )}
-            >
-              <span
-                className={cn(
-                  "w-1.5 h-1.5 rounded-full shrink-0",
-                  isCompleted ? "bg-success-500" : "bg-warning-500"
-                )}
-              />
-              {isCompleted ? t("student.statusCompleted") : t("student.statusPending")}
+          {/* Only the completed state is surfaced; a pending tamam shows no status */}
+          {activeTargetGroup.has_tamam && isCompleted && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-xl border shrink-0 bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20">
+              <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-success-500" />
+              {t("student.statusCompleted")}
             </span>
           )}
         </div>
@@ -242,29 +231,14 @@ export function TamamStatsCard({
           {/* Tamam Status & Action */}
           {activeTargetGroup.has_tamam ? (
             <div className="space-y-2 pt-1">
-              <div
-                className={cn(
-                  "w-full py-2.5 text-center rounded-2xl font-extrabold text-xs border flex items-center justify-center gap-2 shadow-xs transition-all duration-300",
-                  isCompleted
-                    ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
-                    : "bg-warning-500/10 text-warning-600 border-warning-500/20"
-                )}
-              >
-                {isCompleted ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-success-500 animate-bounce" />
-                    <span>
-                      {t("student.tamamStatus")}: {t("student.statusCompleted") || "مكتمل"}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span>
-                      {t("student.tamamStatus")}: {t("student.statusPending") || "معلق"}
-                    </span>
-                  </>
-                )}
-              </div>
+              {isCompleted && (
+                <div className="w-full py-2.5 text-center rounded-2xl font-extrabold text-xs border flex items-center justify-center gap-2 shadow-xs transition-all duration-300 bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20">
+                  <CheckCircle2 className="w-4 h-4 text-success-500 animate-bounce" />
+                  <span>
+                    {t("student.tamamStatus")}: {t("student.statusCompleted") || "مكتمل"}
+                  </span>
+                </div>
+              )}
 
               {(isStudentChild || !hasBuddyFeature || hasAssignedBuddy) && !isCompleted && (
                 <button

@@ -21,15 +21,32 @@ interface PreviousSessionsEnvelope {
 export default function PreviousSessionsPage() {
   const t = useTranslations();
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [dateFrom, setDateFrom] = React.useState(""); // YYYY-MM-DD
+  const [dateTo, setDateTo] = React.useState(""); // YYYY-MM-DD
+  const isDateFiltered = Boolean(dateFrom || dateTo);
   const pageSize = 15;
+  // While filtering by date, pull a wide window so the filter isn't limited to the current page
+  const DATE_FILTER_PAGE_SIZE = 100;
 
-  const { data, isLoading, isFetching, isError, error } = useStudentPreviousSessions({
-    page: currentPage,
-    per_page: pageSize,
-  });
+  const { data, isLoading, isFetching, isError, error } = useStudentPreviousSessions(
+    isDateFiltered
+      ? {
+          page: 1,
+          per_page: DATE_FILTER_PAGE_SIZE,
+          ...(dateFrom && { date_from: dateFrom }),
+          ...(dateTo && { date_to: dateTo }),
+        }
+      : { page: currentPage, per_page: pageSize }
+  );
+
+  const handleDateRangeChange = (from: string, to: string) => {
+    setDateFrom(from);
+    setDateTo(to);
+    setCurrentPage(1);
+  };
 
   // Extract sessions safely from any response shape (PaginatedResponse, direct array, or Laravel LengthAwarePaginator)
-  const sessions: StudentPreviousSession[] = React.useMemo(() => {
+  const allSessions: StudentPreviousSession[] = React.useMemo(() => {
     if (!data) return [];
     if (Array.isArray(data.data)) return data.data;
     const nested = (data.data as { data?: unknown } | undefined)?.data;
@@ -39,6 +56,18 @@ export default function PreviousSessionsPage() {
     if (Array.isArray(data)) return data as StudentPreviousSession[];
     return [];
   }, [data]);
+
+  // scheduled_at / scheduled_at_formatted both start with "YYYY-MM-DD"
+  const sessions = React.useMemo(() => {
+    if (!isDateFiltered) return allSessions;
+    return allSessions.filter((s) => {
+      const day = (s.scheduled_at_formatted || s.scheduled_at || "").slice(0, 10);
+      if (!day) return false;
+      if (dateFrom && day < dateFrom) return false;
+      if (dateTo && day > dateTo) return false;
+      return true;
+    });
+  }, [allSessions, isDateFiltered, dateFrom, dateTo]);
 
   // Extract pagination meta safely from all common formats
   const paginationMeta = React.useMemo(() => {
@@ -85,6 +114,7 @@ export default function PreviousSessionsPage() {
   }, [data, currentPage, pageSize]);
 
   const totalPages = React.useMemo(() => {
+    if (isDateFiltered) return 1;
     if (paginationMeta?.lastPage) {
       return paginationMeta.lastPage;
     }
@@ -94,14 +124,15 @@ export default function PreviousSessionsPage() {
       return currentPage + 1;
     }
     return Math.max(currentPage, 1);
-  }, [paginationMeta, sessions.length, currentPage, pageSize]);
+  }, [isDateFiltered, paginationMeta, sessions.length, currentPage, pageSize]);
 
   const totalItems = React.useMemo(() => {
+    if (isDateFiltered) return sessions.length;
     if (paginationMeta?.total !== undefined) {
       return paginationMeta.total;
     }
     return undefined;
-  }, [paginationMeta]);
+  }, [isDateFiltered, sessions.length, paginationMeta]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">
@@ -139,6 +170,9 @@ export default function PreviousSessionsPage() {
           totalItems={totalItems}
           pageSize={pageSize}
           onPageChange={setCurrentPage}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateRangeChange={handleDateRangeChange}
         />
       </section>
     </div>

@@ -57,6 +57,12 @@ export interface DataTableProps<T> {
   getRowId?: (row: T) => string | number;
 }
 
+// Responsive show/hide utilities in a column's className must also reach its header and
+// skeleton cells, otherwise headers stay visible while body cells disappear and shift.
+const VISIBILITY_CLASS = /^((sm|md|lg|xl|2xl):)?(hidden|table-cell)$/;
+const visibilityClasses = (className?: string) =>
+  className?.split(/\s+/).filter((c) => VISIBILITY_CLASS.test(c)).join(" ");
+
 export function DataTable<T>({
   columns,
   data = [],
@@ -268,6 +274,7 @@ export function DataTable<T>({
                   className={cn(
                     "px-6 py-4.5 text-base md:text-[17px] font-bold text-foreground/80 text-start select-none transition-colors",
                     col.sortable && "cursor-pointer hover:bg-muted/70 hover:text-foreground",
+                    visibilityClasses(col.className),
                     col.thClassName
                   )}
                 >
@@ -294,7 +301,7 @@ export function DataTable<T>({
                   className="animate-pulse border-b border-border/20 last:border-0"
                 >
                   {columns.map((col, cIdx) => (
-                    <td key={`skeleton-cell-${rIdx}-${cIdx}`} className="px-6 py-5.5">
+                    <td key={`skeleton-cell-${rIdx}-${cIdx}`} className={cn("px-6 py-5.5", visibilityClasses(col.className))}>
                       <Skeleton 
                         className={cn(
                           "h-5.5 rounded-md", 

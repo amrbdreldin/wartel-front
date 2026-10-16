@@ -11,7 +11,7 @@ import type { WarningListItem } from "@/types/student.types";
 // ============================================================
 // Student Warnings & Academic Alerts Page
 // ============================================================
-export default function NotificationsPage() {
+export default function WarningsPage() {
   const t = useTranslations();
   const locale = useLocale();
   const isRTL = locale === "ar";
@@ -160,7 +160,7 @@ export default function NotificationsPage() {
         </div>
         <div className="relative z-10 flex-1">
           <h2 className="font-extrabold text-primary text-lg mb-1">{t("student.activeProtectionSystem")}</h2>
-          <p className="text-primary/80 text-sm font-semibold m-0 leading-relaxed">{t("student.activeProtectionDesc")}</p>
+          <p className="text-primary/80 text-sm font-semibold m-0 leading-relaxed">{t("student.warningsProtectionDesc")}</p>
         </div>
         <Shield className="w-64 h-64 absolute rtl:left-[-2rem] ltr:right-[-2rem] opacity-5 text-primary z-0 stroke-[1] pointer-events-none" />
       </div>

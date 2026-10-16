@@ -3,8 +3,9 @@
 import { Trophy} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { studentService } from "@/services/student.service";
+import { scoreToPercent } from "@/utils/format";
 import { ScoreBanner } from "./_components/ScoreBanner";
 import { ExamList } from "./_components/ExamList";
 
@@ -15,10 +16,30 @@ import { ExamList } from "./_components/ExamList";
 export default function GradesPage() {
   const t = useTranslations();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading: isGradesLoading, isError, error } = useQuery({
     queryKey: ["student-exam-grades"],
     queryFn: () => studentService.getExamGrades(),
   });
+
+  const examResults = data?.data?.exam_results || [];
+
+  // /exam-grades returns the raw score (e.g. 6) without the exam's total marks, so pull
+  // total_marks from each exam's result (same query key as the result page → shared cache)
+  const examIds = [...new Set(examResults.map((r) => r.exam?.id).filter(Boolean))];
+  const resultQueries = useQueries({
+    queries: examIds.map((examId) => ({
+      queryKey: ["student-exam-result", String(examId)],
+      queryFn: () => studentService.getExamResult(String(examId)),
+    })),
+  });
+  const isTotalsLoading = resultQueries.some((q) => q.isLoading);
+  const totalMarksByExam: Record<string, string> = {};
+  examIds.forEach((examId, i) => {
+    const total = resultQueries[i]?.data?.data?.total_marks;
+    if (total) totalMarksByExam[String(examId)] = total;
+  });
+
+  const isLoading = isGradesLoading || isTotalsLoading;
 
   if (isLoading) {
     return (
@@ -86,9 +107,12 @@ export default function GradesPage() {
     );
   }
 
-  const gradesData = data?.data;
-  const examResults = gradesData?.exam_results || [];
-  const averageScore = gradesData?.average_score || 0;
+  const percentages = examResults.map((r) =>
+    scoreToPercent(r.score, totalMarksByExam[String(r.exam?.id)] ?? r.exam?.total_marks)
+  );
+  const averageScore = percentages.length
+    ? Math.round(percentages.reduce((sum, p) => sum + p, 0) / percentages.length)
+    : 0;
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500">
@@ -103,7 +127,7 @@ export default function GradesPage() {
 
       <div className="pb-16">
         <ScoreBanner averageScore={averageScore} />
-        <ExamList examResults={examResults} />
+        <ExamList examResults={examResults} totalMarksByExam={totalMarksByExam} />
       </div>
     </div>
   );
