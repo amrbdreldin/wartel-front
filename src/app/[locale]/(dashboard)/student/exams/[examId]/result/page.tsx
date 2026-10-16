@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/enums";
+import { formatMark, scoreToPercent } from "@/utils/format";
 
 // Helper to resolve media URLs
 const resolveMediaUrl = (url: string | null) => {
@@ -93,7 +94,7 @@ export default function ExamResultPage() {
 
   const result = resultResponse.data;
   const questions = result.questions || [];
-  const scorePercent = parseFloat(result.total_score) || 0;
+  const scorePercent = scoreToPercent(result.total_score, result.total_marks);
   const isFailed = scorePercent < 50;
 
   return (
@@ -175,14 +176,17 @@ export default function ExamResultPage() {
             "w-36 h-36 rounded-full border-8 flex flex-col items-center justify-center bg-card shadow-md transition-transform hover:scale-105 duration-500",
             isFailed ? "border-destructive/20" : "border-emerald-500/20"
           )}>
-            <span className={cn(
-              "text-4xl font-black font-sans leading-none",
-              isFailed ? "text-destructive" : "text-emerald-500"
-            )}>
-              {scorePercent.toFixed(0)}%
+            <span
+              dir="ltr"
+              className={cn(
+                "text-3xl font-black font-sans leading-none",
+                isFailed ? "text-destructive" : "text-success-500"
+              )}
+            >
+              {formatMark(result.total_score)}/{formatMark(result.total_marks)}
             </span>
-            <span className="text-[10px] text-muted-foreground font-extrabold uppercase mt-1">
-              {result.total_score} {t("student.outOf") || "من"} {parseFloat(result.total_marks).toFixed(0)}
+            <span className="text-xs text-muted-foreground font-extrabold mt-1.5">
+              {Math.round(scorePercent)}%
             </span>
           </div>
         </div>

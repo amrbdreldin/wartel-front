@@ -4,6 +4,8 @@ import { Trophy, ArrowLeft, ArrowRight, Award, AlertCircle } from "lucide-react"
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import type { DashboardLastGrade } from "@/types/student.types";
+import { scoreToPercent } from "@/utils/format";
 
 interface LatestGradeCardProps {
   lastGrade: any;
@@ -13,8 +15,7 @@ interface LatestGradeCardProps {
 export function LatestGradeCard({ lastGrade, locale }: LatestGradeCardProps) {
   const t = useTranslations();
 
-  // The score returned by the backend is already a percentage from 100%
-  const percentage = lastGrade ? parseFloat(lastGrade.score) : 0;
+  const percentage = lastGrade ? scoreToPercent(lastGrade.score, lastGrade.exam?.total_marks) : 0;
   const isFailed = lastGrade ? percentage < 50 : false;
 
   return (

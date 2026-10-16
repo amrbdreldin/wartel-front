@@ -1,6 +1,6 @@
 import { UserRole } from "@/types/enums";
 import {
-  Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
+  AlertTriangle, Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
   type LucideIcon
 } from "lucide-react";
 
@@ -51,6 +51,7 @@ const studentNavigation: NavGroup[] = [
       { labelKey: "nav.myGroups", href: "/student/my-groups", icon: Users },
       { labelKey: "nav.previousSessions", href: "/student/previous-sessions", icon: CalendarCheck },
       { labelKey: "nav.excuses", href: "/student/excuses", icon: FileText },
+      { labelKey: "nav.warnings", href: "/student/warnings", icon: AlertTriangle },
       { labelKey: "nav.notifications", href: "/student/notifications", icon: Bell },
       { labelKey: "nav.messages", href: "/student/messages", icon: MessageSquare },
       { labelKey: "nav.library", href: "/student/library", icon: Library },
@@ -67,6 +68,7 @@ const teacherNavigation: NavGroup[] = [
     items: [
       { labelKey: "nav.dashboard", href: "/teacher", icon: LayoutDashboard },
       { labelKey: "nav.werd", href: "/teacher/werd", icon: Scroll },
+      { labelKey: "nav.warnings", href: "/teacher/warnings", icon: AlertTriangle },
       { labelKey: "nav.notifications", href: "/teacher/notifications", icon: Bell },
       { labelKey: "nav.messages", href: "/teacher/messages", icon: MessageSquare },
       { labelKey: "nav.requests", href: "/teacher/requests", icon: ClipboardList },

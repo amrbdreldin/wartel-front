@@ -402,6 +402,7 @@
     "excusesAndLeavesCenter": "Excuses and Leaves Center",
     "activeProtectionSystem": "Active Protection System for your account",
     "activeProtectionDesc": "Once your leave is approved by the administration, the warning counter is automatically paused until the agreed return date.",
+    "warningsProtectionDesc": "Committing to attend sessions and completing the assigned werd lifts the previous warning and gives the student a fresh chance to continue regularly.",
     "submitNewRequest": "Submit New Request",
     "requestType": "Request Type",
     "chooseType": "Choose type...",
@@ -775,7 +776,7 @@
       "noBuddiesFound": "No available buddies found",
       "noBuddiesFoundDesc": "No available students found in this group. Try adding your available times so others can find you.",
       "availableTimes": "Available Times",
-      "addAvailableTime": "Add My Available Times",
+      "addAvailableTime": "Find a Buddy",
       "addAvailableTimeDesc": "Set the times that suit you for recitation so others can reach out",
       "day": "Day",
       "startTime": "Start Time",
@@ -903,7 +904,10 @@
       "unassigned": "Not Assigned",
       "groupPrefix": "Group #",
       "openLink": "Open Link",
-      "quickStats": "Quick Statistics"
+      "quickStats": "Quick Statistics",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "clearDateFilter": "Clear date filter"
     },
     "faq": {
       "title": "Frequently Asked Questions",
@@ -1450,6 +1454,8 @@
     "action": "Action",
     "notDetected": "Not detected",
     "addSecretNote": "Add secret note",
+    "privateNote": "Teacher's private notes",
+    "privateNotePlaceholder": "Private note, visible only to you...",
     "attendanceSummary": "Present: {present} | Absent/Excused: {absent}",
     "studentDetails": "Student Details",
     "attendanceStatus": "Attendance Status",
@@ -1540,7 +1546,10 @@
     "openImageInNewTab": "Open image in new tab",
     "openAttachedLink": "Open attached link",
     "imageLoadError": "Failed to load image",
-    "close": "Close"
+    "close": "Close",
+    "pageTitle": "Notifications",
+    "pageSubtitle": "All notifications and alerts sent to you by the administration",
+    "viewAll": "View all notifications"
   },
   "unread": "{count} unread",
   "warningsTable": {

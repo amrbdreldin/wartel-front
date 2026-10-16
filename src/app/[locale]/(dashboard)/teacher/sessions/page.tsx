@@ -18,7 +18,6 @@ import {
 
 import { SessionHeader } from "./_components/SessionHeader";
 import { SessionRosterTable } from "./_components/SessionRosterTable";
-import { SecretNoteModal } from "./_components/SecretNoteModal";
 import { StudentDetailsSidebar } from "./_components/StudentDetailsSidebar";
 import { ConfirmSubmitModal } from "./_components/ConfirmSubmitModal";
 
@@ -118,9 +117,6 @@ export default function TeacherSessionsPage() {
   const isUserModified = useRef(false);
   const hasNotifiedDraftRestored = useRef(false);
 
-  const [showNoteDialog, setShowNoteDialog] = useState(false);
-  const [noteContent, setNoteContent] = useState("");
-  const [selectedStudentForNote, setSelectedStudentForNote] = useState<StudentRecord | null>(null);
   const [selectedStudentDetails, setSelectedStudentDetails] = useState<StudentRecord | null>(null);
 
   const { data: attendanceRes, isLoading: isAttendanceLoading, refetch: refetchAttendance } = useTeacherSessionAttendance(sessionId, {
@@ -452,19 +448,9 @@ export default function TeacherSessionsPage() {
     setRoster((prev) => prev.map((s) => (s.id === id ? { ...s, notes: value } : s)));
   };
 
-  const handleSaveNote = () => {
-    if (selectedStudentForNote) {
-      isUserModified.current = true;
-      setRoster((prev) =>
-        prev.map((s) =>
-          s.id === selectedStudentForNote.id ? { ...s, secret_note: noteContent } : s
-        )
-      );
-      toast.success(t("savedSuccessfully") || "تم حفظ التعديل بنجاح");
-      setShowNoteDialog(false);
-      setNoteContent("");
-      setSelectedStudentForNote(null);
-    }
+  const handleSecretNoteChange = (id: string, value: string) => {
+    isUserModified.current = true;
+    setRoster((prev) => prev.map((s) => (s.id === id ? { ...s, secret_note: value } : s)));
   };
 
   const setDecision = (id: string, decision: AttendanceDecision) => {
@@ -626,9 +612,7 @@ export default function TeacherSessionsPage() {
         setDecision={setDecision}
         handleScoreChange={handleScoreChange}
         handleNotesChange={handleNotesChange}
-        setSelectedStudentForNote={setSelectedStudentForNote}
-        setNoteContent={setNoteContent}
-        setShowNoteDialog={setShowNoteDialog}
+        handleSecretNoteChange={handleSecretNoteChange}
         setSelectedStudentDetails={setSelectedStudentDetails}
         handleConfirm={handleConfirm}
         isPending={submitAttendanceMutation.isPending}
@@ -639,17 +623,6 @@ export default function TeacherSessionsPage() {
         onIsExamChange={handleIsExamChange}
         hasDraft={hasDraft}
         onClearDraft={handleClearDraft}
-      />
-
-      {/* Secret Note Dialog */}
-      <SecretNoteModal
-        showNoteDialog={showNoteDialog}
-        studentName={selectedStudentForNote?.name || ""}
-        noteContent={noteContent}
-        setNoteContent={setNoteContent}
-        setShowNoteDialog={setShowNoteDialog}
-        handleSaveNote={handleSaveNote}
-        locked={locked}
       />
 
       {/* Confirm Submit Dialog */}

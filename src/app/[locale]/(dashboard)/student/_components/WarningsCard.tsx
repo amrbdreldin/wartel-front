@@ -190,7 +190,7 @@ export function WarningsCard({ alerts = [], locale }: WarningsCardProps) {
       {/* Clickable footer link to warnings/notifications log */}
       <div className="mt-auto pt-4 border-t border-border/30">
         <Link
-          href={`/${locale}/student/notifications`}
+          href={`/${locale}/student/warnings`}
           className="text-xs font-extrabold text-[#007070] dark:text-[#00b3b3] hover:text-primary-dark inline-flex items-center justify-center gap-2 group/link border border-primary/20 hover:border-primary/40 px-4 py-2.5 rounded-xl bg-primary/5 hover:bg-primary/10 w-full transition-all duration-300 shadow-sm"
         >
           <span>{t("student.goToNotifications") || "عرض سجل الإنذارات"}</span>

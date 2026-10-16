@@ -7,7 +7,7 @@ import { AlertCircle, AlertTriangle, ShieldCheck, ArrowRight, ArrowLeft } from "
 import Link from "next/link";
 import { DataTable, Column } from "@/components/ui/DataTable";
 
-export default function TeacherNotificationsPage() {
+export default function TeacherWarningsPage() {
   const t = useTranslations();
   const locale = useLocale();
   const isRTL = locale === "ar";

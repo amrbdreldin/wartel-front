@@ -5,39 +5,36 @@ import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { teacherService } from "@/services/teacher.service";
 import { DataTable, Column } from "@/components/ui/DataTable";
+import { resolveLeaveStatus } from "@/utils/leaveStatus";
 
 interface RequestLeaveRecord {
   created_at: string;
   reason: string;
   start_date: string;
   end_date: string;
-  status?: { name?: string };
-  admin_notes?: string;
+  status?: string | { name?: string } | null;
+  admin_notes?: string | null;
 }
 
 // ============================================================
 // Status Badge Helper
 // ============================================================
-function StatusBadge({ statusCode }: { statusCode: string }) {
+function StatusBadge({ status }: { status: RequestLeaveRecord["status"] }) {
   const t = useTranslations();
 
-  switch (statusCode?.toLowerCase()) {
+  switch (resolveLeaveStatus(status)) {
     case "approved":
-    case "accepted":
       return (
         <span className="inline-flex items-center gap-1.5 bg-success-50 text-success-600 dark:bg-success-50/10 px-3.5 py-1.5 font-bold rounded-lg text-sm transition-all duration-200">
           <CheckCircle2 className="w-4 h-4" /> {t("student.statusApproved")}
         </span>
       );
     case "rejected":
-    case "declined":
       return (
         <span className="inline-flex items-center gap-1.5 bg-red-100/50 text-red-600 dark:bg-red-950/20 px-3.5 py-1.5 font-bold rounded-lg text-sm transition-all duration-200">
           <XCircle className="w-4 h-4" /> {t("student.statusRejected")}
         </span>
       );
-    case "review":
-    case "pending":
     default:
       return (
         <span className="inline-flex items-center gap-1.5 bg-warning-100/50 text-warning-600 dark:bg-warning-950/20 px-3.5 py-1.5 font-bold rounded-lg text-sm transition-all duration-200">
@@ -106,7 +103,7 @@ export function RequestsTable() {
     {
       key: "status",
       header: t("common.status"),
-      render: (leave) => <StatusBadge statusCode={leave.status?.name || "pending"} />,
+      render: (leave) => <StatusBadge status={leave.status} />,
     },
     {
       key: "admin_notes",

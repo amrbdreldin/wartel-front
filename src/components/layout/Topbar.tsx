@@ -356,6 +356,15 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
                 </div>
               )}
             </div>
+
+            {(activeRole === UserRole.STUDENT || activeRole === UserRole.TEACHER) && (
+              <Link
+                href={`/${locale}/${activeRole}/notifications`}
+                className="block px-4 py-2.5 border-t border-border text-center text-xs font-bold text-primary hover:bg-muted/40 transition-colors"
+              >
+                {tNotif("viewAll")}
+              </Link>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 

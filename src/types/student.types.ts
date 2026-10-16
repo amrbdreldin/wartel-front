@@ -140,6 +140,7 @@ export interface ExamDetails {
   id: number;
   title: string;
   description: string | null;
+  total_marks?: string | number;
   course: ExamCourseDetails;
 }
 

@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   Users,
   CheckCircle2,
-  HelpCircle,
   XCircle,
   MessageSquare,
   History,
@@ -36,9 +35,7 @@ interface SessionRosterTableProps {
   setDecision: (id: string, decision: "present" | "excused" | "absent") => void;
   handleScoreChange: (id: string, value: string) => void;
   handleNotesChange: (id: string, value: string) => void;
-  setSelectedStudentForNote: (student: StudentRecord) => void;
-  setNoteContent: (content: string) => void;
-  setShowNoteDialog: (show: boolean) => void;
+  handleSecretNoteChange: (id: string, value: string) => void;
   setSelectedStudentDetails: (student: StudentRecord) => void;
   handleConfirm: () => void;
   isPending: boolean;
@@ -60,9 +57,7 @@ export function SessionRosterTable({
   setDecision,
   handleScoreChange,
   handleNotesChange,
-  setSelectedStudentForNote,
-  setNoteContent,
-  setShowNoteDialog,
+  handleSecretNoteChange,
   setSelectedStudentDetails,
   handleConfirm,
   isPending,
@@ -202,7 +197,7 @@ export function SessionRosterTable({
               <th className="px-2 py-3.5 text-center min-w-[270px]">{t("finalDecision")}</th>
               {hasPoints && <th className="px-2 py-3.5 text-center min-w-[90px]">{t("scoreMax", { max: maxScore })}</th>}
               <th className="px-3 py-3.5 text-start min-w-[140px]">{t("additionalNotes")}</th>
-              <th className="px-2 py-3.5 text-center">{t("action")}</th>
+              <th className="px-3 py-3.5 text-start min-w-[160px]">{t("privateNote")}</th>
               <th className="px-3 py-3.5 text-center min-w-[110px]">
                 <span className="flex items-center justify-center gap-1">
                   <History className="w-3.5 h-3.5 text-primary" />
@@ -270,18 +265,6 @@ export function SessionRosterTable({
                         <span>{t("present")}</span>
                       </button>
                       <button
-                        onClick={() => setDecision(student.id, "excused")}
-                        disabled={locked}
-                        className={cn(
-                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-amber-600",
-                          student.decision === "excused" &&
-                            "bg-amber-500 text-white shadow-xs hover:bg-amber-600 hover:text-white"
-                        )}
-                      >
-                        <HelpCircle className="w-3.5 h-3.5" />
-                        <span>{t("excused")}</span>
-                      </button>
-                      <button
                         onClick={() => setDecision(student.id, "absent")}
                         disabled={locked}
                         className={cn(
@@ -323,26 +306,17 @@ export function SessionRosterTable({
                     />
                   </td>
 
-                  {/* Secret Notes Action */}
-                  <td className="px-2 py-3.5 text-center align-middle">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedStudentForNote(student);
-                        setNoteContent(student.secret_note || "");
-                        setShowNoteDialog(true);
-                      }}
-                      className={cn(
-                        "p-2 rounded-xl transition-all mx-auto block active:scale-95",
-                        student.secret_note
-                          ? "bg-primary/15 text-primary hover:bg-primary/25"
-                          : "text-muted-foreground hover:text-primary hover:bg-primary/10 bg-muted/40"
-                      )}
-                      title={locked ? (t("secretNote") || "ملاحظة سرية") : t("addSecretNote")}
-                      aria-label={t("addSecretNote")}
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </button>
+                  {/* Teacher's private note (only visible to the teacher) */}
+                  <td className="px-3 py-3.5 align-middle">
+                    <input
+                      type="text"
+                      value={student.secret_note}
+                      onChange={(e) => handleSecretNoteChange(student.id, e.target.value)}
+                      placeholder={t("privateNotePlaceholder")}
+                      aria-label={`${t("privateNote")} - ${student.name}`}
+                      disabled={locked}
+                      className="w-full border border-primary/25 rounded-xl py-1.5 px-3 text-xs focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all bg-primary/5 text-foreground disabled:opacity-60 disabled:cursor-not-allowed shadow-xs"
+                    />
                   </td>
 
                   {/* Previous Attendance & Details Column */}
@@ -408,7 +382,7 @@ export function SessionRosterTable({
               </div>
 
               {/* Attendance Decision Buttons: Touch-Optimized Segment */}
-              <div className="grid grid-cols-3 gap-1.5 bg-muted/50 p-1 rounded-xl border border-border/50">
+              <div className="grid grid-cols-2 gap-1.5 bg-muted/50 p-1 rounded-xl border border-border/50">
                 <button
                   type="button"
                   onClick={() => setDecision(student.id, "present")}
@@ -421,20 +395,6 @@ export function SessionRosterTable({
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{t("present")}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setDecision(student.id, "excused")}
-                  disabled={locked}
-                  className={cn(
-                    "flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold transition-all text-muted-foreground hover:text-amber-600 active:scale-95",
-                    student.decision === "excused" &&
-                      "bg-amber-500 text-white shadow-xs hover:bg-amber-600 hover:text-white"
-                  )}
-                >
-                  <HelpCircle className="w-3.5 h-3.5" />
-                  <span>{t("excused")}</span>
                 </button>
 
                 <button
@@ -479,26 +439,24 @@ export function SessionRosterTable({
                 </div>
               </div>
 
-              {/* Card Footer: Secret Note & Details Button */}
-              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedStudentForNote(student);
-                    setNoteContent(student.secret_note || "");
-                    setShowNoteDialog(true);
-                  }}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all",
-                    student.secret_note
-                      ? "bg-primary/15 text-primary border border-primary/20"
-                      : "text-muted-foreground hover:bg-muted bg-muted/40"
-                  )}
-                >
+              {/* Teacher's private note (only visible to the teacher) */}
+              <label className="block space-y-1.5">
+                <span className="flex items-center gap-1.5 text-[11px] font-bold text-primary">
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>{student.secret_note ? (t("secretNote") || "ملاحظة مسجلة") : (t("addSecretNote") || "ملاحظة سرية")}</span>
-                </button>
+                  {t("privateNote")}
+                </span>
+                <textarea
+                  rows={2}
+                  value={student.secret_note}
+                  onChange={(e) => handleSecretNoteChange(student.id, e.target.value)}
+                  placeholder={t("privateNotePlaceholder")}
+                  disabled={locked}
+                  className="w-full border border-primary/25 rounded-xl py-2 px-3 text-xs resize-none focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all bg-primary/5 text-foreground disabled:opacity-60 shadow-xs"
+                />
+              </label>
 
+              {/* Card Footer: Details Button */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/40">
                 <button
                   type="button"
                   onClick={() => setSelectedStudentDetails(student)}

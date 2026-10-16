@@ -6,8 +6,15 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { ExamResult } from "@/types/student.types";
+import { formatMark, scoreToPercent } from "@/utils/format";
 
-export function ExamList({ examResults }: { examResults: ExamResult[] }) {
+export function ExamList({
+  examResults,
+  totalMarksByExam = {},
+}: {
+  examResults: ExamResult[];
+  totalMarksByExam?: Record<string, string>;
+}) {
   const t = useTranslations();
   const params = useParams();
   const locale = params.locale as string;
@@ -17,8 +24,8 @@ export function ExamList({ examResults }: { examResults: ExamResult[] }) {
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-400">
         {examResults.length > 0 ? (
           examResults.map((result) => {
-            // The score returned by the backend is already a percentage from 100%
-            const percentage = parseFloat(result.score as any) || 0;
+            const totalMarks = totalMarksByExam[String(result.exam?.id)] ?? result.exam?.total_marks;
+            const percentage = scoreToPercent(result.score, totalMarks);
             const isFailed = percentage < 50;
             const examId = result.exam?.id;
 
@@ -42,7 +49,13 @@ export function ExamList({ examResults }: { examResults: ExamResult[] }) {
                         ? "border-destructive/20 bg-destructive/10 text-destructive group-hover:bg-destructive group-hover:text-white"
                         : "border-primary/20 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white"
                     )}>
-                      {percentage.toFixed(0)}%
+                      {totalMarks ? (
+                        <span dir="ltr" className="text-lg md:text-xl">
+                          {formatMark(result.score)}/{formatMark(totalMarks)}
+                        </span>
+                      ) : (
+                        `${percentage.toFixed(0)}%`
+                      )}
                     </div>
                     <div>
                       <h6 className="font-bold text-lg text-foreground mb-1">{result.exam?.title}</h6>

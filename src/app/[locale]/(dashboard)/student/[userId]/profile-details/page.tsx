@@ -421,6 +421,9 @@ export default function StudentProfileDetailsPage() {
               <span>{t("student.profileDetails.personalInfo") || "Personal Info"}</span>
             </button>
 
+            {/* A student viewing their own profile only gets personal info + certificates;
+                teachers/parents viewing a student keep the full breakdown */}
+            {!isOwnProfile && (<>
             <button
               onClick={() => setActiveTab("groups")}
               className={cn(
@@ -487,6 +490,7 @@ export default function StudentProfileDetailsPage() {
               <Calendar className="w-5 h-5 shrink-0 text-blue-500" />
               <span>{t("student.profileDetails.leavesTab") || "Leaves Requests"}</span>
             </button>
+            </>)}
 
             <button
               onClick={() => setActiveTab("certifications")}
@@ -501,6 +505,7 @@ export default function StudentProfileDetailsPage() {
               <span>{t("student.profileDetails.certificationsTab") || "Certifications"}</span>
             </button>
 
+            {!isOwnProfile && (
             <button
               onClick={() => setActiveTab("warnings")}
               className={cn(
@@ -513,6 +518,7 @@ export default function StudentProfileDetailsPage() {
               <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
               <span>{t("student.profileDetails.warningsTab") || "Warnings"}</span>
             </button>
+            )}
 
 
             {/* Profile Action Buttons for Students visiting their own profile */}
