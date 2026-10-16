@@ -21,12 +21,18 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
   const [hasJoined, setHasJoined] = useState(false);
 
   const meetingUrl = nextSession?.url;
+  const canJoin = Boolean(nextSession?.can_join);
 
   const handleJoinSession = async () => {
     const sessionId = nextSession?.id;
 
     if (!sessionId) {
       toast.error(t("student.errorRegisteringAttendance"));
+      return;
+    }
+
+    if (!canJoin) {
+      toast.error(t("student.buttonActiveBefore"));
       return;
     }
 
@@ -80,11 +86,17 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
             <Calendar className="w-4 h-4 text-primary shrink-0" />
             <span className="truncate">{nextSession.scheduled_at}</span>
           </div>
-          <div className="flex items-center gap-2.5 text-[10px] font-extrabold text-success-600 uppercase tracking-wider">
-            <span className="w-2 h-2 rounded-full bg-success-500 animate-ping shrink-0" />
-            <span className="w-2 h-2 rounded-full bg-success-500 absolute shrink-0" />
-            <span>{t("student.availableNow") || "متاح الآن"}</span>
-          </div>
+          {canJoin ? (
+            <div className="flex items-center gap-2.5 text-[10px] font-extrabold text-success-600 uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-success-500 animate-ping shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-success-500 absolute shrink-0" />
+              <span>{t("student.availableNow") || "متاح الآن"}</span>
+            </div>
+          ) : (
+            <p className="text-[10px] font-bold text-muted-foreground leading-relaxed">
+              {t("student.buttonActiveBefore")}
+            </p>
+          )}
         </div>
       ) : (
         <div className="flex-1 flex flex-col justify-between my-3 min-h-[160px]">
@@ -108,13 +120,13 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
           <>
             <button
               onClick={handleJoinSession}
-              disabled={isJoining || !meetingUrl}
+              disabled={isJoining || !meetingUrl || !canJoin}
               className="block w-full py-3.5 rounded-xl bg-gradient-to-r from-success-600 to-[#047857] hover:from-[#047857] hover:to-success-600 hover:shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:-translate-y-0.5 active:translate-y-0 text-white text-center font-extrabold transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:translate-y-0"
             >
               {isJoining ? (
                 <Loader2 className="w-4 h-4 animate-spin shrink-0" />
               ) : (
-                <Video className={`w-4 h-4 shrink-0 ${meetingUrl ? "animate-pulse" : ""}`} />
+                <Video className={`w-4 h-4 shrink-0 ${meetingUrl && canJoin ? "animate-pulse" : ""}`} />
               )}
               <span className={isJoining ? "text-xs font-bold leading-normal px-1" : ""}>
                 {isJoining 

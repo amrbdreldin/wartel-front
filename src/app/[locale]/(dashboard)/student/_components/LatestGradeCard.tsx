@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { DashboardLastGrade } from "@/types/student.types";
-import { scoreToPercent } from "@/utils/format";
+import { formatMark, scoreToPercent } from "@/utils/format";
 
 interface LatestGradeCardProps {
   lastGrade: any;
@@ -58,8 +58,13 @@ export function LatestGradeCard({ lastGrade, locale }: LatestGradeCardProps) {
               "text-4xl font-black font-sans tracking-tight relative z-10 leading-none",
               isFailed ? "text-destructive font-bold" : "text-accent"
             )}>
-              {percentage.toFixed(0)}%
+              {formatMark(lastGrade.score)}
             </span>
+            {lastGrade.exam?.total_marks && (
+              <span className="text-xs font-bold text-muted-foreground relative z-10 mt-1">
+                / {formatMark(lastGrade.exam.total_marks)}
+              </span>
+            )}
           </div>
 
           {/* Pass/Fail Status Pill */}
