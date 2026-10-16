@@ -6,7 +6,8 @@ import { Provider } from "react-redux";
 import { Toaster } from "sonner";
 
 import { getQueryClient } from "@/lib/react-query";
-import { store } from "@/store";
+import { makeStore } from "@/store";
+import type { ServerAuthSnapshot } from "@/store/slices/authSlice";
 import { FirebaseNotificationListener } from "@/components/providers/FirebaseNotificationListener";
 
 // ============================================================
@@ -14,9 +15,12 @@ import { FirebaseNotificationListener } from "@/components/providers/FirebaseNot
 // ============================================================
 interface ProvidersProps {
   children: React.ReactNode;
+  /** Session snapshot read from cookies on the server — keeps SSR and hydration in sync */
+  serverAuth?: ServerAuthSnapshot;
 }
 
-export default function Providers({ children }: ProvidersProps) {
+export default function Providers({ children, serverAuth }: ProvidersProps) {
+  const [store] = useState(() => makeStore(serverAuth));
   const [queryClient] = useState(() => getQueryClient());
 
   return (

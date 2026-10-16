@@ -82,7 +82,7 @@ export async function downsampleAudioBuffer(
     return buffer;
   }
   
-  const OfflineAudioCtx = window.OfflineAudioContext || (window as any).webkitOfflineAudioContext;
+  const OfflineAudioCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
   if (!OfflineAudioCtx) {
     return buffer;
   }
@@ -107,8 +107,10 @@ export async function downsampleAudioBuffer(
 export function audioBufferToMp3(buffer: AudioBuffer, bitrate: number = 32): Blob {
   // Setup global variables required by lamejs's auto-translated code
   if (typeof window !== "undefined") {
-    const g = window as any;
+    // lamejs's auto-translated sources expect these helpers on the global object
+    const g = window as unknown as Record<string, unknown>;
     if (!g.MPEGMode) {
+      /* eslint-disable @typescript-eslint/no-require-imports -- lamejs sources need these globals defined before they load, so they can't be static imports */
       const common = require("lamejs/src/js/common.js");
       g.common = common;
       g.System = common.System;
@@ -128,10 +130,12 @@ export function audioBufferToMp3(buffer: AudioBuffer, bitrate: number = 32): Blo
       g.MPEGMode = require("lamejs/src/js/MPEGMode.js");
       g.Lame = require("lamejs/src/js/Lame.js");
       g.BitStream = require("lamejs/src/js/BitStream.js");
+      /* eslint-enable @typescript-eslint/no-require-imports */
     }
   }
 
   // Require lamejs dynamically to avoid build-time SSR issues
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- loaded lazily for the same reason (and to keep it out of SSR)
   const lamejs = require("lamejs");
 
   const sampleRate = buffer.sampleRate;
@@ -139,7 +143,7 @@ export function audioBufferToMp3(buffer: AudioBuffer, bitrate: number = 32): Blo
   
   // Create the encoder: new lamejs.Mp3Encoder(channels, samplerate, bitrate)
   const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitrate);
-  const mp3Data: any[] = [];
+  const mp3Data: BlobPart[] = [];
   
   // We use the first channel (mono representation)
   const channelData = buffer.getChannelData(0);
@@ -201,7 +205,7 @@ export function getAudioDuration(file: File): Promise<number> {
 
     audio.onerror = () => {
       cleanUp();
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) {
         resolve(0);
         return;

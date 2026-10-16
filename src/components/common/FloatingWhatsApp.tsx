@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useIsClient } from "@/hooks/useIsClient";
 
 interface FloatingWhatsAppProps {
   whatsappNumber: string;
@@ -10,11 +10,7 @@ interface FloatingWhatsAppProps {
 
 export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
   const t = useTranslations("common");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   if (!mounted || !whatsappNumber) return null;
 
@@ -31,7 +27,7 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
         className={cn(
           "flex items-center justify-center gap-2 h-12 w-12 sm:w-auto sm:px-4 rounded-full",
           "bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white",
-          "shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30",
+          "shadow-lg shadow-success-500/20 hover:shadow-xl hover:shadow-success-500/30",
           "hover:-translate-y-1 active:translate-y-0 transition-all duration-300 ease-out",
           "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25D366]"
         )}

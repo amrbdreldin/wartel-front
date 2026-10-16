@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPut, apiUpload, type ApiCallOptions } from "@/lib/api-client";
+import { apiGet, apiPost, apiPut, apiUpload, type ApiCallOptions, withResponseMeta } from "@/lib/api-client";
+import type { EnrollmentData } from "@/store/slices/enrollmentSlice";
 import type { ApiResponse } from "@/types/api.types";
 import type {
   LoginRequest,
@@ -20,38 +21,17 @@ const AUTH_URL = "/auth";
 export const authService = {
   login: (data: LoginRequest, options?: ApiCallOptions) =>
     apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/login`, data, options).then(
-      (r) => {
-        const responseData = r.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
-        return responseData;
-      }
+      (r) => withResponseMeta(r)
     ),
 
   register: (data: FormData, options?: ApiCallOptions) =>
-    apiUpload<ApiResponse<any>>("/enrollment/submit", data, options).then(
-      (r) => {
-        const responseData = r.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
-        return responseData;
-      }
+    apiUpload<ApiResponse<{ data?: EnrollmentData }>>("/enrollment/submit", data, options).then(
+      (r) => withResponseMeta(r)
     ),
 
   parentRegister: (data: { mobile: string; password: string; full_name: string; firebase_token?: string }, options?: ApiCallOptions) =>
     apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/parent/register`, data, options).then(
-      (r) => {
-        const responseData = r.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
-        return responseData;
-      }
+      (r) => withResponseMeta(r)
     ),
 
   logout: (options?: ApiCallOptions) =>
@@ -73,7 +53,7 @@ export const authService = {
     apiPut<ApiResponse<User>>(`${AUTH_URL}/me`, data, options).then((r) => r.data),
 
   getAuthUser: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<{ fcm_token?: string[]; [key: string]: any }>>(`${AUTH_URL}/user`, options).then((r) => r.data),
+    apiGet<ApiResponse<{ fcm_token?: string[]; [key: string]: unknown }>>(`${AUTH_URL}/user`, options).then((r) => r.data),
 
   // ─── Password reset flow ─────────────────────────────────
   forgotPassword: (phone: string, options?: ApiCallOptions) =>
@@ -116,13 +96,9 @@ export const authService = {
     formData.append("name", data.name);
     formData.append("phone", data.phone);
     formData.append("reason", data.reason);
-    return apiUpload<ApiResponse<any>>("/user-reactivation-request", formData, options).then(
+    return apiUpload<ApiResponse<unknown>>("/user-reactivation-request", formData, options).then(
       (r) => {
-        const responseData = r?.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
+        withResponseMeta(r);
         return r;
       }
     );

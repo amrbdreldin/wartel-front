@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, PartyPopper, X } from "lucide-react";
+import { PartyPopper, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -10,7 +10,7 @@ interface AcademyDecisionModalProps {
   trackTitle?: string;
 }
 
-export function AcademyDecisionModal({ isOpen, onClose, trackTitle }: AcademyDecisionModalProps) {
+export function AcademyDecisionModal({ isOpen, onClose }: AcademyDecisionModalProps) {
   const t = useTranslations();
   const { user } = useAuth();
 
@@ -93,18 +93,18 @@ export function AcademyDecisionModal({ isOpen, onClose, trackTitle }: AcademyDec
                 <div className="space-y-1">
                   <span className="text-muted-foreground font-medium block">{t("student.enrollmentType") || "نوع الالتحاق"}</span>
                   <span className="font-extrabold text-foreground block truncate">
-                    {(user as any)?.enrollment_type === "academy" || (user as any)?.enrollment_type === "الأكاديمية"
+                    {user?.enrollment_type === "academy" || user?.enrollment_type === "الأكاديمية"
                       ? (t("student.academyPath") || "الأكاديمية")
-                      : (user as any)?.enrollment_type === "institute" || (user as any)?.enrollment_type === "المعهد"
+                      : user?.enrollment_type === "institute" || user?.enrollment_type === "المعهد"
                       ? (t("student.institutePath") || "المعهد")
-                      : (user as any)?.enrollment_type || (t("student.academyPath") || "الأكاديمية")}
+                      : user?.enrollment_type || (t("student.academyPath") || "الأكاديمية")}
                   </span>
                 </div>
 
                 <div className="space-y-1">
                   <span className="text-muted-foreground font-medium block">{t("common.status") || "الحالة"}</span>
                   <span className="font-extrabold text-success-600 block">
-                    {(user as any)?.status_id === "2" || (user as any)?.status_id === 2
+                    {user?.status_id === "2" || user?.status_id === 2
                       ? (t("student.statusActive") || "نشط / مقبول")
                       : (t("student.statusPending") || "معلق")}
                   </span>

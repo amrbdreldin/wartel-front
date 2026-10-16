@@ -83,8 +83,8 @@ export default function MyGroupsPage() {
   const hasBuddyEnabled = Boolean(
     activeGroup &&
       Boolean(activeGroup.has_buddy) &&
-      (activeGroup.has_buddy as any) !== "false" &&
-      (activeGroup.has_buddy as any) !== "0"
+      activeGroup.has_buddy !== "false" &&
+      activeGroup.has_buddy !== "0"
   );
 
   // Fetch available buddies for the selected group
@@ -124,7 +124,7 @@ export default function MyGroupsPage() {
 
   const checkIsCompleted = (tamam?: StudentDashboardGroup["tamam_card"]) => {
     if (!tamam || !tamam.status) return false;
-    const statusObj: any = tamam.status;
+    const statusObj = tamam.status as string | Record<string, unknown>;
     if (typeof statusObj === "string") {
       const s = statusObj.trim().toLowerCase();
       return s === "completed" || s === "مكتمل" || s === "done";
@@ -229,7 +229,7 @@ export default function MyGroupsPage() {
         companionPhone={currentTamamGroup?.tamam_card?.buddy?.phone}
         presentStatus={currentTamamGroup?.tamam_card?.status?.presentStatus}
         isStudentChild={isStudentChild}
-        hasBuddy={currentTamamGroup?.has_buddy || !!currentTamamGroup?.tamam_card?.buddy?.full_name}
+        hasBuddy={Boolean(currentTamamGroup?.has_buddy) || !!currentTamamGroup?.tamam_card?.buddy?.full_name}
       />
 
       {/* Page Header */}
@@ -283,10 +283,10 @@ export default function MyGroupsPage() {
                       "w-2 h-2 rounded-full shrink-0 transition-colors",
                       isSelected
                         ? isCompleted
-                          ? "bg-emerald-300"
+                          ? "bg-success-300"
                           : "bg-warning-300"
                         : isCompleted
-                        ? "bg-emerald-500"
+                        ? "bg-success-500"
                         : "bg-warning-500"
                     )}
                     title={isCompleted ? t("student.statusCompleted") : t("student.statusPending")}

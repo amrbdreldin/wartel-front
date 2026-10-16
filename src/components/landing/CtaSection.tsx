@@ -1,12 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 
 export function CtaSection() {
-  const params = useParams();
-  const locale = params.locale as string;
   const t = useTranslations("landing.cta");
 
   return (

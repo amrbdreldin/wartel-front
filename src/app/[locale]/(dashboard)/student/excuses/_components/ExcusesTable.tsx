@@ -24,7 +24,7 @@ function StatusBadge({ statusCode }: { statusCode: string }) {
     case "rejected":
     case "declined":
       return (
-        <span className="inline-flex items-center gap-1.5 bg-red-100/50 text-red-600 dark:bg-red-950/20 px-3.5 py-1.5 font-bold rounded-lg text-sm transition-all duration-200">
+        <span className="inline-flex items-center gap-1.5 bg-danger-100/50 text-danger-600 dark:bg-danger-950/20 px-3.5 py-1.5 font-bold rounded-lg text-sm transition-all duration-200">
           <XCircle className="w-4 h-4" /> {t("student.statusRejected")}
         </span>
       );

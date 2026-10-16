@@ -10,6 +10,14 @@ import { useStudentPreviousSessions } from "@/hooks/api/useStudentQueries";
 import { PreviousSessionsTable } from "./_components/PreviousSessionsTable";
 import type { StudentPreviousSession } from "@/types/student.types";
 
+// The endpoint has returned several pagination shapes over time; read all of them defensively
+type PageMeta = Record<string, number | string | undefined>;
+interface PreviousSessionsEnvelope {
+  meta?: PageMeta;
+  pagination?: PageMeta;
+  data?: PageMeta & { meta?: PageMeta };
+}
+
 export default function PreviousSessionsPage() {
   const t = useTranslations();
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -24,17 +32,18 @@ export default function PreviousSessionsPage() {
   const sessions: StudentPreviousSession[] = React.useMemo(() => {
     if (!data) return [];
     if (Array.isArray(data.data)) return data.data;
-    if (data.data && typeof data.data === "object" && Array.isArray((data.data as any).data)) {
-      return (data.data as any).data;
+    const nested = (data.data as { data?: unknown } | undefined)?.data;
+    if (data.data && typeof data.data === "object" && Array.isArray(nested)) {
+      return nested as StudentPreviousSession[];
     }
-    if (Array.isArray(data)) return data as any;
+    if (Array.isArray(data)) return data as StudentPreviousSession[];
     return [];
   }, [data]);
 
   // Extract pagination meta safely from all common formats
   const paginationMeta = React.useMemo(() => {
     if (!data) return null;
-    const d = data as any;
+    const d = data as unknown as PreviousSessionsEnvelope;
 
     if (d.meta && typeof d.meta === "object") {
       return {
@@ -93,45 +102,6 @@ export default function PreviousSessionsPage() {
     }
     return undefined;
   }, [paginationMeta]);
-
-  // Compute stats for header cards
-  const stats = React.useMemo(() => {
-    if (!sessions.length) {
-      return {
-        total: totalItems ?? 0,
-        attended: 0,
-        absent: 0,
-        rate: "0%",
-        totalPoints: "0.00",
-      };
-    }
-
-    const total = totalItems ?? sessions.length;
-    const attended = sessions.filter(
-      (s) => s.is_attended || s.attendance_status?.id === 1
-    ).length;
-    const absent = sessions.filter(
-      (s) =>
-        s.attendance_status?.id === 2 ||
-        (!s.is_attended && s.attendance_status !== null)
-    ).length;
-
-    const rateNum = sessions.length > 0 ? Math.round((attended / sessions.length) * 100) : 0;
-    const rate = `${rateNum}%`;
-
-    const pointsSum = sessions.reduce((acc, curr) => {
-      const p = parseFloat(String(curr.points || "0"));
-      return acc + (isNaN(p) ? 0 : p);
-    }, 0);
-
-    return {
-      total,
-      attended,
-      absent,
-      rate,
-      totalPoints: pointsSum.toFixed(2),
-    };
-  }, [sessions, totalItems]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">

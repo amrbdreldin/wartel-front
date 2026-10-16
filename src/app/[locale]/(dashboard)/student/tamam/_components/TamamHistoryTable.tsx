@@ -3,12 +3,13 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { DataTable, Column } from "@/components/ui/DataTable";
+import type { TamamRecord } from "@/types/student.types";
 
 interface TamamHistoryTableProps {
-  history: any[];
+  history: TamamRecord[];
 }
 
-const isStatusAbsent = (status: any) => {
+const isStatusAbsent = (status: unknown) => {
   if (!status) return false;
   const s = String(status).trim().toLowerCase();
   return s === "absent" || s === "غياب" || s === "غائب";
@@ -17,7 +18,7 @@ const isStatusAbsent = (status: any) => {
 export function TamamHistoryTable({ history }: TamamHistoryTableProps) {
   const t = useTranslations();
 
-  const columns: Column<any>[] = [
+  const columns: Column<TamamRecord>[] = [
     {
       key: "tamam_id",
       header: "#",

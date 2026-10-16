@@ -1,46 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+/** Chromium-only install prompt event (not in lib.dom yet) */
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform?: string }>;
+}
+
+const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+const noopSubscribe = () => () => {};
+
+/** Show the prompt unless the app is installed or it was dismissed in the last 12 hours */
+function isInstallPromptEligible(): boolean {
+  // Check if app is already running in standalone mode (installed)
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone
+    || document.referrer.includes("android-app://");
+  if (isStandalone) return false;
+
+  // Check if dismissed recently (within 12 hours)
+  const dismissedTime = localStorage.getItem("pwa_install_dismissed");
+  if (dismissedTime && Date.now() - Number(dismissedTime) < TWELVE_HOURS) return false;
+
+  // Show by default for any user who hasn't installed/refused recently
+  return true;
+}
+
 export function PWAInstallPrompt() {
   const t = useTranslations("common.pwa");
-  const params = useParams();
-  const locale = (params.locale as string) || "ar";
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const isEligible = useSyncExternalStore(noopSubscribe, isInstallPromptEligible, () => false);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const isVisible = isEligible && !isDismissed;
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Check if app is already running in standalone mode (installed)
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches 
-      || (window.navigator as any).standalone 
-      || document.referrer.includes("android-app://");
-
-    if (isStandalone) return;
-
-    // Check if dismissed recently (within 12 hours)
-    const dismissedTime = localStorage.getItem("pwa_install_dismissed");
-    if (dismissedTime) {
-      const TWELVE_HOURS = 12 * 60 * 60 * 1000;
-      if (Date.now() - Number(dismissedTime) < TWELVE_HOURS) {
-        return;
-      }
-    }
-
-    // Show by default for any user who hasn't installed/refused recently
-    setIsVisible(true);
+    if (!isEligible) return;
 
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent the mini-infobar on mobile
       e.preventDefault();
       // Store the event to trigger it later
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -48,7 +53,7 @@ export function PWAInstallPrompt() {
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [isEligible]);
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -59,21 +64,21 @@ export function PWAInstallPrompt() {
         localStorage.setItem("pwa_install_dismissed", Date.now().toString());
       }
       setDeferredPrompt(null);
-      setIsVisible(false);
+      setIsDismissed(true);
     } else {
       // Fallback instructions for browsers that don't support beforeinstallprompt (e.g., iOS Safari)
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       if (isIOS) {
         toast.info(t("iosInstruction"));
       } else {
         toast.info(t("fallbackInstruction"));
       }
-      setIsVisible(false);
+      setIsDismissed(true);
     }
   };
 
   const handleDismiss = () => {
-    setIsVisible(false);
+    setIsDismissed(true);
     // Don't show it again for 12 hours
     localStorage.setItem("pwa_install_dismissed", Date.now().toString());
   };

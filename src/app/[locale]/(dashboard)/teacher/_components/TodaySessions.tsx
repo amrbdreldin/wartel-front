@@ -1,16 +1,18 @@
 import React from "react";
 import { Link2, CheckCircle2, Save, Sparkles, Users, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import type { TranslationValues } from "next-intl";
+import type { TeacherTodaySession } from "@/types/teacher.types";
 
 interface TodaySessionsProps {
-  sessions: any[];
+  sessions: TeacherTodaySession[];
   meetLinks: Record<string, string>;
   setMeetLinks: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   savedLinks: Record<string, boolean>;
   savingLinks: Record<string, boolean>;
-  handleSaveLink: (group: any) => Promise<void>;
+  handleSaveLink: (group: TeacherTodaySession) => Promise<void>;
   locale: string;
-  t: (key: string, values?: any) => string;
+  t: (key: string, values?: TranslationValues) => string;
 }
 
 export function TodaySessions({
@@ -26,8 +28,8 @@ export function TodaySessions({
   return (
     <section>
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-amber-500" />
+        <div className="w-10 h-10 rounded-2xl bg-warning-500/15 border border-warning-500/25 flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-warning-500" />
         </div>
         <div>
           <h2 className="text-xl font-black text-foreground">{t("todayHalaqas")}</h2>
@@ -37,7 +39,7 @@ export function TodaySessions({
 
       {sessions.length > 0 ? (
         <div className="grid gap-5">
-          {sessions.map((group: any) => {
+          {sessions.map((group) => {
             const hasUrl = !!(group.url?.trim() || group.meeting_link?.trim());
 
             return (

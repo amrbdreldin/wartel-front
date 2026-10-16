@@ -1,5 +1,4 @@
 import { QueryClient, type DefaultOptions } from "@tanstack/react-query";
-import { STALE_TIME } from "./constants";
 
 // ============================================================
 // React Query – Default Options

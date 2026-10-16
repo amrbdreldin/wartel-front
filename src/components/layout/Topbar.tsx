@@ -30,7 +30,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 import Cookies from "js-cookie";
-import { PARENT_TOKEN_KEY, PARENT_USER_KEY } from "@/lib/constants";
+import { PARENT_USER_KEY } from "@/lib/constants";
+import { hasParentBackup } from "@/lib/session-client";
 import { toast } from "sonner";
 import { useGlobalNotifications, type GlobalNotification } from "@/hooks/api/useGlobalNotifications";
 import { NotificationImageModal } from "@/components/common/NotificationImageModal";
@@ -58,7 +59,7 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
   const [isRestoringTeacher, setIsRestoringTeacher] = useState(false);
 
   useEffect(() => {
-    const hasParent = !!Cookies.get(PARENT_TOKEN_KEY);
+    const hasParent = hasParentBackup();
     Promise.resolve().then(() => {
       setHasParentSession(hasParent);
       if (hasParent) {
@@ -77,8 +78,8 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
     });
   }, [user]);
 
-  const handleReturnToParent = () => {
-    const restoredUser = restoreParentSession();
+  const handleReturnToParent = async () => {
+    const restoredUser = await restoreParentSession();
     if (restoredUser) {
       const isTeacher = restoredUser.role === UserRole.TEACHER || String(restoredUser.role_id) === "2";
       toast.success(

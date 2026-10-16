@@ -14,7 +14,8 @@ import { useSelector } from "react-redux";
 import { selectNotifications } from "@/store/slices/notificationSlice";
 import type { RootState } from "@/store";
 
-import { useState, useEffect } from "react";
+
+import { useLastVisitedMessages } from "@/hooks/useLastVisitedMessages";
 
 // ============================================================
 // Sidebar – Desktop sidebar navigation
@@ -29,13 +30,7 @@ export function Sidebar({ collapsed = false, locale }: SidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { role } = useRole();
-  const [lastVisitedMessages, setLastVisitedMessages] = useState(0);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setLastVisitedMessages(Number(localStorage.getItem("last_visited_messages") || 0));
-    }
-  }, [pathname]);
+  const lastVisitedMessages = useLastVisitedMessages();
   
   // Dynamically resolve role based on path since auth login is bypassed for testing
   const pathSegment = pathname.split('/')[2] as UserRole;

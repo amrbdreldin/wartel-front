@@ -9,8 +9,7 @@ import {
   serverTimestamp,
   writeBatch,
 } from "firebase/firestore";
-import Cookies from "js-cookie";
-import { TOKEN_KEY } from "@/lib/constants";
+import { CLIENT_REQUEST_HEADER } from "@/lib/session-client";
 
 /** Maps a File MIME type to a simple media category */
 export type MediaType = "image" | "audio" | "video" | "document";
@@ -90,24 +89,18 @@ export async function uploadChatMedia(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const headers: Record<string, string> = {};
-  if (typeof window !== "undefined") {
-    const token = Cookies.get(TOKEN_KEY);
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
+  // The proxy authenticates from the HttpOnly session cookie
   const res = await fetch(`${apiBase}/media/upload`, {
     method: "POST",
-    headers,
+    credentials: "same-origin",
+    headers: { ...CLIENT_REQUEST_HEADER },
     body: formData,
   });
 
-  let json: any;
+  let json: { success?: boolean; message?: string; data?: { url?: string } } | undefined;
   try {
     json = await res.json();
-  } catch (err) {
+  } catch {
     // Response might not be JSON, ignore parsing error
   }
 

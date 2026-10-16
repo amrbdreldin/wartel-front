@@ -15,7 +15,6 @@ import Image from "next/image";
 
 import { studentService } from "@/services/student.service";
 import type { WerdRecord } from "@/types/student.types";
-import { cn } from "@/lib/utils";
 
 // Sub-components
 import { ImageLightbox } from "../_components/ImageLightbox";
@@ -88,13 +87,6 @@ export default function WerdDetailsPage() {
   const youtubeMedia = mediaList.filter((m) => m?.type === "youtube");
   const urlMedia = mediaList.filter((m) => m?.type === "url");
 
-  // Non-image media items
-  const nonImageMedia = [
-    ...soundMedia,
-    ...videoMedia,
-    ...youtubeMedia,
-    ...urlMedia,
-  ];
 
   return (
     <>
@@ -180,28 +172,28 @@ export default function WerdDetailsPage() {
               {mediaList.length > 0 ? (
                 <div className="space-y-4">
                   {/* Images inside the media array */}
-                  {imageMedia.map((m) => (
+                  {imageMedia.map((m, i) => (
                     <MediaCard
-                      key={m?.id || Math.random()}
+                      key={m?.id ?? `media-${i}`}
                       media={m}
                       onImageClick={(src, alt) => setLightbox({ src, alt })}
                     />
                   ))}
                   {/* Audio */}
-                  {soundMedia.map((m) => (
-                    <MediaCard key={m?.id || Math.random()} media={m} />
+                  {soundMedia.map((m, i) => (
+                    <MediaCard key={m?.id ?? `media-${i}`} media={m} />
                   ))}
                   {/* Videos */}
-                  {videoMedia.map((m) => (
-                    <MediaCard key={m?.id || Math.random()} media={m} />
+                  {videoMedia.map((m, i) => (
+                    <MediaCard key={m?.id ?? `media-${i}`} media={m} />
                   ))}
                   {/* YouTube */}
-                  {youtubeMedia.map((m) => (
-                    <MediaCard key={m?.id || Math.random()} media={m} />
+                  {youtubeMedia.map((m, i) => (
+                    <MediaCard key={m?.id ?? `media-${i}`} media={m} />
                   ))}
                   {/* URLs */}
-                  {urlMedia.map((m) => (
-                    <MediaCard key={m?.id || Math.random()} media={m} />
+                  {urlMedia.map((m, i) => (
+                    <MediaCard key={m?.id ?? `media-${i}`} media={m} />
                   ))}
                 </div>
               ) : (

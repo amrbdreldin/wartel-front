@@ -3,11 +3,12 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/enums";
 import { Loader2 } from "lucide-react";
 import { RegisterForm } from "./_components/RegisterForm";
+import { useIsClient } from "@/hooks/useIsClient";
 
 // ============================================================
 // Register Page – layout shell only
@@ -19,11 +20,7 @@ export default function RegisterPage() {
   const locale = params.locale as string;
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   useEffect(() => {
     if (mounted && isAuthenticated && user) {

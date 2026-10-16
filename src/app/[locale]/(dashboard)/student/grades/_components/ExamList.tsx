@@ -18,7 +18,7 @@ export function ExamList({ examResults }: { examResults: ExamResult[] }) {
         {examResults.length > 0 ? (
           examResults.map((result) => {
             // The score returned by the backend is already a percentage from 100%
-            const percentage = parseFloat(result.score as any) || 0;
+            const percentage = parseFloat(String(result.score)) || 0;
             const isFailed = percentage < 50;
             const examId = result.exam?.id;
 

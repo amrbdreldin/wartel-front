@@ -10,7 +10,7 @@ import { FaqSupportCards } from "./_components/FaqSupportCards";
 export default function StudentFaqPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: response, isLoading, isError, refetch } = useFaqs();
-  const faqs = response?.data || [];
+  const faqs = useMemo(() => response?.data || [], [response?.data]);
 
   // Filter FAQs based on search input (matching question or answer)
   const filteredFaqs = useMemo(() => {

@@ -9,13 +9,14 @@ import {
 import { useRouter } from "next/navigation";
 import type { GroupStudentDetail, StudentSessionNote } from "@/types/teacher.types";
 import { DataTable, Column } from "@/components/ui/DataTable";
+import type { TranslationValues } from "next-intl";
 
 interface GroupStudentsTableProps {
   students: GroupStudentDetail[];
   trackName: string;
   locale: string;
   isRTL: boolean;
-  t: (key: string, values?: any) => string;
+  t: (key: string, values?: TranslationValues) => string;
   expandedStudents: Record<number, boolean>;
   toggleStudentNotes: (studentId: number) => void;
 }
@@ -23,7 +24,7 @@ interface GroupStudentsTableProps {
 function getScoreBadge(score: number, t: (key: string) => string) {
   if (score >= 90) return { label: t("gradeExcellent"), color: "bg-success-100 text-success-700 border-success-200" };
   if (score >= 75) return { label: t("gradeVeryGood"), color: "bg-warning-100 text-warning-700 border-warning-200" };
-  if (score >= 65) return { label: t("gradeGood"), color: "bg-amber-100 text-amber-700 border-amber-200" };
+  if (score >= 65) return { label: t("gradeGood"), color: "bg-warning-100 text-warning-700 border-warning-200" };
   if (score >= 50) return { label: t("gradePass"), color: "bg-info-100 text-info-700 border-info-200" };
   return { label: t("gradeFail"), color: "bg-destructive/10 text-destructive border-destructive/20" };
 }
@@ -32,7 +33,6 @@ export function GroupStudentsTable({
   students,
   trackName,
   locale,
-  isRTL,
   t,
   expandedStudents,
   toggleStudentNotes,
@@ -50,7 +50,7 @@ export function GroupStudentsTable({
           : "?";
         return (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/20 flex items-center justify-center text-emerald-700 font-black text-sm shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-success-500/20 to-success-500/5 border border-success-500/20 flex items-center justify-center text-success-700 font-black text-sm shrink-0">
               {initials}
             </div>
             <h3 className="font-bold text-base text-foreground">
@@ -81,7 +81,7 @@ export function GroupStudentsTable({
           </div>
           <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
+              className="h-full bg-success-500 rounded-full transition-all duration-1000"
               style={{ width: `${student.average_score}%` }}
             />
           </div>

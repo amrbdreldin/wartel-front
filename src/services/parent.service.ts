@@ -1,6 +1,6 @@
-import { apiGet, apiPost, apiUpload, type ApiCallOptions } from "@/lib/api-client";
+import { apiGet, apiPost, apiUpload, type ApiCallOptions, withResponseMeta } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
-import type { ChildCard, ParentDashboard, RegisterChildRequest } from "@/types/parent.types";
+import type { ChildCard, ParentDashboard, ParentTodaySession, RegisterChildRequest } from "@/types/parent.types";
 import type { LoginResponse } from "@/types/auth.types";
 
 // ============================================================
@@ -14,14 +14,7 @@ export const parentService = {
     apiGet<ApiResponse<ParentDashboard>>(`${BASE_URL}/dashboard`, options).then((r) => r.data),
 
   registerChild: (data: RegisterChildRequest, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<ChildCard>>(`${BASE_URL}/children`, data, options).then((r) => {
-      const responseData = r.data;
-      if (responseData && typeof responseData === "object") {
-        (responseData as any).message = r.message;
-        (responseData as any).success = r.success;
-      }
-      return responseData;
-    }),
+    apiPost<ApiResponse<ChildCard>>(`${BASE_URL}/children`, data, options).then((r) => withResponseMeta(r)),
 
   switchToChild: (childId: string, options?: ApiCallOptions) =>
     apiPost<ApiResponse<{ token: string }>>(
@@ -38,18 +31,11 @@ export const parentService = {
     ).then((r) => r.data),
 
   getChildren: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<{ children: Array<{ id: number; name: string; enrollment_type: string }>; today_sessions?: any[] }>>(`${BASE_URL}/children`, options).then((r) => r.data),
+    apiGet<ApiResponse<{ children: Array<{ id: number; name: string; enrollment_type: string }>; today_sessions?: ParentTodaySession[] }>>(`${BASE_URL}/children`, options).then((r) => r.data),
 
   addStudent: (data: FormData, options?: ApiCallOptions) =>
-    apiUpload<ApiResponse<any>>(`${BASE_URL}/add-student`, data, options).then((r) => {
-      const responseData = r.data;
-      if (responseData && typeof responseData === "object") {
-        (responseData as any).message = r.message;
-        (responseData as any).success = r.success;
-      }
-      return responseData;
-    }),
+    apiUpload<ApiResponse<unknown>>(`${BASE_URL}/add-student`, data, options).then((r) => withResponseMeta(r)),
 
   attendChildren: (data: { session_id: number }, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${BASE_URL}/attend-children`, data, options).then((r) => r),
+    apiPost<ApiResponse<unknown>>(`${BASE_URL}/attend-children`, data, options).then((r) => r),
 };

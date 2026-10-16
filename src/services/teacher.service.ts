@@ -1,12 +1,11 @@
 import { apiGet, apiPost, apiPut, type ApiCallOptions } from "@/lib/api-client";
 import type { ApiResponse, PaginatedResponse, QueryParams } from "@/types/api.types";
+import type { LeaveRecord, StudentNotification } from "@/types/student.types";
 import type {
   AttendanceEntry,
   SubmitAttendancePayload,
   SubmitGradesPayload,
-  TeacherAbsenceRequest,
   TeacherGroup,
-  TeacherRequest,
   TeacherDashboardData,
   TeacherGroupWithStudents,
   GroupStudentsDetailResponse,
@@ -65,13 +64,13 @@ export const teacherService = {
     ),
 
   getLeaves: (params?: QueryParams, options?: ApiCallOptions) =>
-    apiGet<ApiResponse<{ leaves: any[] }>>(`${LEAVES_URL}/leaves`, {
+    apiGet<ApiResponse<{ leaves: LeaveRecord[] }>>(`${LEAVES_URL}/leaves`, {
       ...options,
       config: { ...options?.config, params },
     }),
 
   submitExcuse: (data: { start_date: string; end_date: string; reason: string }, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${LEAVES_URL}/request-leave`, data, options),
+    apiPost<ApiResponse<unknown>>(`${LEAVES_URL}/request-leave`, data, options),
 
   getSessionAttendance: (sessionId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<SessionAttendanceRecord[]>>(`${BASE_URL}/sessions/${sessionId}/attendance`, options).then((r) => r.data),
@@ -83,16 +82,16 @@ export const teacherService = {
     apiPost<ApiResponse<{ session_id: number; records_count: number }>>(`${BASE_URL}/sessions/${sessionId}/attendance`, data, options),
 
   getNotifications: (params?: QueryParams, options?: ApiCallOptions) =>
-    apiGet<PaginatedResponse<any>>(`${BASE_URL}/notifications`, {
+    apiGet<PaginatedResponse<StudentNotification>>(`${BASE_URL}/notifications`, {
       ...options,
       config: { ...options?.config, params },
     }),
 
   markNotificationAsRead: (id: string | number, options?: ApiCallOptions) =>
-    apiPut<ApiResponse<any>>(`${BASE_URL}/notifications/${id}/read`, {}, options),
+    apiPut<ApiResponse<unknown>>(`${BASE_URL}/notifications/${id}/read`, {}, options),
 
   markAllNotificationsAsRead: (options?: ApiCallOptions) =>
-    apiPut<ApiResponse<any>>(`${BASE_URL}/notifications/read-all`, {}, options),
+    apiPut<ApiResponse<unknown>>(`${BASE_URL}/notifications/read-all`, {}, options),
 
   getWarnings: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<WarningListItem[]>>(`/warnings`, options).then((r) => r.data),

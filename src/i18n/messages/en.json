@@ -304,7 +304,6 @@
     "excuseFromTamam": "Excuse from Tamam",
     "latestGrade": "Latest Grade",
     "alerts": "Alerts",
-    "alert": "Warning",
     "viewAlertDetails": "View Warning Details",
     "quickLinks": "Quick Links",
     "tajweedLectures": "Tajweed Lectures",
@@ -1629,7 +1628,7 @@
     "pageTitle": "Contact Us",
     "pageSubtitle": "Support and direct messaging system with administration",
     "metaTitle": "Contact Us - Support & Messages",
-    "metaDescription": "Contact Waratel Academy administration, inquire about sessions, and easily follow support messages.",
+    "metaDescription": "Contact {academyName} administration, inquire about sessions, and easily follow support messages.",
     "newTicket": "New Message",
     "newTicketTitle": "Send New Message",
     "newTicketSubtitle": "Send your inquiry or issue and our support team will get back to you shortly",
@@ -1691,6 +1690,19 @@
     "statusPendingUserDesc": "Administration replied, waiting for your response",
     "statusClosedDesc": "This conversation has been closed",
     "page": "Page",
-    "of": "of"
+    "of": "of",
+    "attachmentAlt": "Attached image",
+    "refresh": "Refresh conversation",
+    "clearSearch": "Clear search",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pagination": "Pagination",
+    "noMessagesInThread": "There are no messages in this conversation yet.",
+    "noTicketsShort": "There are no messages to show right now."
+  },
+  "meta": {
+    "studentDashboard": "Student Dashboard",
+    "teacherDashboard": "Teacher Dashboard",
+    "parentDashboard": "Parent Dashboard"
   }
 }

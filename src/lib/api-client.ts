@@ -129,3 +129,21 @@ export async function apiUpload<TResponse>(
   });
   return res.data;
 }
+
+// ─── Response helpers ─────────────────────────────────────────
+export interface ResponseMeta {
+  message?: string;
+  success?: boolean;
+}
+
+/**
+ * Returns `res.data` with the envelope's `message`/`success` copied onto it
+ * (mutates the data object, same as the services always did). Non-object data is returned as is.
+ */
+export function withResponseMeta<T>(res: { data: T; message?: string; success?: boolean }): T & ResponseMeta {
+  const data = res.data;
+  if (data && typeof data === "object") {
+    Object.assign(data as object, { message: res.message, success: res.success });
+  }
+  return data as T & ResponseMeta;
+}

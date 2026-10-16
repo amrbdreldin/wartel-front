@@ -4,7 +4,7 @@ import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { Logo } from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
-import { registerSchema } from "@/utils/validation";
+import { collectYupErrors, registerSchema } from "@/utils/validation";
 import { useRegisterMutation, useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { Form, Formik, type FormikProps } from "formik";
 import {
@@ -26,6 +26,7 @@ import { AudioUploadField } from "./AudioUploadField";
 import { PathSelectionField } from "./PathSelectionField";
 import { ScrollToFieldError } from "./ScrollToFieldError";
 import { AdmissionPanel } from "./AdmissionPanel";
+import { RecaptchaDisclaimer } from "@/components/common/RecaptchaDisclaimer";
 
 // ============================================================
 // RegisterForm – full registration logic extracted from page
@@ -64,7 +65,7 @@ export function RegisterForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
-  const formikRef = useRef<FormikProps<any>>(null);
+  const formikRef = useRef<FormikProps<typeof initialValues>>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"women" | "children">("women");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -147,12 +148,12 @@ export function RegisterForm() {
     register(fd, {
       onSuccess: (res) => {
         if (res?.data) dispatch(setEnrollmentData(res.data));
-        const successMsg = (res as any)?.message || t("auth.applicationSubmitted");
+        const successMsg = res?.message || t("auth.applicationSubmitted");
         setFormSuccess(successMsg);
         toast.success(successMsg);
         setIsSuccess(true);
       },
-      onError: (err: any) => {
+      onError: (err) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("common.errorOccurred");
         const validationErrors = responseData?.errors;
@@ -215,16 +216,14 @@ export function RegisterForm() {
           innerRef={formikRef}
           initialValues={initialValues}
           validate={(values) => {
-            const errors: any = {};
+            let errors: Record<string, string> = {};
             try {
               registerSchema.validateSync(values, {
                 abortEarly: false,
                 context: { enrollmentTypes }
               });
-            } catch (err: any) {
-              err.inner.forEach((currentError: any) => {
-                errors[currentError.path] = currentError.message;
-              });
+            } catch (err) {
+              errors = collectYupErrors(err);
             }
 
             // if (!values.accept_instructions) {
@@ -361,32 +360,7 @@ export function RegisterForm() {
                 </span>
               </div>
 
-              {/* reCAPTCHA Disclaimer
-              <div className="text-[10px] text-muted-foreground/60 text-center leading-relaxed max-w-xs mx-auto mt-4">
-                {t.rich("auth.recaptchaDisclaimer", {
-                  privacyLink: (chunks) => (
-                    <a 
-                      href="https://policies.google.com/privacy" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="underline hover:text-primary transition-colors"
-                    >
-                      {chunks}
-                    </a>
-                  ),
-                  termsLink: (chunks) => (
-                    <a 
-                      href="https://policies.google.com/terms" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="underline hover:text-primary transition-colors"
-                    >
-                      {chunks}
-                    </a>
-                  ),
-                })}
-              </div>
-              */}
+              <RecaptchaDisclaimer className="mt-4" />
             </Form>
           )}
         </Formik>
@@ -486,13 +460,13 @@ export function RegisterForm() {
               </div>
             ) : (
               <div className="space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 flex gap-3 sm:gap-4 items-start">
-                  <Info className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+                <div className="bg-warning-500/10 dark:bg-warning-500/5 border border-warning-500/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 flex gap-3 sm:gap-4 items-start">
+                  <Info className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-warning-600 dark:text-warning-500 shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-black text-amber-900 dark:text-amber-400 mb-1.5 sm:mb-2 text-sm sm:text-lg">
+                    <h4 className="font-black text-warning-900 dark:text-warning-400 mb-1.5 sm:mb-2 text-sm sm:text-lg">
                       {t("instructions.children.title")}
                     </h4>
-                    <p className="text-[11px] sm:text-sm leading-relaxed text-amber-800/90 dark:text-amber-500/90 font-medium whitespace-pre-line">
+                    <p className="text-[11px] sm:text-sm leading-relaxed text-warning-800/90 dark:text-warning-500/90 font-medium whitespace-pre-line">
                       {t("instructions.children.subtitle")}
                     </p>
                   </div>
@@ -502,9 +476,9 @@ export function RegisterForm() {
                   {childrenItems.map((text, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 p-3.5 sm:gap-4 sm:p-4 rounded-xl sm:rounded-2xl bg-muted/20 dark:bg-muted/10 border border-border/30 hover:border-amber-500/20 hover:bg-muted/40 dark:hover:bg-muted/20 transition-all duration-300"
+                      className="flex items-start gap-3 p-3.5 sm:gap-4 sm:p-4 rounded-xl sm:rounded-2xl bg-muted/20 dark:bg-muted/10 border border-border/30 hover:border-warning-500/20 hover:bg-muted/40 dark:hover:bg-muted/20 transition-all duration-300"
                     >
-                      <div className="mt-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/25 text-amber-600 dark:text-amber-500 text-[10px] sm:text-xs font-black">
+                      <div className="mt-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-warning-500/10 flex items-center justify-center shrink-0 border border-warning-500/25 text-warning-600 dark:text-warning-500 text-[10px] sm:text-xs font-black">
                         {i + 1}
                       </div>
                       <span className="text-xs sm:text-sm leading-relaxed text-foreground/90 font-medium">

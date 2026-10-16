@@ -3,12 +3,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Award, BookOpen, RefreshCw, Type } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 
 export function ProgramsSection() {
-  const params = useParams();
-  const locale = params.locale as string;
   const t = useTranslations("landing.programs");
 
   return (

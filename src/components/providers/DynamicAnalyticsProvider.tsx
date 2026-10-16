@@ -18,11 +18,10 @@ export function DynamicAnalyticsProvider({ integrations, tenantSlug, nonce, chil
   useEffect(() => {
     // Standardize and register basic parameters in the dataLayer for multi-tenant segmentations
     if (typeof window !== "undefined") {
-      const windowWithDataLayer = window as any;
-      windowWithDataLayer.dataLayer = windowWithDataLayer.dataLayer || [];
+      window.dataLayer = window.dataLayer || [];
       
       // Push multi-tenant identification context immediately on hydration
-      windowWithDataLayer.dataLayer.push({
+      window.dataLayer.push({
         event: "tenant_init",
         tenant_slug: tenantSlug,
         platform_env: process.env.NODE_ENV || "development"

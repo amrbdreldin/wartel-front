@@ -1,11 +1,6 @@
 import createNextIntlPlugin from "next-intl/plugin";
 import withPWAInit from "@ducanh2912/next-pwa";
 
-// إعدادات البيئة لتجاهل الفحوصات الثقيلة أثناء البناء
-process.env.ESLINT_NO_DEV_ERRORS = "true";
-process.env.NEXT_DISABLE_ESLINT = "true";
-process.env.NEXT_IGNORE_TYPE_CHECK = "true";
-
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const withPWA = withPWAInit({
@@ -20,9 +15,10 @@ const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
 
-  // Skip heavy checks during build to conserve server RAM
+  // Type errors fail the build. If a low-RAM build server runs out of memory,
+  // set SKIP_TYPECHECK=1 there and run `yarn typecheck` in CI instead.
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.SKIP_TYPECHECK === "1",
   },
 
   // Disable production source maps to save memory
@@ -42,14 +38,23 @@ const nextConfig = {
     return config;
   },
   
-  // Image optimization
+  // Image optimization — only known media hosts may be proxied through /_next/image.
+  // A wildcard here lets anyone use the optimizer as an open image proxy.
+  // Add extra hosts (e.g. a new tenant CDN) via IMAGE_REMOTE_HOSTS="cdn.a.com,*.b.com".
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
+      "wartel.amrbdr.com",
+      "api.warattel.com",
+      "admin.wartel-academy.com",
+      "**.r2.dev",
+      "img.youtube.com",
+      "**.ytimg.com",
+      "images.unsplash.com",
+      ...(process.env.IMAGE_REMOTE_HOSTS || "")
+        .split(",")
+        .map((host) => host.trim().replace(/^\*\./, "**."))
+        .filter(Boolean),
+    ].map((hostname) => ({ protocol: "https", hostname })),
   },
 
   // Strip console logs in production

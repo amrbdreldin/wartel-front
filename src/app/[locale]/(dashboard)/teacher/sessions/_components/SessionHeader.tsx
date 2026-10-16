@@ -2,6 +2,7 @@ import React from "react";
 import { Video, X, Check, Copy, Pencil } from "lucide-react";
 import { useLocale } from "next-intl";
 import { LoadingButton } from "@/components/ui/loading-button";
+import type { TranslationValues } from "next-intl";
 
 interface SessionHeaderProps {
   groupName: string;
@@ -15,7 +16,7 @@ interface SessionHeaderProps {
   handleCopyLink: () => void;
   copied: boolean;
   savingUrl: boolean;
-  t: (key: string, values?: any) => string;
+  t: (key: string, values?: TranslationValues) => string;
 }
 
 export function SessionHeader({
@@ -134,12 +135,12 @@ export function SessionHeader({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between md:justify-start gap-3 bg-amber-50/70 dark:bg-amber-500/10 border border-amber-100/80 dark:border-amber-500/20 rounded-2xl p-1.5 ps-3 pe-1.5 self-stretch md:self-start shadow-sm hover:shadow-md hover:border-amber-200 dark:hover:border-amber-500/30 transition-all duration-300 min-w-0 w-full md:w-auto animate-in fade-in duration-300">
+        <div className="flex items-center justify-between md:justify-start gap-3 bg-warning-50/70 dark:bg-warning-500/10 border border-warning-100/80 dark:border-warning-500/20 rounded-2xl p-1.5 ps-3 pe-1.5 self-stretch md:self-start shadow-sm hover:shadow-md hover:border-warning-200 dark:hover:border-warning-500/30 transition-all duration-300 min-w-0 w-full md:w-auto animate-in fade-in duration-300">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="relative w-8 h-8 rounded-xl bg-amber-100/70 dark:bg-amber-500/20 flex items-center justify-center border border-amber-200/40 dark:border-amber-500/30 shrink-0">
-              <Video className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <div className="relative w-8 h-8 rounded-xl bg-warning-100/70 dark:bg-warning-500/20 flex items-center justify-center border border-warning-200/40 dark:border-warning-500/30 shrink-0">
+              <Video className="w-4 h-4 text-warning-600 dark:text-warning-400" />
             </div>
-            <span className="text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-black truncate">
+            <span className="text-warning-700 dark:text-warning-300 text-xs sm:text-sm font-black truncate">
               {t("noMeetingLinkSet")}
             </span>
           </div>
@@ -150,7 +151,7 @@ export function SessionHeader({
                 setTempUrl(meetingUrl);
                 setIsEditingUrl(true);
               }}
-              className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 transition-all p-2 hover:bg-amber-100 dark:hover:bg-amber-500/20 rounded-xl active:scale-90 flex items-center justify-center animate-pulse"
+              className="text-warning-600 dark:text-warning-400 hover:text-warning-800 dark:hover:text-warning-200 transition-all p-2 hover:bg-warning-100 dark:hover:bg-warning-500/20 rounded-xl active:scale-90 flex items-center justify-center animate-pulse"
               title={t("addMeetingLink")}
               aria-label={t("addMeetingLink")}
             >

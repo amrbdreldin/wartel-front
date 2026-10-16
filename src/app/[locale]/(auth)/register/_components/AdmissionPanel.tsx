@@ -3,7 +3,7 @@
 import { Info, ShieldCheck, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams} from "next/navigation";
 
 interface AdmissionPanelProps {
   type?: "women" | "parent";
@@ -14,8 +14,6 @@ export function AdmissionPanel({ type }: AdmissionPanelProps) {
   const t = useTranslations("auth");
   const params = useParams();
   const locale = params.locale as string;
-  const searchParams = useSearchParams();
-  const studentParam = searchParams.get("student");
 
   return (
     <div className="hidden lg:flex lg:w-2/5 gradient-primary text-white p-10 flex-col relative overflow-hidden">

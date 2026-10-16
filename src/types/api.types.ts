@@ -9,6 +9,8 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
+  /** Some endpoints return field errors alongside success: false */
+  errors?: Record<string, string[]>;
 }
 
 /**

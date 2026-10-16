@@ -5,10 +5,8 @@ import type {
   ExcuseSubmission,
   GradeRecord,
   LibraryResponseData,
-  StudentDashboard,
   StudentNotification,
   StudentSettings,
-  TamamSubmission,
   ExamGradesResponseData,
   StudentLeavesResponseData,
   StudentDashboardResponseData,
@@ -26,6 +24,8 @@ import type {
   AvailableTimeSubmission,
   PeerBuddyRequest,
   StudentPreviousSession,
+  SessionAttendanceData,
+  SessionAttendancePayload,
 } from "@/types/student.types";
 
 // ============================================================
@@ -57,7 +57,7 @@ export const studentService = {
     apiPost<ApiResponse<{ id: number; name: string; status: string }>>(`${BASE_URL}/search-buddies`, { phone }, options).then((r) => r),
 
   submitBuddyPair: (studentId: number, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${BASE_URL}/buddy-pairs`, { student_id: studentId }, options).then((r) => r),
+    apiPost<ApiResponse<unknown>>(`${BASE_URL}/buddy-pairs`, { student_id: studentId }, options).then((r) => r),
 
   getGrades: (params?: QueryParams, options?: ApiCallOptions) =>
     apiGet<PaginatedResponse<GradeRecord>>(`${BASE_URL}/grades`, {
@@ -72,7 +72,7 @@ export const studentService = {
     }),
 
   submitExcuse: (data: ExcuseSubmission, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${BASE_URL}/request-leave`, data, options).then((r) => r),
+    apiPost<ApiResponse<unknown>>(`${BASE_URL}/request-leave`, data, options).then((r) => r),
 
   getNotifications: (params?: QueryParams, options?: ApiCallOptions) =>
     apiGet<PaginatedResponse<StudentNotification>>(`${BASE_URL}/notifications`, {
@@ -95,8 +95,8 @@ export const studentService = {
   updateSettings: (data: Partial<StudentSettings>, options?: ApiCallOptions) =>
     apiPut<ApiResponse<StudentSettings>>(`${BASE_URL}/settings`, data, options).then((r) => r),
 
-  updateProfile: (data: any, options?: ApiCallOptions) =>
-    apiPut<ApiResponse<any>>(`${BASE_URL}/profile`, data, options).then((r) => r),
+  updateProfile: (data: Record<string, unknown>, options?: ApiCallOptions) =>
+    apiPut<ApiResponse<unknown>>(`${BASE_URL}/profile`, data, options).then((r) => r),
 
   getLeaves: (params?: QueryParams, options?: ApiCallOptions) => {
     return apiGet<ApiResponse<StudentLeavesResponseData>>(`${BASE_URL}/leaves`, {
@@ -119,15 +119,15 @@ export const studentService = {
   },
 
   getSessionAttendance: (sessionId: string | number, options?: ApiCallOptions) =>
-    apiGet<ApiResponse<any>>(`${BASE_URL}/sessions/${sessionId}/attendance`, options).then((r) => r.data),
+    apiGet<ApiResponse<SessionAttendanceData>>(`${BASE_URL}/sessions/${sessionId}/attendance`, options).then((r) => r.data),
 
-  submitSessionAttendance: (data: any, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${BASE_URL}/attendance`, data, options),
+  submitSessionAttendance: (data: SessionAttendancePayload, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<unknown>>(`${BASE_URL}/attendance`, data, options),
 
   getExam: (examId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<ExamDetails>>(`${BASE_URL}/exams/${examId}`, options).then((r) => r),
 
-  submitExamAnswers: (examId: string | number, answers: Record<string, any>, options?: ApiCallOptions) =>
+  submitExamAnswers: (examId: string | number, answers: Record<string, unknown>, options?: ApiCallOptions) =>
     apiPost<ApiResponse<ExamSubmitResponse>>(`${BASE_URL}/exams/${examId}/submit`, { answers }, options).then((r) => r),
 
   getExamResult: (examId: string | number, options?: ApiCallOptions) =>
@@ -137,10 +137,10 @@ export const studentService = {
     apiGet<ApiResponse<StudentDetailedProfileResponse>>(`${BASE_URL}/${userId}/profile-details`, options).then((r) => r.data),
 
   markNotificationAsRead: (id: string | number, options?: ApiCallOptions) =>
-    apiPut<ApiResponse<any>>(`${BASE_URL}/notifications/${id}/read`, {}, options),
+    apiPut<ApiResponse<unknown>>(`${BASE_URL}/notifications/${id}/read`, {}, options),
 
   markAllNotificationsAsRead: (options?: ApiCallOptions) =>
-    apiPut<ApiResponse<any>>(`${BASE_URL}/notifications/read-all`, {}, options),
+    apiPut<ApiResponse<unknown>>(`${BASE_URL}/notifications/read-all`, {}, options),
 
   getWarnings: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<WarningListItem[]>>(`/warnings`, options).then((r) => r.data),
@@ -164,7 +164,7 @@ export const studentService = {
     apiPost<ApiResponse<AvailableBuddyTime[]>>(`${BASE_URL}/available-time`, data, options).then((r) => r),
 
   submitPeerBuddy: (data: PeerBuddyRequest, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${BASE_URL}/peer-buddy`, data, options).then((r) => r),
+    apiPost<ApiResponse<unknown>>(`${BASE_URL}/peer-buddy`, data, options).then((r) => r),
 
   getPreviousSessions: (params?: QueryParams, options?: ApiCallOptions) =>
     apiGet<PaginatedResponse<StudentPreviousSession> | ApiResponse<StudentPreviousSession[]>>(`${BASE_URL}/previous-sessions`, {

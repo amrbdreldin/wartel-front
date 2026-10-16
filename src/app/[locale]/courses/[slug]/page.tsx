@@ -40,16 +40,18 @@ export default function DirectJoinCoursePage({
   );
 
   // Check if the current user's own role is in allowed_roles (student/teacher direct join)
+  const userRole = user?.role;
+  const allowedRoles = group?.allowed_roles;
   const canSelfJoin = useMemo(() => {
-    if (!user?.role || !group?.allowed_roles) return false;
-    const matchIds = ROLE_ID_MAP[user.role] || [];
-    return group.allowed_roles.some((r) => matchIds.includes(Number(r.id)));
-  }, [user?.role, group?.allowed_roles]);
+    if (!userRole || !allowedRoles) return false;
+    const matchIds = ROLE_ID_MAP[userRole] || [];
+    return allowedRoles.some((r) => matchIds.includes(Number(r.id)));
+  }, [userRole, allowedRoles]);
 
   // Check if parent/child roles exist in allowed_roles
   const hasParentOrChildRoles = useMemo(() => {
-    if (!group?.allowed_roles) return false;
-    return group.allowed_roles.some(
+    if (!allowedRoles) return false;
+    return allowedRoles.some(
       (r) =>
         Number(r.id) === 5 ||
         Number(r.id) === 3 ||
@@ -60,7 +62,7 @@ export default function DirectJoinCoursePage({
         r.name?.toLowerCase().includes("son") ||
         r.name?.toLowerCase().includes("child")
     );
-  }, [group?.allowed_roles]);
+  }, [allowedRoles]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -119,7 +121,7 @@ export default function DirectJoinCoursePage({
                     {t("directJoin.groupNotFound")}
                   </h2>
                   <p className="text-sm text-muted-foreground max-w-xs">
-                    {(error as any)?.response?.data?.message || t("common.errorOccurred")}
+                    {error?.response?.data?.message || t("common.errorOccurred")}
                   </p>
                 </div>
                 <Button

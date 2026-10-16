@@ -18,6 +18,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { JoinGroupRequest } from "@/services/group.service";
 import { DirectJoinLoginModal } from "./DirectJoinLoginModal";
+import { hasEstablishedSession } from "@/lib/session-client";
+import type { ApiResponse } from "@/types/api.types";
+import type { JoinGroupResponse } from "@/services/group.service";
 
 // ============================================================
 // GuestJoinForm – Registration form for unauthenticated users
@@ -99,23 +102,15 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     return hasParentOrSonRole ? "parent" : "student";
   });
 
-  const handlePostJoinSuccess = (res: any, resetForm: () => void) => {
-    const token =
-      res?.token ||
-      res?.access_token ||
-      res?.data?.token ||
-      res?.data?.access_token;
+  // Some backends return the user at the top level, others under `data`
+  const handlePostJoinSuccess = (res: ApiResponse<JoinGroupResponse> & Partial<JoinGroupResponse>, resetForm: () => void) => {
     const userObj = res?.user || res?.data?.user;
 
     const successMsg = res?.message || t("directJoin.joinSuccess");
     toast.success(successMsg);
 
-    if (token && userObj) {
-      handleLoginState({
-        user: userObj,
-        accessToken: token,
-        refreshToken: res?.refresh_token || res?.data?.refresh_token || "",
-      });
+    if (hasEstablishedSession(res) && userObj) {
+      handleLoginState({ user: userObj });
 
       let redirectPath = `/${locale}/dashboard`;
       const roleIdStr = String(userObj.role_id);
@@ -153,8 +148,8 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     };
 
     joinGroup(payload, {
-      onSuccess: (res: any) => handlePostJoinSuccess(res, resetForm),
-      onError: (err: any) => {
+      onSuccess: (res) => handlePostJoinSuccess(res, resetForm),
+      onError: (err) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
         const validationErrors = responseData?.errors;
@@ -188,25 +183,16 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
         firebase_token: firebaseToken || undefined,
       },
       {
-        onSuccess: (res: any) => {
+        onSuccess: (res) => {
           const successMsg =
             res?.message ||
             t("directJoin.registerParentSuccess");
           toast.success(successMsg);
 
-          const token =
-            res?.token ||
-            res?.access_token ||
-            res?.data?.token ||
-            res?.data?.access_token;
           const userObj = res?.user || res?.data?.user;
 
-          if (token && userObj) {
-            handleLoginState({
-              user: userObj,
-              accessToken: token,
-              refreshToken: res?.refresh_token || res?.data?.refresh_token || "",
-            });
+          if (hasEstablishedSession(res) && userObj) {
+            handleLoginState({ user: userObj });
             // Stay on the direct join course page to show parent and children section
             router.refresh();
           } else {
@@ -214,7 +200,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
             resetForm();
           }
         },
-        onError: (err: any) => {
+        onError: (err) => {
           const responseData = err.response?.data;
           const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
           const validationErrors = responseData?.errors;

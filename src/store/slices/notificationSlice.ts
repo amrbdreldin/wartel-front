@@ -14,7 +14,7 @@ export interface Notification {
   created_at: string;
   image_url?: string | null;
   url?: string | null;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface NotificationState {

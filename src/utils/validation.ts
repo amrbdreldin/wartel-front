@@ -148,7 +148,7 @@ export const registerSchema = Yup.object().shape({
         return duration >= 10;
       }
       if (value instanceof File) {
-        const fileDuration = (value as any).duration;
+        const fileDuration = (value as FileWithDuration).duration;
         if (fileDuration !== undefined && fileDuration > 0) {
           return fileDuration >= 10;
         }
@@ -197,3 +197,19 @@ export const messageSchema = Yup.object().shape({
   subject: requiredString,
   content: requiredString,
 });
+
+// ============================================================
+// Formik helper
+// ============================================================
+
+/**
+ * Converts the ValidationError thrown by `schema.validateSync(..., { abortEarly: false })`
+ * into Formik's `{ [path]: message }` shape (last error per path wins).
+ */
+export function collectYupErrors(err: unknown): Record<string, string> {
+  const errors: Record<string, string> = {};
+  (err as Yup.ValidationError).inner.forEach((currentError) => {
+    errors[String(currentError.path)] = currentError.message;
+  });
+  return errors;
+}

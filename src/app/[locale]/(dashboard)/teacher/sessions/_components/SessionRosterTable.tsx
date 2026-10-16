@@ -100,14 +100,14 @@ export function SessionRosterTable({
             {t("totalStudentsCount", { count: filteredRoster.length })}
           </span>
           <span>•</span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
+          <span className="text-success-600 dark:text-success-400 font-extrabold">
             {t("joinedLinkCount", { count: detectedCount })}
           </span>
           {hasDraft && !locked && (
             <>
               <span>•</span>
               <div className="inline-flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 animate-in fade-in duration-300">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-warning-500/10 text-warning-700 dark:text-warning-400 border border-warning-500/20 animate-in fade-in duration-300">
                   <Save className="w-3.5 h-3.5 shrink-0" />
                   <span>{t("draftSaved")}</span>
                 </span>
@@ -180,7 +180,7 @@ export function SessionRosterTable({
           <button
             onClick={markAllPresent}
             disabled={locked}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xs active:scale-95 shrink-0"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 bg-success-600 hover:bg-success-700 text-white text-xs sm:text-sm font-black rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xs active:scale-95 shrink-0"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{t("markAllPresent")}</span>
@@ -246,7 +246,7 @@ export function SessionRosterTable({
                   {/* Login Time */}
                   <td className="px-2 py-3.5 text-center align-middle">
                     {student.loginTime ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-extrabold text-xs bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20 whitespace-nowrap">
+                      <span className="text-success-600 dark:text-success-400 font-extrabold text-xs bg-success-500/10 px-2 py-0.5 rounded-lg border border-success-500/20 whitespace-nowrap">
                         {student.loginTime}
                       </span>
                     ) : (
@@ -261,9 +261,9 @@ export function SessionRosterTable({
                         onClick={() => setDecision(student.id, "present")}
                         disabled={locked}
                         className={cn(
-                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-emerald-600",
+                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-success-600",
                           student.decision === "present" &&
-                            "bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 hover:text-white"
+                            "bg-success-600 text-white shadow-xs hover:bg-success-700 hover:text-white"
                         )}
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
@@ -273,9 +273,9 @@ export function SessionRosterTable({
                         onClick={() => setDecision(student.id, "excused")}
                         disabled={locked}
                         className={cn(
-                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-amber-600",
+                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-warning-600",
                           student.decision === "excused" &&
-                            "bg-amber-500 text-white shadow-xs hover:bg-amber-600 hover:text-white"
+                            "bg-warning-500 text-white shadow-xs hover:bg-warning-600 hover:text-white"
                         )}
                       >
                         <HelpCircle className="w-3.5 h-3.5" />
@@ -396,7 +396,7 @@ export function SessionRosterTable({
                 {/* Login Status Badge */}
                 <div className="shrink-0">
                   {isDetected ? (
-                    <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20 whitespace-nowrap">
+                    <span className="text-[10px] font-extrabold text-success-600 dark:text-success-400 bg-success-500/10 px-2 py-0.5 rounded-lg border border-success-500/20 whitespace-nowrap">
                       {student.loginTime}
                     </span>
                   ) : (
@@ -414,9 +414,9 @@ export function SessionRosterTable({
                   onClick={() => setDecision(student.id, "present")}
                   disabled={locked}
                   className={cn(
-                    "flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold transition-all text-muted-foreground hover:text-emerald-600 active:scale-95",
+                    "flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold transition-all text-muted-foreground hover:text-success-600 active:scale-95",
                     student.decision === "present" &&
-                      "bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 hover:text-white"
+                      "bg-success-600 text-white shadow-xs hover:bg-success-700 hover:text-white"
                   )}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -428,9 +428,9 @@ export function SessionRosterTable({
                   onClick={() => setDecision(student.id, "excused")}
                   disabled={locked}
                   className={cn(
-                    "flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold transition-all text-muted-foreground hover:text-amber-600 active:scale-95",
+                    "flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-extrabold transition-all text-muted-foreground hover:text-warning-600 active:scale-95",
                     student.decision === "excused" &&
-                      "bg-amber-500 text-white shadow-xs hover:bg-amber-600 hover:text-white"
+                      "bg-warning-500 text-white shadow-xs hover:bg-warning-600 hover:text-white"
                   )}
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
@@ -520,8 +520,8 @@ export function SessionRosterTable({
         </div>
 
         {locked ? (
-          <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-5 sm:px-6 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-xs transition-all animate-in fade-in duration-300">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center gap-2 bg-success-500/10 text-success-700 dark:text-success-300 border border-success-500/30 px-5 sm:px-6 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-xs transition-all animate-in fade-in duration-300">
+            <CheckCircle2 className="w-4 h-4 text-success-600 dark:text-success-400" />
             <span>{t("attendanceLocked") || "تم الاعتماد - لا يمكن التعديل"}</span>
           </div>
         ) : (

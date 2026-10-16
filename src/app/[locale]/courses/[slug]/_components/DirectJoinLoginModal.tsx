@@ -22,6 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
+import { hasEstablishedSession } from "@/lib/session-client";
 
 // ============================================================
 // DirectJoinLoginModal – In-place Login Modal for Course Page
@@ -46,12 +47,18 @@ export function DirectJoinLoginModal({
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [fcmToken, setFcmToken] = useState("");
 
-  useEffect(() => {
+  // Clear messages when the modal closes (adjusted during render, not in an effect)
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
     if (!open) {
       setFormError(null);
       setFormSuccess(null);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (!open) return;
 
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
     if (siteKey) {
@@ -86,22 +93,10 @@ export function DirectJoinLoginModal({
         firebase_token: fcmToken || undefined,
       },
       {
-        onSuccess: (res: any) => {
+        onSuccess: (res) => {
           const userObj = res?.user || res?.data?.user;
-          const token =
-            res?.token ||
-            res?.access_token ||
-            res?.data?.token ||
-            res?.data?.access_token;
-          const refreshToken =
-            res?.refresh_token || res?.data?.refresh_token || "";
-
-          if (token && userObj) {
-            handleLoginState({
-              user: userObj,
-              accessToken: token,
-              refreshToken,
-            });
+          if (hasEstablishedSession(res) && userObj) {
+            handleLoginState({ user: userObj });
           }
 
           const successMsg =
@@ -113,7 +108,7 @@ export function DirectJoinLoginModal({
           onOpenChange(false);
           router.refresh();
         },
-        onError: (err: any) => {
+        onError: (err) => {
           const responseData = err.response?.data;
           const mainMessage =
             responseData?.message || err.message || t("common.errorOccurred");

@@ -13,9 +13,7 @@ import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux";
 import { updateUser } from "@/store/slices/authSlice";
 import { toast } from "sonner";
-import { PhoneInput } from "@/components/forms/PhoneInput";
 import { LogoutConfirmDialog } from "@/components/common/LogoutConfirmDialog";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
   User,
@@ -34,12 +32,6 @@ import {
   Globe,
   Star,
   Users,
-  Settings,
-  LogOut,
-  Lock,
-  Loader2,
-  Mail,
-  Save,
   Camera
 } from "lucide-react";
 
@@ -51,7 +43,7 @@ const resolveMediaUrl = (url: string | null) => {
 };
 
 // Helper to check if status is completed (handles Arabic and English values)
-const isStatusCompleted = (status: any) => {
+const isStatusCompleted = (status: unknown) => {
   if (!status) return false;
   const s = String(status).trim().toLowerCase();
   return s === "completed" || s === "مكتمل";
@@ -79,7 +71,9 @@ export default function StudentProfileDetailsPage() {
   const [age, setAge] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by the settings tab, currently commented out below
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by the settings tab, currently commented out below
   const [isSaving, setIsSaving] = useState(false);
 
   // Profile Avatar State & Ref
@@ -180,6 +174,7 @@ export default function StudentProfileDetailsPage() {
   };
 
   // Handle Profile Update Submission
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by the settings tab, currently commented out below
   const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
@@ -275,7 +270,7 @@ export default function StudentProfileDetailsPage() {
     switch (status.toLowerCase()) {
       case "present":
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1">
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-success-500/10 text-success-600 dark:text-success-400 border border-success-500/20 inline-flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" />
             {t("student.profileDetails.present") || "Present"}
           </span>
@@ -289,7 +284,7 @@ export default function StudentProfileDetailsPage() {
         );
       case "excused":
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 inline-flex items-center gap-1">
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-warning-500/10 text-warning-600 dark:text-warning-400 border border-warning-500/20 inline-flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" />
             {t("student.profileDetails.excused") || "Excused"}
           </span>
@@ -376,8 +371,8 @@ export default function StudentProfileDetailsPage() {
               <span className={cn(
                 "px-3.5 py-1 rounded-full text-xs font-black shadow-sm",
                 (profile.status === "active" || profile.status === "نشط")
-                  ? "bg-emerald-600 text-white"
-                  : "bg-amber-600 text-white"
+                  ? "bg-success-600 text-white"
+                  : "bg-warning-600 text-white"
               )}>
                 {profile.status}
               </span>
@@ -392,7 +387,7 @@ export default function StudentProfileDetailsPage() {
 
               {/* Reward Badge with Solid Yellow Background */}
               {profile.badge && (
-                <span className="px-3.5 py-1 rounded-full text-xs font-black bg-yellow-400 text-yellow-950 shadow-sm flex items-center gap-1">
+                <span className="px-3.5 py-1 rounded-full text-xs font-black bg-warning-400 text-warning-950 shadow-sm flex items-center gap-1">
                   <Star className="w-3.5 h-3.5 fill-current" />
                   {profile.badge}
                 </span>
@@ -457,7 +452,7 @@ export default function StudentProfileDetailsPage() {
                     : "text-muted-foreground hover:bg-muted border-transparent"
                 )}
               >
-                <Users className="w-5 h-5 shrink-0 text-amber-500" />
+                <Users className="w-5 h-5 shrink-0 text-warning-500" />
                 <span>{t("student.profileDetails.buddyTab") || "Companion (Buddy)"}</span>
               </button>
             )}
@@ -471,7 +466,7 @@ export default function StudentProfileDetailsPage() {
                   : "text-muted-foreground hover:bg-muted border-transparent"
               )}
             >
-              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-500" />
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-success-500" />
               <span>{t("student.profileDetails.tamamTab") || "Daily Tamam"}</span>
             </button>
 
@@ -484,7 +479,7 @@ export default function StudentProfileDetailsPage() {
                   : "text-muted-foreground hover:bg-muted border-transparent"
               )}
             >
-              <Calendar className="w-5 h-5 shrink-0 text-blue-500" />
+              <Calendar className="w-5 h-5 shrink-0 text-info-500" />
               <span>{t("student.profileDetails.leavesTab") || "Leaves Requests"}</span>
             </button>
 
@@ -497,7 +492,7 @@ export default function StudentProfileDetailsPage() {
                   : "text-muted-foreground hover:bg-muted border-transparent"
               )}
             >
-              <Award className="w-5 h-5 shrink-0 text-yellow-500" />
+              <Award className="w-5 h-5 shrink-0 text-warning-500" />
               <span>{t("student.profileDetails.certificationsTab") || "Certifications"}</span>
             </button>
 
@@ -510,7 +505,7 @@ export default function StudentProfileDetailsPage() {
                   : "text-muted-foreground hover:bg-muted border-transparent"
               )}
             >
-              <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
+              <AlertCircle className="w-5 h-5 shrink-0 text-danger-500" />
               <span>{t("student.profileDetails.warningsTab") || "Warnings"}</span>
             </button>
 
@@ -647,7 +642,7 @@ export default function StudentProfileDetailsPage() {
                           <span className={cn(
                             "px-3 py-1 rounded-full text-xs font-black border",
                             group.is_active === "1"
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                              ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                               : "bg-muted text-muted-foreground border-border"
                           )}>
                             {group.is_active === "1"
@@ -761,7 +756,7 @@ export default function StudentProfileDetailsPage() {
                                   <span className={cn(
                                     "px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase shrink-0",
                                     isPassed
-                                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                      ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                                       : "bg-destructive/10 text-destructive border-destructive/20"
                                   )}>
                                     {isPassed 
@@ -783,7 +778,7 @@ export default function StudentProfileDetailsPage() {
 
                                   <span className={cn(
                                     "text-lg font-black font-sans leading-none",
-                                    isPassed ? "text-emerald-500" : "text-destructive"
+                                    isPassed ? "text-success-500" : "text-destructive"
                                   )}>
                                     {pct}%
                                   </span>
@@ -843,7 +838,7 @@ export default function StudentProfileDetailsPage() {
                                 {buddyPairs.map((pair) => (
                                   <tr key={pair.id} className="hover:bg-muted/10">
                                     <td className="py-3 text-start whitespace-nowrap text-foreground flex items-center gap-2">
-                                      <Users className="w-4 h-4 text-amber-500" />
+                                      <Users className="w-4 h-4 text-warning-500" />
                                       {pair.buddy_name}
                                     </td>
                                     <td className="py-3 text-start whitespace-nowrap text-xs text-foreground/80 font-sans">
@@ -853,7 +848,7 @@ export default function StudentProfileDetailsPage() {
                                       <span className={cn(
                                         "px-2.5 py-0.5 rounded-full text-xs font-black border",
                                         pair.is_active === "1"
-                                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                          ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                                           : "bg-muted text-muted-foreground border-border"
                                       )}>
                                         {pair.is_active === "1"
@@ -934,7 +929,7 @@ export default function StudentProfileDetailsPage() {
                                       <span className={cn(
                                         "px-2.5 py-0.5 rounded-full text-xs font-black border",
                                         isStatusCompleted(tamam.past_status)
-                                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                          ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                                           : "bg-destructive/10 text-destructive border-destructive/20"
                                       )}>
                                         {isStatusCompleted(tamam.past_status)
@@ -947,7 +942,7 @@ export default function StudentProfileDetailsPage() {
                                       <span className={cn(
                                         "px-2.5 py-0.5 rounded-full text-xs font-black border",
                                         isStatusCompleted(tamam.present_status)
-                                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                          ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                                           : "bg-destructive/10 text-destructive border-destructive/20"
                                       )}>
                                         {isStatusCompleted(tamam.present_status)
@@ -1029,9 +1024,9 @@ export default function StudentProfileDetailsPage() {
                                       <span className={cn(
                                         "px-2.5 py-0.5 rounded-full text-xs font-black border",
                                         leave.status === "approved"
-                                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                          ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                                           : leave.status === "pending"
-                                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                                          ? "bg-warning-500/10 text-warning-600 dark:text-warning-400 border-warning-500/20"
                                           : "bg-destructive/10 text-destructive border-destructive/20"
                                       )}>
                                         {leave.status === "approved"
@@ -1091,7 +1086,7 @@ export default function StudentProfileDetailsPage() {
                               <div key={cert.id} className="border border-border/50 rounded-2xl p-4 bg-muted/10 flex items-center justify-between gap-4">
                                 <div className="space-y-1">
                                   <h6 className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
-                                    <Award className="w-4 h-4 text-yellow-500 shrink-0" />
+                                    <Award className="w-4 h-4 text-warning-500 shrink-0" />
                                     {cert.title}
                                   </h6>
                                   <p className="text-[10px] text-muted-foreground font-medium font-sans">
@@ -1166,7 +1161,7 @@ export default function StudentProfileDetailsPage() {
                                   {warning.message}
                                 </p>
                                 {warning.remaining_chances !== undefined && (
-                                  <div className="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold">
+                                  <div className="text-[10px] text-warning-600 dark:text-warning-400 font-extrabold">
                                     {t("student.warningRemaining", { count: warning.remaining_chances })}
                                   </div>
                                 )}

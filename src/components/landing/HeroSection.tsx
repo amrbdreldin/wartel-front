@@ -91,7 +91,7 @@ export function HeroSection() {
 
             {/* <div className="absolute -bottom-6 -start-2 sm:-start-6 bg-background p-4 rounded-2xl shadow-xl border border-border/50 flex items-center gap-4 z-40 hover:-translate-y-1 transition-transform">
               <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-2xl">
-                <Star className="h-6 w-6 fill-amber-300" />
+                <Star className="h-6 w-6 fill-warning-300" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-bold mb-1">{t("evalTitle")}</p>

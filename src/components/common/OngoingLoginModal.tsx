@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
@@ -20,6 +20,7 @@ import { UserRole } from "@/types/enums";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
+import { RecaptchaDisclaimer } from "@/components/common/RecaptchaDisclaimer";
 
 interface OngoingLoginModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export function OngoingLoginModal({ isOpen, requiredRole }: OngoingLoginModalPro
   const locale = (params.locale as string) || "ar";
   const isRTL = locale === "ar";
 
-  const { login: handleLoginState, logout, clearSession, user, isAuthenticated } = useAuth();
+  const { login: handleLoginState, clearSession, user, isAuthenticated } = useAuth();
   const { mutate: login, isPending } = useLoginMutation();
 
   useEffect(() => {
@@ -88,7 +89,7 @@ export function OngoingLoginModal({ isOpen, requiredRole }: OngoingLoginModalPro
           }
         }
       },
-      onError: (err: any) => {
+      onError: () => {
         // Error toasts are handled globally in axios interceptor
       },
       onSettled: () => {
@@ -177,7 +178,7 @@ export function OngoingLoginModal({ isOpen, requiredRole }: OngoingLoginModalPro
                   validationSchema={loginWithRecaptchaSchema}
                   onSubmit={handleSubmit}
                 >
-                  {({ isSubmitting, setFieldValue, errors, touched }) => (
+                  {({ isSubmitting }) => (
                     <Form className="focus:outline-none">
                       <CardContent className="space-y-5 px-6 pb-2">
                         <PhoneFormField
@@ -210,32 +211,7 @@ export function OngoingLoginModal({ isOpen, requiredRole }: OngoingLoginModalPro
                           <span>{t("common.backToHome") || "العودة للرئيسية"}</span>
                         </Link>
 
-                        {/* reCAPTCHA Disclaimer
-                        <div className="text-[9px] text-muted-foreground/60 text-center leading-relaxed max-w-xs mx-auto mt-2">
-                          {t.rich("auth.recaptchaDisclaimer", {
-                            privacyLink: (chunks) => (
-                              <a 
-                                href="https://policies.google.com/privacy" 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="underline hover:text-primary transition-colors"
-                              >
-                                {chunks}
-                              </a>
-                            ),
-                            termsLink: (chunks) => (
-                              <a 
-                                href="https://policies.google.com/terms" 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="underline hover:text-primary transition-colors"
-                              >
-                                {chunks}
-                              </a>
-                            ),
-                          })}
-                        </div>
-                        */}
+                        <RecaptchaDisclaimer className="text-[9px] mt-2" />
                       </CardFooter>
                     </Form>
                   )}

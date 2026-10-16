@@ -79,7 +79,8 @@ export interface TeacherDashboardGroup {
 }
 
 export interface TeacherTodaySession {
-  id?: number | string;
+  /** Used as the key for the meeting-link inputs */
+  id: number | string;
   session_id?: number | string;
   group_id?: number | string;
   name?: string;
@@ -87,6 +88,8 @@ export interface TeacherTodaySession {
   url?: string | null;
   meeting_link?: string | null;
   has_points?: string | boolean;
+  track_name?: string;
+  student_count?: number;
   group?: {
     id?: number | string;
     name?: string;

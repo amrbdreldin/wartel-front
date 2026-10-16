@@ -254,7 +254,7 @@ export interface DashboardTamamCard {
   status: {
     presentStatus?: string;
     pastStatus?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   } | null;
 }
 
@@ -269,7 +269,8 @@ export interface StudentDashboardGroup {
   teacher_name: string;
   session_days: DashboardSessionDay[];
   has_tamam: boolean;
-  has_buddy: boolean;
+  /** Backend may send a boolean or "0"/"1"/"false" strings */
+  has_buddy: boolean | string | number;
   tamam_card: DashboardTamamCard | null;
   available_times?: AvailableBuddyTime[];
 }
@@ -336,11 +337,14 @@ export interface DashboardLastGrade {
 
 export interface StudentDashboardResponseData {
   groups: StudentDashboardGroup[];
-  next_session: any | null;
+  next_session: DashboardNextSession | null;
   tamam_card?: DashboardTamamCard | null;
   last_grade: DashboardLastGrade | null;
   alerts: DashboardAlert[];
   next_exam: DashboardExam | null;
+  /** Older payloads expose the active group/student at the top level */
+  group_id?: number | string;
+  student_id?: number | string;
 }
 
 export interface ExamQuestionOption {
@@ -427,11 +431,11 @@ export interface JoinedGroupRecord {
   enrollment_date: string;
   attendance: AttendanceRecord[];
   exam_degrees: ExamDegreeRecord[];
-  certifications: any[];
-  leaves_requests: any[];
-  buddy_pairs: any[];
-  daily_tamam: any[];
-  warnings: any[];
+  certifications: ProfileCertification[];
+  leaves_requests: ProfileLeaveRequest[];
+  buddy_pairs: ProfileBuddyPair[];
+  daily_tamam: ProfileDailyTamam[];
+  warnings: ProfileWarning[];
 }
 
 export interface StudentDetailedProfileResponse {
@@ -541,3 +545,75 @@ export interface StudentPreviousSession {
   url: string | null;
 }
 
+
+// ── Live session attendance ─────────────────────────────────
+export interface SessionAttendanceRecord {
+  attendance_id?: number | string;
+  student_id?: number | string;
+  student_name?: string;
+  student?: { full_name?: string };
+  status_id?: number | string;
+  status?: { name?: string };
+}
+
+export interface SessionAttendanceData {
+  group_name?: string;
+  teacher_name?: string;
+  url?: string;
+  attendance?: SessionAttendanceRecord[];
+}
+
+export interface SessionAttendancePayload {
+  session_id: number;
+}
+
+// ── Dashboard: next session card ────────────────────────────
+export interface DashboardNextSession {
+  id?: number | string;
+  group?: { name?: string } | null;
+  group_name?: string;
+  teacher_name?: string;
+  scheduled_at?: string;
+  url?: string;
+  meeting_link?: string;
+}
+
+// ── Detailed profile: per-group history ─────────────────────
+export interface ProfileBuddyPair {
+  id: number | string;
+  buddy_name?: string;
+  start_date: string;
+  is_active?: string;
+}
+
+export interface ProfileDailyTamam {
+  id: number | string;
+  tamam_date: string;
+  buddy_name?: string;
+  present_status?: string | null;
+  past_status?: string | null;
+  confirmed_at?: string | null;
+}
+
+export interface ProfileLeaveRequest {
+  id: number | string;
+  reason?: string;
+  start_date: string;
+  end_date: string;
+  status?: string;
+}
+
+export interface ProfileCertification {
+  id: number | string;
+  title?: string;
+  issued_at: string;
+  file_url?: string | null;
+}
+
+export interface ProfileWarning {
+  id: number | string;
+  message?: string;
+  violation_type?: string;
+  issued_at?: string;
+  remaining_chances?: number;
+}

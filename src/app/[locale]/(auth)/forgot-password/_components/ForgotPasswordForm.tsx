@@ -17,7 +17,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  KeyRound,
   MessageSquare,
   Phone,
   RefreshCcw,
@@ -78,7 +77,7 @@ export function ForgotPasswordForm() {
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     initiatePasswordReset(values.phone, {
-      onSuccess: (res: any) => {
+      onSuccess: (res) => {
         setPhoneValue(values.phone);
         setStep("otp");
         setResendTimer(60);
@@ -96,7 +95,7 @@ export function ForgotPasswordForm() {
     resetPassword(
       { phone: phoneValue, otp: values.otp, new_password: values.new_password, new_password_confirmation: values.new_password_confirmation },
       {
-        onSuccess: (res: any) => {
+        onSuccess: (res) => {
           setStep("success");
           if (res?.message) toast.success(res.message);
         },
@@ -109,7 +108,7 @@ export function ForgotPasswordForm() {
   const handleResendOtp = () => {
     if (resendTimer > 0 || isInitiating) return;
     initiatePasswordReset(phoneValue, {
-      onSuccess: (res: any) => {
+      onSuccess: (res) => {
         setResendTimer(60);
         if (res?.message) toast.success(res.message);
       },

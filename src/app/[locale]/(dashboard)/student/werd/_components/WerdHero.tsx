@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Star, Calendar, Sparkles, Scroll, ZoomIn } from "lucide-react";
+import { Star, Calendar, Sparkles} from "lucide-react";
+import type { WerdMedia } from "@/types/student.types";
 
 interface WerdHeroProps {
   werd: {
@@ -10,12 +11,12 @@ interface WerdHeroProps {
     image?: string | null;
     track_name?: string;
     created_at?: string;
-    media?: any[];
+    media?: WerdMedia[];
   } | null;
   onImageClick?: (src: string, alt: string) => void;
 }
 
-export function WerdHero({ werd, onImageClick }: WerdHeroProps) {
+export function WerdHero({ werd }: WerdHeroProps) {
   const t = useTranslations();
 
   if (!werd) return null;
@@ -75,7 +76,7 @@ export function WerdHero({ werd, onImageClick }: WerdHeroProps) {
               )}
 
               {mediaLength > 0 && (
-                <span className="inline-flex items-center gap-1.5 bg-green-500/10 text-green-600 dark:text-green-400 border border-green-200/40 dark:border-green-800/40 px-3 py-1.5 rounded-full text-sm font-semibold">
+                <span className="inline-flex items-center gap-1.5 bg-success-500/10 text-success-600 dark:text-success-400 border border-success-200/40 dark:border-success-800/40 px-3 py-1.5 rounded-full text-sm font-semibold">
                   <Sparkles className="w-3.5 h-3.5" />
                   {mediaLength} {t("student.werd.media")}
                 </span>

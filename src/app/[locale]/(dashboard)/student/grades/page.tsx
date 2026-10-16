@@ -1,6 +1,6 @@
 "use client";
 
-import { Trophy, Loader2 } from "lucide-react";
+import { Trophy} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";

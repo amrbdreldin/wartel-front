@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { parentRegisterSchema } from "@/utils/validation";
 import { useParentRegisterMutation } from "@/hooks/api/useAuthMutations";
 import { Form, Formik } from "formik";
-import { ArrowLeft, ArrowRight, CheckCircle2, AlertCircle, User, Key, Users, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, AlertCircle, User, Key} from "lucide-react";
 import { AdmissionPanel } from "./AdmissionPanel";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -18,6 +18,8 @@ import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { useAuth } from "@/hooks/useAuth";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { ScrollToFieldError } from "./ScrollToFieldError";
+import { RecaptchaDisclaimer } from "@/components/common/RecaptchaDisclaimer";
+import { hasEstablishedSession } from "@/lib/session-client";
 
 // ============================================================
 // ParentRegisterForm – registration logic for parent users
@@ -74,11 +76,11 @@ export function ParentRegisterForm() {
 
     registerParent(payload, {
       onSuccess: (res) => {
-        const successMsg = (res as any)?.message || t("auth.loginSuccess") || "تم تسجيل الدخول بنجاح";
+        const successMsg = res?.message || t("auth.loginSuccess") || "تم تسجيل الدخول بنجاح";
         setFormSuccess(successMsg);
         toast.success(successMsg);
         
-        if (res && (res.token || res.access_token)) {
+        if (res && hasEstablishedSession(res)) {
           handleLoginState({
             user: res.user,
             accessToken: res.token || res.access_token || "",
@@ -90,7 +92,7 @@ export function ParentRegisterForm() {
           setIsSuccess(true);
         }
       },
-      onError: (err: any) => {
+      onError: (err) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("common.errorOccurred");
         const validationErrors = responseData?.errors;
@@ -156,7 +158,7 @@ export function ParentRegisterForm() {
           validationSchema={parentRegisterSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched }) => (
+          {() => (
             <Form className="space-y-6">
               <ScrollToFieldError />
 
@@ -232,32 +234,7 @@ export function ParentRegisterForm() {
                 </span>
               </div>
 
-              {/* reCAPTCHA Disclaimer
-              <div className="text-[10px] text-muted-foreground/60 text-center leading-relaxed max-w-xs mx-auto mt-4">
-                {t.rich("auth.recaptchaDisclaimer", {
-                  privacyLink: (chunks) => (
-                    <a 
-                      href="https://policies.google.com/privacy" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="underline hover:text-primary transition-colors"
-                    >
-                      {chunks}
-                    </a>
-                  ),
-                  termsLink: (chunks) => (
-                    <a 
-                      href="https://policies.google.com/terms" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="underline hover:text-primary transition-colors"
-                    >
-                      {chunks}
-                    </a>
-                  ),
-                })}
-              </div>
-              */}
+              <RecaptchaDisclaimer className="mt-4" />
             </Form>
           )}
         </Formik>

@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn lint*)",
+      "Bash(yarn eslint *)",
+      "Bash(npx eslint *)",
+      "Bash(yarn test*)",
+      "Bash(yarn vitest *)",
+      "Bash(npx vitest *)",
+      "Bash(yarn typecheck*)",
+      "Bash(npx tsc --noEmit*)",
+      "Bash(node .claude/skills/*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)"
+    ],
+    "deny": [
+      "Read(./node_modules/**)",
+      "Read(./.next/**)",
+      "Read(./out/**)",
+      "Read(./coverage/**)",
+      "Read(./yarn.lock)",
+      "Read(./package-lock.json)",
+      "Read(./tsconfig.tsbuildinfo)",
+      "Read(./.env*)",
+      "Read(./public/sw.js)",
+      "Read(./public/workbox-*.js)",
+      "Read(./public/swe-worker-*.js)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-file.js\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/enums";
-import { GraduationCap, LayoutDashboard, LogOut, Menu } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -29,7 +29,7 @@ export function LandingNavbar() {
   const locale = params.locale as string;
   const t = useTranslations("landing.nav");
   const tCommon = useTranslations("common");
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {

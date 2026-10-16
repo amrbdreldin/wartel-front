@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   AlertTriangle, ArrowLeft, ArrowRight, BookOpen, Check, 
-  CheckCircle, ClipboardCheck, FileText, Loader2, Mic, Play, 
+  CheckCircle, ClipboardCheck, Loader2, Mic, 
   Trash2, X, XCircle, Volume2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,13 +33,13 @@ export default function TakeExamPage() {
   const examId = params.examId as string;
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<Record<string, string | number>>({});
   
   // Audio recorder states per question
   const [recordingStates, setRecordingStates] = useState<Record<string, "idle" | "recording" | "recorded">>({});
   const [recordingTimers, setRecordingTimers] = useState<Record<string, number>>({});
   const [audioUrls, setAudioUrls] = useState<Record<string, string>>({});
-  const [recorderIntervals, setRecorderIntervals] = useState<Record<string, any>>({});
+  const [recorderIntervals, setRecorderIntervals] = useState<Record<string, ReturnType<typeof setInterval>>>({});
   const [mediaRecorders, setMediaRecorders] = useState<Record<string, MediaRecorder>>({});
 
   // Query details
@@ -50,7 +50,7 @@ export default function TakeExamPage() {
 
   // Submit mutation
   const submitMutation = useMutation({
-    mutationFn: (answersPayload: Record<string, any>) => 
+    mutationFn: (answersPayload: Record<string, string | number>) => 
       studentService.submitExamAnswers(examId, answersPayload),
     onSuccess: (res) => {
       toast.success(res?.message || t("student.examSubmittedSuccessfully") || "تم تسليم الاختبار بنجاح");
@@ -365,13 +365,13 @@ export default function TakeExamPage() {
                         "flex flex-col items-center justify-center p-6 rounded-2xl border text-center transition-all duration-300 scale-95 hover:scale-100",
                         isSelected 
                           ? isTrueOption 
-                            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-md shadow-emerald-500/5"
+                            ? "border-success-500/50 bg-success-500/10 text-success-600 dark:text-success-400 shadow-md shadow-success-500/5"
                             : "border-destructive/50 bg-destructive/10 text-destructive shadow-md shadow-destructive/5"
                           : "border-border/60 hover:border-primary/40 bg-muted/20 hover:bg-muted/40 text-foreground"
                       )}
                     >
                       {isTrueOption ? (
-                        <CheckCircle className={cn("w-10 h-10 mb-2", isSelected ? "text-emerald-500 animate-bounce" : "text-muted-foreground/60")} />
+                        <CheckCircle className={cn("w-10 h-10 mb-2", isSelected ? "text-success-500 animate-bounce" : "text-muted-foreground/60")} />
                       ) : (
                         <XCircle className={cn("w-10 h-10 mb-2", isSelected ? "text-destructive" : "text-muted-foreground/60")} />
                       )}

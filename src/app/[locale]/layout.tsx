@@ -1,13 +1,14 @@
 import "@/app/globals.css";
 import { routing } from "@/i18n/routing";
-import { RTL_LOCALES, type Locale } from "@/lib/constants";
+import { RTL_LOCALES, USER_KEY, type Locale } from "@/lib/constants";
 import Providers from "@/store/provider";
 import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Inter, Tajawal } from "next/font/google";
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { parseUserCookie, type ServerAuthSnapshot } from "@/store/slices/authSlice";
 import { getTenantConfig } from "@/utils/saas";
 import TenantThemeProvider from "@/components/providers/TenantThemeProvider";
 import DynamicAnalyticsProvider from "@/components/providers/DynamicAnalyticsProvider";
@@ -135,6 +136,12 @@ export default async function LocaleLayout({
   // Fetch SaaS configurations dynamically at runtime by extracting host header
   const headersList = await headers();
   const host = headersList.get("host") || "";
+
+  // Session snapshot so client components render the same user on the server and in the browser
+  const cookieStore = await cookies();
+  const serverAuth: ServerAuthSnapshot = {
+    user: parseUserCookie(cookieStore.get(USER_KEY)?.value),
+  };
   const nonce = headersList.get("x-nonce") || "";
   const saasConfig = await getTenantConfig(host);
 
@@ -143,6 +150,8 @@ export default async function LocaleLayout({
       <head>
         <script
           type="application/ld+json"
+          // Browsers hide nonce attributes from the DOM, so React would always report a mismatch
+          suppressHydrationWarning
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -170,7 +179,7 @@ export default async function LocaleLayout({
         } antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
-          <Providers>
+          <Providers serverAuth={serverAuth}>
             <TenantThemeProvider branding={saasConfig.branding}>
               <DynamicAnalyticsProvider 
                 integrations={saasConfig.integrations} 

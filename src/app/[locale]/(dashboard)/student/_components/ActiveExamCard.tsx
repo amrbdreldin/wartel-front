@@ -3,10 +3,10 @@
 import { ClipboardCheck, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import type { DashboardExam } from "@/types/student.types";
 
 interface ActiveExamCardProps {
-  nextExam: any;
+  nextExam?: DashboardExam | null;
   locale: string;
 }
 

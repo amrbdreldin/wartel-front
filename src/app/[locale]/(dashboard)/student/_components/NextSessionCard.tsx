@@ -3,20 +3,20 @@
 import { useState } from "react";
 import { Video, Calendar, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { studentService } from "@/services/student.service";
 import { toast } from "sonner";
+import type { DashboardNextSession } from "@/types/student.types";
 
 interface NextSessionCardProps {
-  nextSession: any;
+  nextSession?: DashboardNextSession | null;
 }
 
 export function NextSessionCard({ nextSession }: NextSessionCardProps) {
   const t = useTranslations();
   const params = useParams();
   const locale = params.locale as string;
-  const router = useRouter();
   const [isJoining, setIsJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
 
@@ -50,7 +50,7 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       } else {
         toast.error(response?.message || t("student.errorRegisteringAttendance") || "Failed to record attendance.");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to register attendance", error);
       toast.error(t("student.errorRegisteringAttendance") || "Failed to record attendance.");
     } finally {

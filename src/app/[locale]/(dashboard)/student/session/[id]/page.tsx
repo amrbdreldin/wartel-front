@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
-import { useRole } from "@/hooks/useRole";
 import { studentService } from "@/services/student.service";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -13,13 +12,12 @@ import {
   Users,
   ExternalLink,
   Loader2,
-  Sparkles,
   CheckCircle,
   AlertCircle,
   ArrowLeft,
   Tv
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import type { SessionAttendancePayload } from "@/types/student.types";
 
 export default function StudentSessionPage() {
   const t = useTranslations();
@@ -29,7 +27,6 @@ export default function StudentSessionPage() {
   const router = useRouter();
 
   const { user } = useAuth();
-  const { isStudent } = useRole();
   const [attendanceRegistered, setAttendanceRegistered] = useState(false);
   const [showMeetingFrame, setShowMeetingFrame] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -72,13 +69,13 @@ export default function StudentSessionPage() {
 
   // 2. Submit Attendance Mutation
   const submitAttendanceMutation = useMutation({
-    mutationFn: (payload: any) => studentService.submitSessionAttendance(payload),
-    onSuccess: (res) => {
+    mutationFn: (payload: SessionAttendancePayload) => studentService.submitSessionAttendance(payload),
+    onSuccess: () => {
       setAttendanceRegistered(true);
       toast.success(t("student.attendanceRegistered"));
       refetch();
     },
-    onError: (err: any) => {
+    onError: (err) => {
       console.error("Failed to register attendance", err);
       toast.error(t("student.errorRegisteringAttendance"));
     }
@@ -87,7 +84,7 @@ export default function StudentSessionPage() {
   // Handle Join Session Action
   const handleJoinSession = () => {
     // 1. Submit attendance if not already present in the active roster
-    const isAlreadyInRoster = sessionData?.attendance?.some((record: any) => {
+    const isAlreadyInRoster = sessionData?.attendance?.some((record) => {
       const studentName = record.student_name || record.student?.full_name;
       const matchesUser = (user?.id && Number(record.student_id) === Number(user.id)) || (studentName && user?.full_name && studentName === user.full_name);
       const isPresent = record.status_id !== undefined ? (Number(record.status_id) === 1 || record.status?.name === "present") : true;
@@ -113,7 +110,7 @@ export default function StudentSessionPage() {
   };
 
   // Filter only active (present) users
-  const activeRecords = sessionData?.attendance?.filter((record: any) => {
+  const activeRecords = sessionData?.attendance?.filter((record) => {
     if (record.status_id !== undefined) {
       return record.status_id === 1 || record.status_id === "1";
     }
@@ -148,7 +145,7 @@ export default function StudentSessionPage() {
                 </span>
               )}
               {teacherName && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-600 font-bold text-xs dark:text-amber-500">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-warning-500/10 text-warning-600 font-bold text-xs dark:text-warning-500">
                   {t("student.teacherName")}: {teacherName}
                 </span>
               )}
@@ -162,11 +159,11 @@ export default function StudentSessionPage() {
         {/* Attendance Badge status */}
         <div className="flex items-center gap-2.5 self-start md:self-center">
           {submitAttendanceMutation.isPending ? (
-            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-warning-500/10 text-warning-600 border border-warning-500/20">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
               {t("student.joiningSession")}
             </span>
-          ) : attendanceRegistered || sessionData?.attendance?.some((r: any) => {
+          ) : attendanceRegistered || sessionData?.attendance?.some((r) => {
               const studentName = r.student_name || r.student?.full_name;
               const matchesUser = (user?.id && Number(r.student_id) === Number(user.id)) || (studentName && user?.full_name && studentName === user.full_name);
               const isPresent = r.status_id !== undefined ? (Number(r.status_id) === 1 || r.status?.name === "present") : true;
@@ -270,14 +267,14 @@ export default function StudentSessionPage() {
           <div className="relative w-full rounded-3xl border border-border/80 shadow-2xl bg-gradient-to-br from-card/85 via-card/95 to-muted/50 p-6 md:p-12 overflow-hidden group">
             {/* Subtle moving glow border/background */}
             <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-primary/15 transition-all duration-700" />
-            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-700" />
+            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-success-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-success-500/15 transition-all duration-700" />
 
             <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto py-6 md:py-8 space-y-6 md:space-y-8">
 
               {/* Elegant glowing video meeting icon header */}
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-125 animate-pulse" />
-                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-primary to-emerald-500 flex items-center justify-center text-primary-foreground shadow-lg border-4 border-background">
+                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-primary to-success-500 flex items-center justify-center text-primary-foreground shadow-lg border-4 border-background">
                   <Video className="w-10 h-10 md:w-12 md:h-12 animate-bounce" />
                 </div>
               </div>
@@ -285,13 +282,13 @@ export default function StudentSessionPage() {
               {/* Premium status indicators */}
               <div className="space-y-3">
                 {rawMeetingUrl ? (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 border border-emerald-500/25 animate-pulse">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_#10b981]" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-success-500/10 text-success-600 border border-success-500/25 animate-pulse">
+                    <span className="w-2.5 h-2.5 rounded-full bg-success-500 shadow-[0_0_12px_#10b981]" />
                     {t("student.meetingLinkReady")}
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-amber-500/10 text-amber-600 border border-amber-500/25">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_12px_#f59e0b]" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-warning-500/10 text-warning-600 border border-warning-500/25">
+                    <span className="w-2.5 h-2.5 rounded-full bg-warning-500 shadow-[0_0_12px_#f59e0b]" />
                     {t("student.meetingLinkNotReady")}
                   </div>
                 )}
@@ -308,7 +305,7 @@ export default function StudentSessionPage() {
                 <button
                   onClick={handleJoinSession}
                   disabled={!rawMeetingUrl}
-                  className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary to-emerald-600 hover:from-primary/90 hover:to-emerald-600/90 text-primary-foreground font-black text-sm md:text-base rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-1 transform focus:ring-4 focus:ring-primary/40 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none"
+                  className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary to-success-600 hover:from-primary/90 hover:to-success-600/90 text-primary-foreground font-black text-sm md:text-base rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-1 transform focus:ring-4 focus:ring-primary/40 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none"
                 >
                   <span>{t("student.joinMeetingBtn")}</span>
                   <ExternalLink className="w-5 h-5" />
@@ -316,7 +313,7 @@ export default function StudentSessionPage() {
               </div>
 
               {/* Security Alert Badge */}
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-500/5 text-amber-600/90 border border-amber-500/10 text-xs text-start max-w-lg">
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-warning-500/5 text-warning-600/90 border border-warning-500/10 text-xs text-start max-w-lg">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{t("student.meetingSecurityAlert")}</span>
               </div>
@@ -358,7 +355,7 @@ export default function StudentSessionPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {activeRecords.map((record: any, index: number) => {
+                  {activeRecords.map((record, index) => {
                     const studentName = record.student_name || record.student?.full_name || t("auth.student");
                     const initial = studentName.charAt(0);
                     return (

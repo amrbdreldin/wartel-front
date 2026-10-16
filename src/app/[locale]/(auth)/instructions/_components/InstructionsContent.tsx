@@ -132,13 +132,13 @@ export function InstructionsContent() {
             </div>
           ) : (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 rounded-3xl p-6 mb-6 flex gap-4 items-start">
-                <Info className="w-6 h-6 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+              <div className="bg-warning-500/10 dark:bg-warning-500/5 border border-warning-500/20 rounded-3xl p-6 mb-6 flex gap-4 items-start">
+                <Info className="w-6 h-6 text-warning-600 dark:text-warning-500 shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-black text-amber-900 dark:text-amber-400 mb-2 text-lg">
+                  <h3 className="font-black text-warning-900 dark:text-warning-400 mb-2 text-lg">
                     {t("instructions.children.title")}
                   </h3>
-                  <p className="text-sm leading-relaxed text-amber-800/90 dark:text-amber-500/90 font-medium whitespace-pre-line">
+                  <p className="text-sm leading-relaxed text-warning-800/90 dark:text-warning-500/90 font-medium whitespace-pre-line">
                     {t("instructions.children.subtitle")}
                   </p>
                 </div>
@@ -148,9 +148,9 @@ export function InstructionsContent() {
                 {childrenItems.map((text, i) => (
                   <li
                     key={i}
-                    className="flex items-start gap-4 p-4 rounded-2xl bg-muted/20 dark:bg-muted/10 border border-border/30 hover:border-amber-500/20 hover:bg-muted/40 dark:hover:bg-muted/20 transition-all duration-300"
+                    className="flex items-start gap-4 p-4 rounded-2xl bg-muted/20 dark:bg-muted/10 border border-border/30 hover:border-warning-500/20 hover:bg-muted/40 dark:hover:bg-muted/20 transition-all duration-300"
                   >
-                    <div className="mt-1 w-6 h-6 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/25 text-amber-600 dark:text-amber-500 text-xs font-black">
+                    <div className="mt-1 w-6 h-6 rounded-full bg-warning-500/10 flex items-center justify-center shrink-0 border border-warning-500/25 text-warning-600 dark:text-warning-500 text-xs font-black">
                       {i + 1}
                     </div>
                     <span className="text-sm md:text-base leading-relaxed text-foreground/90 font-medium">

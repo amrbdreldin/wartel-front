@@ -1,14 +1,9 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Award, BookOpen, Bot, LineChart, Sparkles, Video } from "lucide-react";
+import { Award, BookOpen, Bot, LineChart, Sparkles, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 
 export function FeaturesSection() {
-  const params = useParams();
-  const locale = params.locale as string;
-  const isRTL = locale === "ar";
   const t = useTranslations("landing.features");
 
   return (

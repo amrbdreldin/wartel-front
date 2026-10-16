@@ -2,7 +2,7 @@ import type { User } from "@/types/auth.types";
 import { UserRole } from "@/types/enums";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
-import { TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY } from "@/lib/constants";
+import { USER_KEY } from "@/lib/constants";
 
 // ============================================================
 // Auth Slice – User, tokens, role
@@ -16,46 +16,54 @@ interface AuthState {
   isLoading: boolean;
 }
 
-const getInitialAuth = (): AuthState => {
-  if (typeof window === "undefined") {
-    return {
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
-      isLoading: true,
-    };
+/**
+ * What the server can safely tell the client about the session (read from the
+ * request cookies in `[locale]/layout.tsx`). Tokens are never embedded in the HTML.
+ */
+export interface ServerAuthSnapshot {
+  user: User | null;
+}
+
+function withResolvedRole(user: User | null): User | null {
+  if (user && !user.role && user.role_id) {
+    const roleIdStr = String(user.role_id);
+    if (roleIdStr === "1" || roleIdStr === "3") user.role = UserRole.STUDENT;
+    else if (roleIdStr === "2") user.role = UserRole.TEACHER;
+    else if (roleIdStr === "5") user.role = UserRole.PARENT;
   }
+  return user;
+}
+
+/** Parses the user cookie value; null when missing or malformed */
+export function parseUserCookie(raw: string | undefined | null): User | null {
+  if (!raw) return null;
   try {
-    const token = Cookies.get(TOKEN_KEY) || null;
-    const refresh = Cookies.get(REFRESH_TOKEN_KEY) || null;
-    const userRaw = Cookies.get(USER_KEY);
-    const user = userRaw ? (JSON.parse(userRaw) as User) : null;
-    if (user && !user.role && user.role_id) {
-      const roleIdStr = String(user.role_id);
-      if (roleIdStr === "1" || roleIdStr === "3") user.role = UserRole.STUDENT;
-      else if (roleIdStr === "2") user.role = UserRole.TEACHER;
-      else if (roleIdStr === "5") user.role = UserRole.PARENT;
-    }
-    return {
-      user,
-      accessToken: token,
-      refreshToken: refresh,
-      isAuthenticated: !!token && !!user,
-      isLoading: false,
-    };
+    return withResolvedRole(JSON.parse(raw) as User);
   } catch {
-    return {
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
-      isLoading: false,
-    };
+    return null;
   }
+}
+
+/**
+ * Initial auth state. The server renders from the cookie snapshot and the browser
+ * from the same readable user cookie, so the first client render matches the HTML.
+ * Tokens are HttpOnly (server-owned) and never part of client state; the server
+ * removes the user cookie whenever it ends a session, so `user` implies a session.
+ */
+export const createInitialAuthState = (server?: ServerAuthSnapshot): AuthState => {
+  // Same rule on both sides (user cookie only) so server HTML and first client render always match
+  const user =
+    typeof window === "undefined" ? server?.user ?? null : parseUserCookie(Cookies.get(USER_KEY));
+  return {
+    user,
+    accessToken: null,
+    refreshToken: null,
+    isAuthenticated: Boolean(user),
+    isLoading: typeof window === "undefined" && !server,
+  };
 };
 
-const initialState: AuthState = getInitialAuth();
+const initialState: AuthState = createInitialAuthState();
 
 const authSlice = createSlice({
   name: "auth",
@@ -69,14 +77,7 @@ const authSlice = createSlice({
         refreshToken: string;
       }>
     ) => {
-      const user = { ...action.payload.user };
-      if (!user.role && user.role_id) {
-        const roleIdStr = String(user.role_id);
-        if (roleIdStr === "1" || roleIdStr === "3") user.role = UserRole.STUDENT;
-        else if (roleIdStr === "2") user.role = UserRole.TEACHER;
-        else if (roleIdStr === "5") user.role = UserRole.PARENT;
-      }
-      state.user = user;
+      state.user = withResolvedRole({ ...action.payload.user });
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;

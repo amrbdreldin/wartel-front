@@ -38,7 +38,7 @@ export function useLoginMutation() {
                 },
               }
             : {}),
-        } as any,
+        },
       });
     },
   });
@@ -62,7 +62,7 @@ export function useRegisterMutation() {
                 },
               }
             : {}),
-        } as any,
+        },
       });
     },
   });
@@ -85,7 +85,7 @@ export function useParentRegisterMutation() {
                 },
               }
             : {}),
-        } as any,
+        },
       });
     },
   });
@@ -119,7 +119,7 @@ export function useResetPasswordRequestMutation() {
   const lang = useLocale() as Locale;
   return useMutation({
     mutationFn: (phone: string) =>
-      authService.resetPasswordRequest(phone, { lang, config: { skipGlobalToast: true } as any }),
+      authService.resetPasswordRequest(phone, { lang, config: { skipGlobalToast: true } }),
   });
 }
 
@@ -130,7 +130,7 @@ export function useReactivationRequestMutation() {
     mutationFn: (data: UserReactivationRequest) =>
       authService.reactivationRequest(data, {
         lang,
-        config: { skipGlobalToast: true } as any,
+        config: { skipGlobalToast: true },
       }),
   });
 }

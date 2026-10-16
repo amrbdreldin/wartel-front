@@ -299,10 +299,10 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
           </p>
           <div className="flex items-center gap-2.5 mt-1">
             <span className="relative flex h-3 w-3 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-success-500"></span>
             </span>
-            <span className="text-lg font-extrabold text-emerald-500">
+            <span className="text-lg font-extrabold text-success-500">
               {t("teacher.systemActive")}
             </span>
           </div>
@@ -312,7 +312,7 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
       {/* Telegram Sync Banner (Optional) */}
       {showTelegramSync && (
         <div
-          className="bg-gradient-to-r from-sky-600 to-sky-800 text-white rounded-3xl p-6 shadow-info-500/30 shadow-lg flex flex-wrap justify-between items-center gap-4 animate-in fade-in duration-300"
+          className="bg-gradient-to-r from-info-600 to-info-800 text-white rounded-3xl p-6 shadow-info-500/30 shadow-lg flex flex-wrap justify-between items-center gap-4 animate-in fade-in duration-300"
           role="region"
           aria-label="Telegram Sync Banner"
         >
@@ -537,7 +537,7 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
 
           {totalWarnings === 0 ? (
             <div className="bg-card rounded-[2rem] p-12 text-center border border-dashed border-border/60">
-              <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-success-500/10 text-success-600 dark:text-success-400 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <h4 className="text-lg font-bold text-foreground mb-2">
@@ -591,7 +591,7 @@ export function NotificationsView({ showTelegramSync = false }: NotificationsVie
                         </td>
                         <td className="px-6 py-4 text-sm">
                           {warning.type === "good" ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase shrink-0 bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20">
                               {t("warningsTable.typeGood")}
                             </span>
                           ) : (

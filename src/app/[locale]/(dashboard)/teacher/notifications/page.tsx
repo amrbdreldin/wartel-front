@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, AlertTriangle, ShieldCheck, ArrowRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { DataTable, Column } from "@/components/ui/DataTable";
+import type { WarningListItem } from "@/types/student.types";
 
 export default function TeacherNotificationsPage() {
   const t = useTranslations();
@@ -47,11 +48,8 @@ export default function TeacherNotificationsPage() {
 
   const warnings = warningsList || [];
   const totalWarnings = warnings.length;
-  const activeAlertsCount = warnings.filter(
-    (w: any) => String(w.status_id) === "1" || w.status_name === "مفعل"
-  ).length;
 
-  const columns: Column<any>[] = [
+  const columns: Column<WarningListItem>[] = [
     {
       key: "id",
       header: t("warningsTable.id"),
@@ -61,7 +59,7 @@ export default function TeacherNotificationsPage() {
       key: "level_name",
       header: t("warningsTable.level"),
       sortable: true,
-      render: (warning: any) => {
+      render: (warning) => {
         const isActive = String(warning.status_id) === "1" || warning.status_name === "مفعل";
         return (
           <span className="flex items-center gap-2">
@@ -80,9 +78,9 @@ export default function TeacherNotificationsPage() {
     {
       key: "type",
       header: t("warningsTable.type"),
-      render: (warning: any) => {
+      render: (warning) => {
         return warning.type === "good" ? (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase shrink-0 bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20">
             {t("warningsTable.typeGood")}
           </span>
         ) : (
@@ -96,7 +94,7 @@ export default function TeacherNotificationsPage() {
       key: "issued_at",
       header: t("warningsTable.issuedAt"),
       sortable: true,
-      render: (warning: any) => {
+      render: (warning) => {
         return warning.issued_at ? formatDate(warning.issued_at) : "-";
       },
     },
@@ -146,10 +144,10 @@ export default function TeacherNotificationsPage() {
           </p>
           <div className="flex items-center gap-2.5 mt-1">
             <span className="relative flex h-3 w-3 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-success-500"></span>
             </span>
-            <span className="text-lg font-extrabold text-emerald-500">
+            <span className="text-lg font-extrabold text-success-500">
               {t("teacher.systemActive") || "نشط"}
             </span>
           </div>
@@ -159,7 +157,7 @@ export default function TeacherNotificationsPage() {
       {/* Warnings Log Table Section */}
       {totalWarnings === 0 ? (
         <div className="bg-card rounded-[2rem] p-12 text-center border border-dashed border-border/60">
-          <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-success-500/10 text-success-600 dark:text-success-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="w-8 h-8" />
           </div>
           <h4 className="text-lg font-bold text-foreground mb-2">

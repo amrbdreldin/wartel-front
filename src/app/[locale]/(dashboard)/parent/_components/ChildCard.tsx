@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Activity, GraduationCap, BookMarked, Circle, ExternalLink, KeyRound, Loader2 } from "lucide-react";
+import { Activity, GraduationCap, ExternalLink, KeyRound, Loader2 } from "lucide-react";
 
 interface ChildInfo {
   id: number;
@@ -48,7 +48,7 @@ export function ChildCard({
               {initial}
             </div>
             {/* Active indicator */}
-            <span className="absolute -bottom-1 -end-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-background flex items-center justify-center shadow">
+            <span className="absolute -bottom-1 -end-1 w-5 h-5 bg-success-500 rounded-full border-2 border-background flex items-center justify-center shadow">
               <Activity className="w-2.5 h-2.5 text-white" />
             </span>
           </div>

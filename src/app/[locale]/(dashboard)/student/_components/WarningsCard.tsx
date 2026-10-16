@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useStudentWarnings } from "@/hooks/api/useStudentQueries";
 import type { DashboardAlert } from "@/types/student.types";
+import type { WarningListItem } from "@/types/student.types";
 
 interface WarningsCardProps {
   alerts: DashboardAlert[];
@@ -57,7 +58,7 @@ export function WarningsCard({ alerts = [], locale }: WarningsCardProps) {
   // Optionally retrieve the warnings list from the endpoint to get enriched dynamic names
   const { data: warningsList } = useStudentWarnings();
 
-  const getLevelName = (alert: DashboardAlert, matchedWarning?: any): string => {
+  const getLevelName = (alert: DashboardAlert, matchedWarning?: WarningListItem): string => {
     if (alert.level_name) return alert.level_name;
     if (matchedWarning?.level_name) return matchedWarning.level_name;
     const levelId = Number(alert.level_id);
@@ -75,7 +76,7 @@ export function WarningsCard({ alerts = [], locale }: WarningsCardProps) {
     }
   };
 
-  const getReasonName = (alert: DashboardAlert, matchedWarning?: any): string => {
+  const getReasonName = (alert: DashboardAlert, matchedWarning?: WarningListItem): string => {
     if (alert.reason_name) return alert.reason_name;
     if (matchedWarning?.reason_name) return matchedWarning.reason_name;
     const reasonId = Number(alert.reason_id);
@@ -92,7 +93,7 @@ export function WarningsCard({ alerts = [], locale }: WarningsCardProps) {
     <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.05)] dark:hover:shadow-[0_20px_40px_rgb(0,0,0,0.25)] hover:-translate-y-1.5 transition-all duration-500 group flex flex-col relative overflow-hidden h-full">
       
       {/* Red/Amber gradient border at the very top */}
-      <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-red-600 via-amber-500 to-rose-500" />
+      <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-danger-600 via-warning-500 to-danger-500" />
 
       {/* Premium glow effects */}
       <div className="absolute -right-20 -top-20 w-44 h-44 bg-destructive/5 rounded-full blur-3xl pointer-events-none group-hover:bg-destructive/10 transition-colors duration-500" />
@@ -119,7 +120,7 @@ export function WarningsCard({ alerts = [], locale }: WarningsCardProps) {
       <div className="space-y-2.5 my-3 overflow-y-auto overflow-x-hidden max-h-[220px] custom-scrollbar flex-1 w-full">
         {warningCount > 0 ? (
           alerts.map((alert) => {
-            const matched = warningsList?.find((w: any) => String(w.id) === String(alert.id));
+            const matched = warningsList?.find((w) => String(w.id) === String(alert.id));
             const levelName = getLevelName(alert, matched);
             const reasonName = getReasonName(alert, matched);
             const formattedDate = formatAlertDate(alert.issued_at, locale);
@@ -174,10 +175,10 @@ export function WarningsCard({ alerts = [], locale }: WarningsCardProps) {
           })
         ) : (
           <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-border/80 rounded-2xl bg-muted/20 flex-grow min-h-[160px] transition-all duration-300 hover:bg-muted/30">
-            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-emerald-500/20 to-emerald-500/5 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 shadow-[0_4px_12px_rgba(16,185,129,0.05)] border border-emerald-500/10 group-hover:scale-105 transition-transform duration-300">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-success-500/20 to-success-500/5 text-success-600 dark:text-success-400 flex items-center justify-center mb-3 shadow-[0_4px_12px_rgba(16,185,129,0.05)] border border-success-500/10 group-hover:scale-105 transition-transform duration-300">
               <ShieldCheck className="w-5 h-5 animate-pulse" />
             </div>
-            <p className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 leading-relaxed">
+            <p className="text-xs font-extrabold text-success-600 dark:text-success-400 leading-relaxed">
               {t("student.noWarnings") || "لا توجد إنذارات مسجلة لحسابك."}
             </p>
             <p className="text-[10px] text-muted-foreground/80 mt-1 max-w-[200px] leading-relaxed">

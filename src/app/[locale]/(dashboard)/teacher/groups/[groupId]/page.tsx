@@ -6,7 +6,6 @@ import {
   ArrowRight,
   AlertTriangle,
   RefreshCw,
-  GraduationCap,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";

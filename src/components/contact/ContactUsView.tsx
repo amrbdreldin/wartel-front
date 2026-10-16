@@ -1,7 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useContactThreads } from "@/hooks/api/useContactQueries";
 import { cn } from "@/lib/utils";
+import { isThreadPendingAdmin, isThreadPendingUser } from "@/utils/contactThread";
 import {
   Clock,
   Headphones,
@@ -24,6 +26,8 @@ function ContactUsViewInner() {
 
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  // Remounts the modal on every open so a stale draft never reappears
+  const [createModalKey, setCreateModalKey] = useState(0);
 
   // Read ticket ID from URL if present
   const queryTicketId = searchParams.get("ticket");
@@ -34,7 +38,7 @@ function ContactUsViewInner() {
   const {
     data: threadsResponse,
     isLoading,
-    refetch,
+    isSuccess,
   } = useContactThreads({ page, per_page: 15 });
 
   const threadsData = threadsResponse?.data;
@@ -70,18 +74,26 @@ function ContactUsViewInner() {
   // Quick statistics computation
   const stats = useMemo(() => {
     const total = threadsData?.meta?.total ?? threads.length;
-    const pendingAdmin = threads.filter(
-      (t) => String(t.status).toLowerCase() === "pending_admin"
-    ).length;
-    const pendingUser = threads.filter(
-      (t) => String(t.status).toLowerCase() === "pending_user"
-    ).length;
+    const pendingAdmin = threads.filter((t) => isThreadPendingAdmin(t.status)).length;
+    const pendingUser = threads.filter((t) => isThreadPendingUser(t.status)).length;
 
     return { total, pendingAdmin, pendingUser };
   }, [threadsData?.meta?.total, threads]);
 
   const hasMessages = stats.total >= 1;
   const canCreateTicket = !isLoading && !hasMessages;
+  // Never offer creation when the list failed to load (total would wrongly read 0)
+  const canShowCreate = canCreateTicket && isSuccess;
+
+  // Close the modal through state (not only via the open prop) when creation is no longer allowed
+  if (isCreateModalOpen && !canShowCreate) {
+    setIsCreateModalOpen(false);
+  }
+
+  const openCreateModal = () => {
+    setCreateModalKey((k) => k + 1);
+    setIsCreateModalOpen(true);
+  };
 
   return (
     <div className="space-y-4 sm:space-y-5 max-w-7xl mx-auto animate-in fade-in duration-500 pb-12">
@@ -91,7 +103,7 @@ function ContactUsViewInner() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <Headphones className="w-4 h-4" />
+                <Headphones className="w-4 h-4" aria-hidden="true" />
               </div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold text-foreground tracking-tight">
                 {t("pageTitle")}
@@ -102,17 +114,15 @@ function ContactUsViewInner() {
             </p>
           </div>
 
-          {canCreateTicket && (
-            <div className="shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsCreateModalOpen(true)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer text-xs sm:text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>{t("newTicket")}</span>
-              </button>
-            </div>
+          {canShowCreate && (
+            <Button
+              size="lg"
+              onClick={openCreateModal}
+              className="shrink-0 w-full sm:w-auto h-9 sm:h-10 px-4 rounded-xl font-semibold shadow-xs hover:bg-primary/90 text-xs sm:text-sm"
+            >
+              <Plus aria-hidden="true" />
+              {t("newTicket")}
+            </Button>
           )}
         </div>
 
@@ -123,12 +133,12 @@ function ContactUsViewInner() {
               <p className="text-[11px] sm:text-xs text-muted-foreground font-medium leading-tight">
                 {t("totalTickets")}
               </p>
-              <p className="text-sm sm:text-lg md:text-xl font-bold text-foreground leading-tight mt-1 sm:mt-0.5">
+              <p className="text-sm sm:text-lg md:text-xl font-bold tabular-nums text-foreground leading-tight mt-1 sm:mt-0.5">
                 {stats.total}
               </p>
             </div>
             <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-primary/10 text-primary items-center justify-center shrink-0">
-              <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
             </div>
           </div>
 
@@ -137,12 +147,12 @@ function ContactUsViewInner() {
               <p className="text-[11px] sm:text-xs text-muted-foreground font-medium leading-tight">
                 {t("pendingAdmin")}
               </p>
-              <p className="text-sm sm:text-lg md:text-xl font-bold text-amber-600 dark:text-amber-400 leading-tight mt-1 sm:mt-0.5">
+              <p className="text-sm sm:text-lg md:text-xl font-bold tabular-nums text-warning-600 dark:text-warning-400 leading-tight mt-1 sm:mt-0.5">
                 {stats.pendingAdmin}
               </p>
             </div>
-            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 items-center justify-center shrink-0">
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-warning-50 text-warning-600 dark:text-warning-400 items-center justify-center shrink-0">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
             </div>
           </div>
 
@@ -151,12 +161,12 @@ function ContactUsViewInner() {
               <p className="text-[11px] sm:text-xs text-muted-foreground font-medium leading-tight">
                 {t("pendingUser")}
               </p>
-              <p className="text-sm sm:text-lg md:text-xl font-bold text-emerald-600 dark:text-emerald-400 leading-tight mt-1 sm:mt-0.5">
+              <p className="text-sm sm:text-lg md:text-xl font-bold tabular-nums text-success-600 dark:text-success-400 leading-tight mt-1 sm:mt-0.5">
                 {stats.pendingUser}
               </p>
             </div>
-            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 items-center justify-center shrink-0">
-              <MessageSquareCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="hidden sm:flex w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg sm:rounded-xl bg-success-50 text-success-600 dark:text-success-400 items-center justify-center shrink-0">
+              <MessageSquareCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
             </div>
           </div>
         </div>
@@ -176,10 +186,10 @@ function ContactUsViewInner() {
             isLoading={isLoading}
             selectedTicketId={selectedTicketId}
             onSelectTicket={handleSelectTicket}
-            onOpenCreateModal={() => setIsCreateModalOpen(true)}
+            onOpenCreateModal={openCreateModal}
             currentPage={page}
             onPageChange={(newPage) => setPage(newPage)}
-            canCreateTicket={canCreateTicket}
+            canCreateTicket={canShowCreate}
           />
         </div>
 
@@ -198,13 +208,12 @@ function ContactUsViewInner() {
       </div>
 
       {/* Create Ticket Modal */}
+      {/* List refresh after creation is handled by the mutation's cache invalidation */}
       <CreateTicketModal
-        open={isCreateModalOpen && canCreateTicket}
+        key={createModalKey}
+        open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        onTicketCreated={(newId) => {
-          handleSelectTicket(newId);
-          refetch();
-        }}
+        onTicketCreated={handleSelectTicket}
       />
     </div>
   );

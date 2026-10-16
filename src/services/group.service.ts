@@ -1,5 +1,6 @@
 import { apiGet, apiPost, type ApiCallOptions } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
+import type { UserRole } from "@/types/enums";
 
 // ============================================================
 // Group Service
@@ -47,7 +48,7 @@ export interface JoinGroupResponse {
     role_id: number;
     status_id: number;
     enrollment_type: string;
-    role?: string;
+    role?: UserRole;
   };
 }
 
@@ -63,6 +64,6 @@ export const groupService = {
       config: {
         ...options?.config,
         skipGlobalToast: true,
-      } as any,
+      },
     }).then((r) => r),
 };

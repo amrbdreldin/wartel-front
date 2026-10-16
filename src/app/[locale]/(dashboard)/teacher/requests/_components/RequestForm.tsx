@@ -13,8 +13,6 @@ import { DatePicker } from "@/components/ui/DatePicker";
 // ============================================================
 // Shared input style constants
 // ============================================================
-const INPUT_BASE =
-  "w-full bg-muted/50 border text-foreground text-sm rounded-xl focus:ring-4 focus:ring-primary/20 focus:border-primary block p-3.5 transition-colors [&::-webkit-calendar-picker-indicator]:cursor-pointer";
 const INPUT_NORMAL = "border-border/50";
 const INPUT_ERROR =
   "border-destructive focus:ring-destructive/20 focus:border-destructive";

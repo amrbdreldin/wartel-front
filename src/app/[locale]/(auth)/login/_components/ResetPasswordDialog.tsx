@@ -43,12 +43,12 @@ export function ResetPasswordDialog({ open, onOpenChange }: ResetPasswordDialogP
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     resetPasswordRequest(values.phone, {
-      onSuccess: (res: any) => {
+      onSuccess: (res) => {
         setStep("success");
         const msg = res?.message || t("auth.resetPasswordRequestSuccess");
         toast.success(msg);
       },
-      onError: (err: any) => {
+      onError: (err) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("common.errorOccurred");
         const validationErrors = responseData?.errors;

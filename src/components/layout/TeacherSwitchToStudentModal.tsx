@@ -12,6 +12,7 @@ import { useState, useMemo } from "react";
 import type { TeacherGroupStudent, TeacherGroupWithStudents } from "@/types/teacher.types";
 import { UserRole } from "@/types/enums";
 import { cn } from "@/lib/utils";
+import { hasEstablishedSession } from "@/lib/session-client";
 
 // ============================================================
 // TeacherSwitchToStudentModal
@@ -70,13 +71,10 @@ export function TeacherSwitchToStudentModal({
 
     loginAsStudent(student.student_id, {
       onSuccess: (res) => {
-        const token = res.token || res.access_token || "";
-        if (token) {
-          // Store the current teacher session in backup cookies and log in as the student
+        if (hasEstablishedSession(res)) {
+          // The proxy already backed up the teacher session; log in as the student
           switchToChild({
             user: res.user || { id: student.student_id, full_name: student.full_name, role: UserRole.STUDENT, phone: "" },
-            accessToken: token,
-            refreshToken: res.refresh_token || "",
           });
 
           toast.success(t("switchedToStudentSuccess", { name: student.full_name }));

@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { SaasBrandingPayload } from "@/types/saas";
+import type { ThemeColorSet } from "@/types/saas";
 
 interface Props {
   branding: SaasBrandingPayload;
@@ -14,7 +15,7 @@ export function TenantThemeProvider({ branding, children }: Props) {
     const theme = branding.theme_colors;
 
     // Helper to map color settings straight into CSS variables on the document element
-    const applyColors = (colors: any) => {
+    const applyColors = (colors: ThemeColorSet) => {
       Object.entries(colors).forEach(([key, value]) => {
         // Formats camelCase or snake_case key to CSS variables (e.g. primary_foreground -> --primary-foreground)
         const cssKey = `--${key.replace(/_/g, "-")}`;

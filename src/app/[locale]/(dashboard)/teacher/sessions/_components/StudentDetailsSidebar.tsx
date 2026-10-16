@@ -14,7 +14,6 @@ import {
   RotateCcw,
   Percent,
   History,
-  FileText,
   UserCheck,
   Filter,
 } from "lucide-react";
@@ -58,10 +57,12 @@ export function StudentDetailsSidebar({
   const tCommon = useTranslations("common");
   const [filter, setFilter] = useState<AttendanceFilter>("all");
 
-  // Reset filter when switching students
-  useEffect(() => {
+  // Reset filter when switching students (adjusted during render, not in an effect)
+  const [filterStudentId, setFilterStudentId] = useState(student?.id);
+  if (filterStudentId !== student?.id) {
+    setFilterStudentId(student?.id);
     setFilter("all");
-  }, [student?.id]);
+  }
 
   // Close on ESC key
   useEffect(() => {
@@ -312,7 +313,7 @@ export function StudentDetailsSidebar({
                 {/* 2. Attendance Rate */}
                 <div className="p-3 bg-card border border-border/80 rounded-2xl shadow-xs flex flex-col justify-between">
                   <div className="text-[11px] font-bold text-muted-foreground flex items-center gap-1 mb-1.5">
-                    <Percent className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <Percent className="w-3.5 h-3.5 text-success-500 shrink-0" />
                     <span className="truncate">{t("attendanceRate") || "نسبة الحضور"}</span>
                   </div>
                   <div className="space-y-1">
@@ -320,10 +321,10 @@ export function StudentDetailsSidebar({
                       className={cn(
                         "text-xl font-black",
                         attendanceRate >= 80
-                          ? "text-emerald-600 dark:text-emerald-400"
+                          ? "text-success-600 dark:text-success-400"
                           : attendanceRate >= 50
-                          ? "text-amber-600 dark:text-amber-400"
-                          : "text-rose-600 dark:text-rose-400"
+                          ? "text-warning-600 dark:text-warning-400"
+                          : "text-danger-600 dark:text-danger-400"
                       )}
                     >
                       {attendanceRate}%
@@ -334,10 +335,10 @@ export function StudentDetailsSidebar({
                         className={cn(
                           "h-full rounded-full transition-all duration-500",
                           attendanceRate >= 80
-                            ? "bg-emerald-500"
+                            ? "bg-success-500"
                             : attendanceRate >= 50
-                            ? "bg-amber-500"
-                            : "bg-rose-500"
+                            ? "bg-warning-500"
+                            : "bg-danger-500"
                         )}
                         style={{ width: `${Math.min(100, Math.max(0, attendanceRate))}%` }}
                       />
@@ -346,23 +347,23 @@ export function StudentDetailsSidebar({
                 </div>
 
                 {/* 3. Present Count */}
-                <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl shadow-xs flex flex-col justify-between">
-                  <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1 mb-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <div className="p-3 bg-success-500/5 border border-success-500/20 rounded-2xl shadow-xs flex flex-col justify-between">
+                  <div className="text-[11px] font-bold text-success-700 dark:text-success-300 flex items-center gap-1 mb-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-success-600 dark:text-success-400 shrink-0" />
                     <span className="truncate">{t("presentCount") || "حضور"}</span>
                   </div>
-                  <div className="text-xl font-black text-emerald-700 dark:text-emerald-300">
+                  <div className="text-xl font-black text-success-700 dark:text-success-300">
                     {presentCount}
                   </div>
                 </div>
 
                 {/* 4. Absent & Excused Count */}
-                <div className="p-3 bg-rose-500/5 border border-rose-500/20 rounded-2xl shadow-xs flex flex-col justify-between">
-                  <div className="text-[11px] font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1 mb-1.5">
-                    <XCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                <div className="p-3 bg-danger-500/5 border border-danger-500/20 rounded-2xl shadow-xs flex flex-col justify-between">
+                  <div className="text-[11px] font-bold text-danger-700 dark:text-danger-300 flex items-center gap-1 mb-1.5">
+                    <XCircle className="w-3.5 h-3.5 text-danger-600 dark:text-danger-400 shrink-0" />
                     <span className="truncate">{t("absentOrExcused") || "غياب / عذر"}</span>
                   </div>
-                  <div className="text-xl font-black text-rose-700 dark:text-rose-300">
+                  <div className="text-xl font-black text-danger-700 dark:text-danger-300">
                     {absentCount + excusedCount}
                   </div>
                 </div>
@@ -389,8 +390,8 @@ export function StudentDetailsSidebar({
                   className={cn(
                     "inline-flex items-center gap-1 px-3 py-1.5 rounded-xl font-black transition-all shrink-0 text-xs active:scale-95",
                     filter === "present"
-                      ? "bg-emerald-600 text-white shadow-xs"
-                      : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20"
+                      ? "bg-success-600 text-white shadow-xs"
+                      : "bg-success-500/10 text-success-700 dark:text-success-300 hover:bg-success-500/20"
                   )}
                 >
                   <CheckCircle2 className="w-3 h-3" />
@@ -404,8 +405,8 @@ export function StudentDetailsSidebar({
                   className={cn(
                     "inline-flex items-center gap-1 px-3 py-1.5 rounded-xl font-black transition-all shrink-0 text-xs active:scale-95",
                     filter === "absent"
-                      ? "bg-rose-600 text-white shadow-xs"
-                      : "bg-rose-500/10 text-rose-700 dark:text-rose-400 hover:bg-rose-500/20"
+                      ? "bg-danger-600 text-white shadow-xs"
+                      : "bg-danger-500/10 text-danger-700 dark:text-danger-400 hover:bg-danger-500/20"
                   )}
                 >
                   <XCircle className="w-3 h-3" />
@@ -420,8 +421,8 @@ export function StudentDetailsSidebar({
                     className={cn(
                       "inline-flex items-center gap-1 px-3 py-1.5 rounded-xl font-black transition-all shrink-0 text-xs active:scale-95",
                       filter === "excused"
-                        ? "bg-amber-600 text-white shadow-xs"
-                        : "bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20"
+                        ? "bg-warning-600 text-white shadow-xs"
+                        : "bg-warning-500/10 text-warning-700 dark:text-warning-300 hover:bg-warning-500/20"
                     )}
                   >
                     <HelpCircle className="w-3 h-3" />
@@ -475,10 +476,10 @@ export function StudentDetailsSidebar({
                         className={cn(
                           "group relative bg-card rounded-2xl border p-3.5 sm:p-4 transition-all duration-200 shadow-xs hover:shadow-sm space-y-2.5",
                           isPresent
-                            ? "border-emerald-500/30 hover:border-emerald-500/60"
+                            ? "border-success-500/30 hover:border-success-500/60"
                             : isExcused
-                            ? "border-amber-500/30 hover:border-amber-500/60"
-                            : "border-rose-500/30 hover:border-rose-500/60"
+                            ? "border-warning-500/30 hover:border-warning-500/60"
+                            : "border-danger-500/30 hover:border-danger-500/60"
                         )}
                       >
                         {/* Top Row: Date, Time & Badges */}
@@ -489,10 +490,10 @@ export function StudentDetailsSidebar({
                               className={cn(
                                 "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs",
                                 isPresent
-                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                                  ? "bg-success-500/15 text-success-600 dark:text-success-400"
                                   : isExcused
-                                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                                  : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
+                                  ? "bg-warning-500/15 text-warning-600 dark:text-warning-400"
+                                  : "bg-danger-500/15 text-danger-600 dark:text-danger-400"
                               )}
                             >
                               {isPresent ? (
@@ -540,17 +541,17 @@ export function StudentDetailsSidebar({
 
                             {/* Attendance Status Badge */}
                             {isPresent ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-success-500/10 text-success-700 dark:text-success-300 border border-success-500/30">
                                 <CheckCircle2 className="w-3 h-3" />
                                 <span>{record.status?.name || t("presentCount") || "حضور"}</span>
                               </span>
                             ) : isExcused ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-warning-500/10 text-warning-800 dark:text-warning-300 border border-warning-500/30">
                                 <HelpCircle className="w-3 h-3" />
                                 <span>{record.status?.name || t("excusedCount") || "عذر"}</span>
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-danger-500/10 text-danger-700 dark:text-danger-400 border border-danger-500/30">
                                 <XCircle className="w-3 h-3" />
                                 <span>{record.status?.name || t("absentCount") || "غياب"}</span>
                               </span>
@@ -600,8 +601,8 @@ export function StudentDetailsSidebar({
 
                         {/* Teacher Secret Note */}
                         {record.secret_note && (
-                          <div className="bg-amber-500/5 dark:bg-amber-950/20 p-2.5 rounded-xl border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 space-y-1">
-                            <span className="font-black text-[10px] flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                          <div className="bg-warning-500/5 dark:bg-warning-950/20 p-2.5 rounded-xl border border-warning-500/20 text-xs text-warning-900 dark:text-warning-200 space-y-1">
+                            <span className="font-black text-[10px] flex items-center gap-1 text-warning-700 dark:text-warning-400">
                               <Lock className="w-3 h-3" />
                               <span>{t("secretNote") || "ملاحظة سرية"}:</span>
                             </span>

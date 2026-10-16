@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
@@ -21,20 +22,21 @@ interface MediaCardProps {
   onImageClick?: (src: string, alt: string) => void;
 }
 
-function getMediaIcon(type: WerdMedia["type"]) {
+/** Icon for a media type (a component, so React can keep it stable between renders) */
+function MediaTypeIcon({ type, className }: { type: WerdMedia["type"]; className?: string }) {
   switch (type) {
     case "sound":
-      return Volume2;
+      return <Volume2 className={className} />;
     case "video":
-      return Video;
+      return <Video className={className} />;
     case "youtube":
-      return PlayCircle;
+      return <PlayCircle className={className} />;
     case "url":
-      return Link2;
+      return <Link2 className={className} />;
     case "image":
-      return ImageIcon;
+      return <ImageIcon className={className} />;
     default:
-      return FileText;
+      return <FileText className={className} />;
   }
 }
 
@@ -57,10 +59,10 @@ function getMediaTypeBg(type: WerdMedia["type"]) {
 
 export function MediaCard({ media, onImageClick }: MediaCardProps) {
   const t = useTranslations();
+  const fallbackId = useId();
 
   if (!media) return null;
 
-  const Icon = getMediaIcon(media.type);
   const colorClass = getMediaTypeBg(media.type);
 
   const getTypeLabel = () => {
@@ -108,7 +110,7 @@ export function MediaCard({ media, onImageClick }: MediaCardProps) {
           </div>
         </div>
         <div className={cn("flex items-center gap-2 px-4 py-2.5 border-t border-border/40", colorClass)}>
-          <Icon className="w-4 h-4 shrink-0" />
+          <MediaTypeIcon type={media.type} className="w-4 h-4 shrink-0" />
           <span className="text-xs font-semibold">{getTypeLabel()}</span>
         </div>
       </button>
@@ -137,7 +139,7 @@ export function MediaCard({ media, onImageClick }: MediaCardProps) {
       <div className="group rounded-2xl border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
         <video controls src={fileUrl} className="w-full aspect-video bg-black" aria-label={title} />
         <div className={cn("flex items-center gap-2 px-4 py-3 border-t border-border/40", colorClass)}>
-          <Icon className="w-4 h-4 shrink-0" />
+          <MediaTypeIcon type={media.type} className="w-4 h-4 shrink-0" />
           <span className="font-bold text-sm flex-1 truncate">{title}</span>
           <span className="text-xs opacity-70">{getTypeLabel()}</span>
         </div>
@@ -150,14 +152,14 @@ export function MediaCard({ media, onImageClick }: MediaCardProps) {
       href={fileUrl}
       target="_blank"
       rel="noopener noreferrer"
-      id={`werd-media-link-${media.id || Math.random()}`}
+      id={`werd-media-link-${media.id || fallbackId}`}
       className={cn(
         "group flex items-center gap-4 rounded-2xl border p-5 bg-card shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         colorClass
       )}
     >
       <div className="p-3 rounded-xl bg-current/10 shrink-0">
-        <Icon className="w-6 h-6" />
+        <MediaTypeIcon type={media.type} className="w-6 h-6" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="font-bold text-sm line-clamp-2 leading-snug">{title}</p>

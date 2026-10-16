@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import type { DashboardBuddy, DashboardTamamCard } from "@/types/student.types";
 
 interface BuddyInfoCardProps {
-  buddy: any;
-  tamamCard: any;
+  buddy?: DashboardBuddy | null;
+  tamamCard?: DashboardTamamCard | null;
 }
 
 export function BuddyInfoCard({ buddy, tamamCard }: BuddyInfoCardProps) {

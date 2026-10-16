@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
 import {
   GraduationCap,
   BookOpen,
@@ -17,9 +16,6 @@ import {
 } from "lucide-react";
 
 export function AchievementsSection() {
-  const params = useParams();
-  const locale = params.locale as string;
-  const isRTL = locale === "ar";
   const t = useTranslations("landing.achievements");
 
   const achievements = [

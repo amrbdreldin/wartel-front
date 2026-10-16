@@ -10,6 +10,7 @@ import { TeacherHero } from "./_components/TeacherHero";
 import { TodaySessions } from "./_components/TodaySessions";
 import { MyGroups } from "./_components/MyGroups";
 import { toast } from "sonner";
+import type { TeacherTodaySession } from "@/types/teacher.types";
 
 export default function TeacherDashboardPage() {
   const t = useTranslations("teacherBoard");
@@ -23,7 +24,7 @@ export default function TeacherDashboardPage() {
   const [savedLinks, setSavedLinks] = useState<Record<string, boolean>>({});
   const [savingLinks, setSavingLinks] = useState<Record<string, boolean>>({});
 
-  const handleSaveLink = async (group: any) => {
+  const handleSaveLink = async (group: TeacherTodaySession) => {
     const sessionId = group.session_id || group.id;
     const link = meetLinks[group.id];
     if (!link || !link.trim()) return;

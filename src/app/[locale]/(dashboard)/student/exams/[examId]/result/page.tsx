@@ -7,9 +7,7 @@ import { studentService } from "@/services/student.service";
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  AlertTriangle, ArrowLeft, ArrowRight, Award, Check, CheckCircle2, 
-  ChevronLeft, ClipboardCheck, CornerDownLeft, HelpCircle, 
-  Info, MessageSquareQuote, RotateCcw, Trophy, Volume2, X, XCircle
+  AlertTriangle, ArrowLeft, ArrowRight, Award, CheckCircle2, ClipboardCheck, Trophy, Volume2, XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -132,18 +130,18 @@ export default function ExamResultPage() {
         "rounded-3xl p-6 md:p-8 border flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-sm",
         isFailed
           ? "bg-destructive/5 border-destructive/20 text-destructive-foreground"
-          : "bg-emerald-500/5 border-emerald-500/20 text-foreground"
+          : "bg-success-500/5 border-success-500/20 text-foreground"
       )}>
         {/* Glow Accent */}
         <div className={cn(
           "absolute inset-0 blur-2xl opacity-20 pointer-events-none",
-          isFailed ? "bg-destructive" : "bg-emerald-500"
+          isFailed ? "bg-destructive" : "bg-success-500"
         )} />
 
         <div className="space-y-3 text-center md:text-start relative z-10">
           <h3 className={cn(
             "text-xl md:text-2xl font-black",
-            isFailed ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"
+            isFailed ? "text-destructive" : "text-success-600 dark:text-success-400"
           )}>
             {isFailed 
               ? (locale === "ar" ? "تحتاجين للمذاكرة والمحاولة مرة أخرى" : "Need to study and try again")
@@ -161,7 +159,7 @@ export default function ExamResultPage() {
               "px-4 py-1.5 rounded-full text-xs font-black border inline-flex items-center gap-1.5 shadow-sm",
               isFailed
                 ? "bg-destructive/10 text-destructive border-destructive/20"
-                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                : "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
             )}>
               {isFailed ? <XCircle className="w-4 h-4" /> : <Award className="w-4 h-4" />}
               {scorePercent >= 90 ? t("student.excellentHigh") : scorePercent >= 50 ? t("student.passed") : t("student.fail")}
@@ -173,11 +171,11 @@ export default function ExamResultPage() {
         <div className="relative shrink-0 z-10 select-none">
           <div className={cn(
             "w-36 h-36 rounded-full border-8 flex flex-col items-center justify-center bg-card shadow-md transition-transform hover:scale-105 duration-500",
-            isFailed ? "border-destructive/20" : "border-emerald-500/20"
+            isFailed ? "border-destructive/20" : "border-success-500/20"
           )}>
             <span className={cn(
               "text-4xl font-black font-sans leading-none",
-              isFailed ? "text-destructive" : "text-emerald-500"
+              isFailed ? "text-destructive" : "text-success-500"
             )}>
               {scorePercent.toFixed(0)}%
             </span>
@@ -195,7 +193,7 @@ export default function ExamResultPage() {
           {locale === "ar" ? "مراجعة إجابات الأسئلة" : "Review Questions & Answers"}
         </h3>
 
-        {questions.map((question: any, index: number) => {
+        {questions.map((question, index) => {
           const isCorrect = question.is_correct;
           const markEarned = parseFloat(question.earned_mark) || 0;
           const markTotal = parseFloat(question.total_mark) || 0;
@@ -206,7 +204,7 @@ export default function ExamResultPage() {
               className={cn(
                 "bg-card rounded-3xl p-6 border shadow-[0_4px_20px_rgb(0,0,0,0.01)] relative overflow-hidden transition-all duration-300",
                 isCorrect 
-                  ? "border-emerald-500/20 hover:border-emerald-500/40" 
+                  ? "border-success-500/20 hover:border-success-500/40" 
                   : "border-destructive/15 hover:border-destructive/30"
               )}
             >
@@ -220,7 +218,7 @@ export default function ExamResultPage() {
                 <span className={cn(
                   "px-3 py-1 rounded-full text-xs font-extrabold border",
                   isCorrect
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                    ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                     : "bg-destructive/10 text-destructive border-destructive/20"
                 )}>
                   {markEarned.toFixed(0)} / {markTotal.toFixed(0)} {locale === "ar" ? "درجة" : "mark"}
@@ -263,7 +261,7 @@ export default function ExamResultPage() {
                 {/* 1. TRUE & FALSE QUESTION REVIEW */}
                 {question.options.length > 0 && question.correct_option_id !== null && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    {question.options.map((option: any) => {
+                    {question.options.map((option) => {
                       const isSelected = String(option.id) === String(question.student_selected_option_id);
                       const isCorrectAnswer = option.id === question.correct_option_id;
 
@@ -273,7 +271,7 @@ export default function ExamResultPage() {
                           className={cn(
                             "flex items-center justify-between p-4 rounded-xl border text-sm font-bold transition-all",
                             isCorrectAnswer
-                              ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                              ? "border-success-500/40 bg-success-500/5 text-success-600 dark:text-success-400"
                               : isSelected
                                 ? "border-destructive/40 bg-destructive/5 text-destructive"
                                 : "border-border/60 bg-muted/10 text-muted-foreground"
@@ -287,7 +285,7 @@ export default function ExamResultPage() {
                               </span>
                             )}
                             {isCorrectAnswer ? (
-                              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                              <CheckCircle2 className="w-5 h-5 text-success-500 shrink-0" />
                             ) : isSelected ? (
                               <XCircle className="w-5 h-5 text-destructive shrink-0" />
                             ) : null}

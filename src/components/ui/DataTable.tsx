@@ -118,7 +118,7 @@ export function DataTable<T>({
     const lowerSearch = searchTerm.toLowerCase().trim();
     return data.filter((row) => {
       return searchKeys.some((key) => {
-        let value: any = "";
+        let value: unknown = "";
         if (typeof key === "function") {
           value = key(row);
         } else {
@@ -139,8 +139,9 @@ export function DataTable<T>({
       const col = columns.find(c => c.key === sortConfig.key);
       if (!col) return 0;
       
-      let aVal: any = a[sortConfig.key as keyof T];
-      let bVal: any = b[sortConfig.key as keyof T];
+      // Columns hold primitives (string/number/date strings); compare them as such
+      let aVal = a[sortConfig.key as keyof T] as unknown as string | number;
+      let bVal = b[sortConfig.key as keyof T] as unknown as string | number;
       
       if (typeof aVal === "string") aVal = aVal.toLowerCase();
       if (typeof bVal === "string") bVal = bVal.toLowerCase();

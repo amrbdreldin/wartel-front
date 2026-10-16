@@ -2,7 +2,7 @@
 
 import { GraduationCap, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { GradeEntryForm } from "./_components/GradeEntryForm";
@@ -32,7 +32,7 @@ function getGradeLabel(
   const pct = (parseFloat(score) / max) * 100;
   if (pct >= 90) return { label: t("gradeExcellent") || "ممتاز 🟢", color: "text-success-600" };
   if (pct >= 75) return { label: t("gradeVeryGood") || "جيد جداً 🟡", color: "text-warning-600" };
-  if (pct >= 65) return { label: t("gradeGood") || "جيد 🟠", color: "text-amber-600" };
+  if (pct >= 65) return { label: t("gradeGood") || "جيد 🟠", color: "text-warning-600" };
   if (pct >= 50) return { label: t("gradePass") || "مقبول 🔵", color: "text-info-600" };
   return { label: t("gradeFail") || "ضعيف 🔴", color: "text-destructive" };
 }
@@ -55,24 +55,24 @@ export default function TeacherGradesPage() {
   const { data: groupDetail, isLoading: isLoadingStudents, error: errorStudents } =
     useTeacherGroupStudents(selectedGroupId);
 
-  const students = groupDetail?.students || [];
+  // Memoized so the empty fallback keeps the same identity between renders
+  const students = useMemo(() => groupDetail?.students || [], [groupDetail?.students]);
 
   // Synchronize dynamic student list with local grades input state
-  useEffect(() => {
-    if (students && students.length > 0) {
-      setGrades(
-        students.map((student) => ({
-          id: student.id.toString(),
-          name: student.name,
-          score: "",
-          notes: "",
-        }))
-      );
-    } else {
-      setGrades([]);
-    }
+  // (adjusted during render when the list changes — no effect, no extra render loop)
+  const [syncedStudents, setSyncedStudents] = useState<typeof students | null>(null);
+  if (syncedStudents !== students) {
+    setSyncedStudents(students);
+    setGrades(
+      students.map((student) => ({
+        id: student.id.toString(),
+        name: student.name,
+        score: "",
+        notes: "",
+      }))
+    );
     setSaved(false);
-  }, [students]);
+  }
 
   const handleScoreChange = (id: string, value: string) => {
     if (value !== "" && (!/^\d*\.?\d*$/.test(value) || parseFloat(value) > MAX_SCORE)) return;
@@ -94,7 +94,7 @@ export default function TeacherGradesPage() {
       toast.success(t("gradesSaved") || "تم حفظ الدرجات بنجاح ✓");
       queryClient.invalidateQueries({ queryKey: ["teacher", "groupStudents", selectedGroupId] });
     },
-    onError: (err: any) => {
+    onError: (err) => {
       console.error(err);
     },
   });

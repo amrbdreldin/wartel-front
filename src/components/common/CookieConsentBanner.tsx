@@ -1,22 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import Cookies from "js-cookie";
 
+const noopSubscribe = () => () => {};
+
 export function CookieConsentBanner() {
   const t = useTranslations("common");
-  const [showBanner, setShowBanner] = useState(false);
+  // Show the banner until the user has made a selection (read from the cookie on the client only)
+  const hasConsentChoice = useSyncExternalStore(
+    noopSubscribe,
+    () => Boolean(Cookies.get("user_cookie_consent")),
+    () => true
+  );
+  const [isClosed, setIsClosed] = useState(false);
+  const showBanner = !hasConsentChoice && !isClosed;
 
   useEffect(() => {
-    // Check if user has already made a selection
+    // Previously granted: re-apply the consent update for Google Tag Manager / GA
     const consent = Cookies.get("user_cookie_consent");
-    if (!consent) {
-      setShowBanner(true);
-    } else if (consent === "granted") {
+    if (consent === "granted") {
       // Programmatically trigger Google Tag Manager / Google Analytics v2 Consent Update on mount
-      if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("consent", "update", {
+      if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("consent", "update", {
           ad_storage: "granted",
           analytics_storage: "granted",
           ad_user_data: "granted",
@@ -29,11 +36,11 @@ export function CookieConsentBanner() {
   const handleDecline = () => {
     // Save rejection state for 1 year
     Cookies.set("user_cookie_consent", "denied", { expires: 365, path: "/" });
-    setShowBanner(false);
+    setIsClosed(true);
 
     // Keep GA/GTM blocked
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("consent", "update", {
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("consent", "update", {
         ad_storage: "denied",
         analytics_storage: "denied",
         ad_user_data: "denied",
@@ -45,11 +52,11 @@ export function CookieConsentBanner() {
   const handleAccept = () => {
     // Save consent for 1 year
     Cookies.set("user_cookie_consent", "granted", { expires: 365, path: "/" });
-    setShowBanner(false);
+    setIsClosed(true);
 
     // Programmatically trigger Google Tag Manager / Google Analytics v2 Consent Update
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("consent", "update", {
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("consent", "update", {
         ad_storage: "granted",
         analytics_storage: "granted",
         ad_user_data: "granted",

@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { ContactThreadStatus } from "@/types/contact.types";
-import { CheckCircle2, Clock, MessageSquareDot } from "lucide-react";
+import { THREAD_STATUS, normalizeThreadStatus } from "@/utils/contactThread";
+import { CheckCircle2, Clock, MessageSquareDot, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface TicketStatusBadgeProps {
@@ -12,6 +13,25 @@ interface TicketStatusBadgeProps {
   showIcon?: boolean;
 }
 
+const STATUS_STYLES: Record<string, { className: string; icon: LucideIcon; labelKey: string; iconClassName?: string }> = {
+  [THREAD_STATUS.PENDING_ADMIN]: {
+    className: "font-semibold bg-warning-50 text-warning-600 dark:text-warning-400 border-warning-100",
+    icon: Clock,
+    iconClassName: "motion-safe:animate-pulse",
+    labelKey: "pendingAdmin",
+  },
+  [THREAD_STATUS.PENDING_USER]: {
+    className: "font-semibold bg-success-50 text-success-600 dark:text-success-400 border-success-100",
+    icon: MessageSquareDot,
+    labelKey: "pendingUser",
+  },
+  [THREAD_STATUS.CLOSED]: {
+    className: "font-medium bg-muted text-muted-foreground border-border",
+    icon: CheckCircle2,
+    labelKey: "closedTickets",
+  },
+};
+
 export function TicketStatusBadge({
   status,
   label,
@@ -19,63 +39,39 @@ export function TicketStatusBadge({
   showIcon = true,
 }: TicketStatusBadgeProps) {
   const t = useTranslations("contactUs");
+  const style = STATUS_STYLES[normalizeThreadStatus(status)];
 
-  const normalizedStatus = String(status).toLowerCase();
-
-  if (normalizedStatus === "pending_admin") {
+  if (!style) {
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap",
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 whitespace-nowrap",
           className
         )}
       >
-        {showIcon && (
-          <Clock className="hidden sm:inline-block w-3.5 h-3.5 shrink-0 animate-pulse text-amber-600 dark:text-amber-400" />
-        )}
-        <span>{label || t("pendingAdmin")}</span>
+        {label || status}
       </span>
     );
   }
 
-  if (normalizedStatus === "pending_user") {
-    return (
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap",
-          className
-        )}
-      >
-        {showIcon && (
-          <MessageSquareDot className="hidden sm:inline-block w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-        )}
-        <span>{label || t("pendingUser")}</span>
-      </span>
-    );
-  }
-
-  if (normalizedStatus === "closed") {
-    return (
-      <span
-        className={cn(
-          "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border whitespace-nowrap",
-          className
-        )}
-      >
-        {showIcon && <CheckCircle2 className="hidden sm:inline-block w-3.5 h-3.5 shrink-0" />}
-        <span>{label || t("closedTickets")}</span>
-      </span>
-    );
-  }
+  const Icon = style.icon;
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20",
+        "inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs border whitespace-nowrap",
+        style.className,
         className
       )}
     >
-      <span>{label || status}</span>
+      {showIcon && (
+        <Icon
+          className={cn("hidden sm:inline-block w-3.5 h-3.5 shrink-0", style.iconClassName)}
+          aria-hidden="true"
+        />
+      )}
+      {/* Known statuses use our translation — the backend `status_label` ignores Accept-Language */}
+      <span>{t(style.labelKey)}</span>
     </span>
   );
 }

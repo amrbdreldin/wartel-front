@@ -2,11 +2,12 @@ import React from "react";
 import { BookOpen, Calendar, Users, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { TeacherDashboardGroup } from "@/types/teacher.types";
+import type { TranslationValues } from "next-intl";
 
 interface MyGroupsProps {
   groups: TeacherDashboardGroup[];
   locale: string;
-  t: (key: string, values?: any) => string;
+  t: (key: string, values?: TranslationValues) => string;
 }
 
 const formatSessionDays = (days: Array<{ day: string; time: string }>, locale: string, t: (key: string) => string) => {

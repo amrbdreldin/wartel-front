@@ -96,7 +96,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           [id]: { loading: false, success: successMsg, error: null },
         }));
       },
-      onError: (err: any) => {
+      onError: (err) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
         const validationErrors = responseData?.errors;
@@ -143,7 +143,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           setShowAddSonForm(false);
           refetchChildren();
         },
-        onError: (err: any) => {
+        onError: (err) => {
           const responseData = err.response?.data;
           const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
           const validationErrors = responseData?.errors;
@@ -220,7 +220,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
                           {t("directJoin.parentLabel")}
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 border border-amber-600/20 mt-0.5">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-warning-500/10 text-warning-600 border border-warning-600/20 mt-0.5">
                           {t("directJoin.childLabel")}
                         </span>
                       )}

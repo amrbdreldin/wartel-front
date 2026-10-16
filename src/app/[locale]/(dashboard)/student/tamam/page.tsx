@@ -9,7 +9,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRole } from "@/hooks/useRole";
 import { useAuth } from "@/hooks/useAuth";
-import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { TamamSubmissionRequest, StudentDashboardGroup } from "@/types/student.types";
 
@@ -25,8 +24,6 @@ export default function TamamSystemPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const { isStudentChild } = useRole();
-  const params = useParams();
-  const locale = params.locale as string;
 
   // 1. Fetch History
   const { data: historyData, isLoading: historyLoading } = useQuery({
@@ -52,7 +49,7 @@ export default function TamamSystemPage() {
 
   const presentStatus = tamamCard?.status?.presentStatus;
   const pastStatus = tamamCard?.status?.pastStatus;
-  const isStatusCompleted = (status: any) => {
+  const isStatusCompleted = (status: unknown) => {
     if (!status) return false;
     const s = String(status).trim().toLowerCase();
     return s === "completed" || s === "مكتمل";
@@ -63,20 +60,20 @@ export default function TamamSystemPage() {
   const submitTamamMutation = useMutation({
     mutationFn: (data: TamamSubmissionRequest) =>
       studentService.submitTamam(data),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res?.success) {
         toast.success(t("student.tamamRecordedSuccessfully") || "تم تسجيل التمام بنجاح");
         queryClient.invalidateQueries({ queryKey: ["student-tamam-history"] });
         queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
       } else {
         if (res?.errors) {
-          Object.values(res.errors).flat().forEach((msg: any) => toast.error(msg));
+          Object.values(res.errors).flat().forEach((msg) => toast.error(msg));
         } else {
           toast.error(res?.message || t("common.error"));
         }
       }
     },
-    onError: (err: any) => {
+    onError: (err) => {
       console.error("Tamam submission error:", err);
       toast.error(t("common.errorOccurred"));
     },
@@ -86,8 +83,8 @@ export default function TamamSystemPage() {
   });
 
   const handleConfirmTamam = (pastChecked: boolean, presentChecked: boolean) => {
-    const groupId = activeGroup?.id || (dashboardData?.data as any)?.group_id || groups[0]?.id;
-    const studentId = user?.id || (dashboardData?.data as any)?.student_id;
+    const groupId = activeGroup?.id || dashboardData?.data?.group_id || groups[0]?.id;
+    const studentId = user?.id || dashboardData?.data?.student_id;
 
     if (!groupId) {
       toast.error(t("common.errorOccurred"));
@@ -231,10 +228,10 @@ export default function TamamSystemPage() {
                       "w-2 h-2 rounded-full shrink-0 transition-colors",
                       isSelected
                         ? isGroupCompleted
-                          ? "bg-emerald-300"
+                          ? "bg-success-300"
                           : "bg-warning-300"
                         : isGroupCompleted
-                        ? "bg-emerald-500"
+                        ? "bg-success-500"
                         : "bg-warning-500"
                     )}
                     title={

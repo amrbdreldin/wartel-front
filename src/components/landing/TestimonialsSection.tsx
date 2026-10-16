@@ -22,7 +22,7 @@ export function TestimonialsSection() {
             <div className="flex gap-1 text-warning-400 mb-4 mt-2">
               <Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" />
             </div>
-            <p className="text-muted-foreground leading-relaxed font-medium mb-6 italic">"{t("t1Text")}"</p>
+            <p className="text-muted-foreground leading-relaxed font-medium mb-6 italic">&quot;{t("t1Text")}&quot;</p>
             <hr className="border-border/60 mb-4" />
             <h5 className="font-bold text-foreground">{t("t1Name")}</h5>
             <p className="text-xs text-muted-foreground font-bold">{t("t1Role")}</p>
@@ -33,7 +33,7 @@ export function TestimonialsSection() {
             <div className="flex gap-1 text-warning-400 mb-4 mt-2">
               <Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" />
             </div>
-            <p className="text-muted-foreground leading-relaxed font-medium mb-6 italic">"{t("t2Text")}"</p>
+            <p className="text-muted-foreground leading-relaxed font-medium mb-6 italic">&quot;{t("t2Text")}&quot;</p>
             <hr className="border-border/60 mb-4" />
             <h5 className="font-bold text-foreground">{t("t2Name")}</h5>
             <p className="text-xs text-muted-foreground font-bold">{t("t2Role")}</p>
@@ -44,7 +44,7 @@ export function TestimonialsSection() {
             <div className="flex gap-1 text-warning-400 mb-4 mt-2">
               <Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><Star className="h-4 w-4 fill-current" /><div className="relative"><StarHalf className="h-4 w-4 fill-current absolute top-0 start-0" /><Star className="h-4 w-4 fill-current opacity-30" /></div>
             </div>
-            <p className="text-muted-foreground leading-relaxed font-medium mb-6 italic">"{t("t3Text")}"</p>
+            <p className="text-muted-foreground leading-relaxed font-medium mb-6 italic">&quot;{t("t3Text")}&quot;</p>
             <hr className="border-border/60 mb-4" />
             <h5 className="font-bold text-foreground">{t("t3Name")}</h5>
             <p className="text-xs text-muted-foreground font-bold">{t("t3Role")}</p>

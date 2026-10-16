@@ -9,16 +9,18 @@ import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { AudioUploadField } from "@/app/[locale]/(auth)/register/_components/AudioUploadField";
 import { PathSelectionField } from "@/app/[locale]/(auth)/register/_components/PathSelectionField";
 import { ScrollToFieldError } from "@/app/[locale]/(auth)/register/_components/ScrollToFieldError";
-import { registerSchema } from "@/utils/validation";
+import { collectYupErrors, registerSchema } from "@/utils/validation";
+import type { FormDataEnrollmentType } from "@/types/auth.types";
+import type { AddChildFormValues } from "@/types/parent.types";
 
 interface AddChildModalProps {
   isOpen: boolean;
   onClose: () => void;
   isAddPending: boolean;
-  enrollmentTypes: any[];
+  enrollmentTypes: FormDataEnrollmentType[];
   isFormDataLoading: boolean;
-  onSubmit: (values: any, helpers: FormikHelpers<any>) => Promise<void>;
-  initialValues: any;
+  onSubmit: (values: AddChildFormValues, helpers: FormikHelpers<AddChildFormValues>) => Promise<void>;
+  initialValues: AddChildFormValues;
 }
 
 export function AddChildModal({
@@ -80,10 +82,8 @@ export function AddChildModal({
                   abortEarly: false,
                   context: { enrollmentTypes },
                 });
-              } catch (err: any) {
-                return err.inner.reduce((errors: any, currentError: any) => {
-                  return { ...errors, [currentError.path]: currentError.message };
-                }, {});
+              } catch (err) {
+                return collectYupErrors(err);
               }
             }}
             onSubmit={onSubmit}

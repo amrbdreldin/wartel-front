@@ -68,6 +68,9 @@ export interface User {
   avatar?: string;
   is_active?: boolean;
   age?: number;
+  /** "academy"/"institute" or the Arabic label, as returned by the backend */
+  enrollment_type?: string;
+  firebase_token?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -84,6 +87,10 @@ export interface LoginResponse {
   token?: string;
   access_token?: string;
   refresh_token?: string;
+  /** Set by the API proxy once the tokens were stored in HttpOnly cookies */
+  session_established?: boolean;
+  /** A few endpoints nest the payload one level deeper */
+  data?: Partial<Omit<LoginResponse, "data">>;
 }
 
 export interface InitiatePasswordResetResponse {

@@ -32,7 +32,6 @@ export function TamamModal({
   companionName,
   companionPhone,
   presentStatus,
-  isStudentChild,
   hasBuddy,
   groupName,
   groupId,

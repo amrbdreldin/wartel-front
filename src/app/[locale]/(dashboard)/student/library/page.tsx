@@ -11,7 +11,6 @@ import {
   FileText,
   FolderOpen,
   Library,
-  Loader2,
   Play,
   Video,
   X,
@@ -39,7 +38,7 @@ function getYoutubeId(url: string) {
     if (urlObj.hostname === "youtu.be") {
       return urlObj.pathname.slice(1);
     }
-  } catch (e) {
+  } catch {
     // Ignore invalid URLs
   }
   return null;
@@ -190,7 +189,7 @@ function ResourceCard({
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
+    } catch {
       // Fallback: open in new tab if fetch fails (e.g., due to CORS)
       window.open(resource.resource_url, "_blank");
     }

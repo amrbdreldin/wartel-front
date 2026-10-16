@@ -14,13 +14,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/types/enums";
 import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { RTL_LOCALES, type Locale } from "@/lib/constants";
 import { useSelector } from "react-redux";
 import { selectNotifications } from "@/store/slices/notificationSlice";
-import type { RootState } from "@/store";
+import type { RootState } from "@/store";
+import { useLastVisitedMessages } from "@/hooks/useLastVisitedMessages";
 
 // ============================================================
 // MobileSidebar – Sheet-based sidebar for mobile
@@ -36,13 +36,7 @@ export function MobileSidebar({ open, onClose, locale }: MobileSidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { role } = useRole();
-  const [lastVisitedMessages, setLastVisitedMessages] = useState(0);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setLastVisitedMessages(Number(localStorage.getItem("last_visited_messages") || 0));
-    }
-  }, [pathname]);
+  const lastVisitedMessages = useLastVisitedMessages();
 
   // Dynamically resolve role based on path since auth login is bypassed for testing
   const pathSegment = pathname.split('/')[2] as UserRole;

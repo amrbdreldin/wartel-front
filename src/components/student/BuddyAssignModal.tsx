@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 interface BuddyAssignModalProps {
   isOpen: boolean;
@@ -50,9 +51,9 @@ export function BuddyAssignModal({ isOpen, onClose }: BuddyAssignModalProps) {
       } else {
         setErrorMsg(res?.message || t("student.noStudentFound") || "No student found with this phone number");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Search error:", err);
-      const apiMessage = err?.response?.data?.message || err?.message || t("common.error") || "An error occurred";
+      const apiMessage = getApiErrorMessage(err, t("common.error") || "An error occurred");
       setErrorMsg(apiMessage);
     } finally {
       setIsSearching(false);
@@ -76,9 +77,9 @@ export function BuddyAssignModal({ isOpen, onClose }: BuddyAssignModalProps) {
         setErrorMsg(res?.message || t("common.error") || "Failed to assign companion");
         toast.error(res?.message || t("common.error"));
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Assign error:", err);
-      const apiMessage = err?.response?.data?.message || err?.message || t("common.error") || "An error occurred";
+      const apiMessage = getApiErrorMessage(err, t("common.error") || "An error occurred");
       setErrorMsg(apiMessage);
       toast.error(apiMessage);
     } finally {

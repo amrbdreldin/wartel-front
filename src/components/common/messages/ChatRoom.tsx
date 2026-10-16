@@ -55,6 +55,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+/** Firestore timestamp, its serialized form, or null while the server timestamp is pending */
+type MessageTime = Timestamp | { seconds: number; nanoseconds: number } | null;
+
 export interface MessageItem {
   id: string;
   senderId: string;
@@ -64,7 +67,7 @@ export interface MessageItem {
   mediaUrl?: string;
   mediaType?: MediaType;
   mediaName?: string;
-  createdAt: Timestamp | { seconds: number; nanoseconds: number } | null;
+  createdAt: MessageTime;
   starredBy?: string[];
   reactions?: Record<string, { emoji: string; userName: string }>;
   isDeleted?: boolean;
@@ -117,9 +120,9 @@ export function AudioMessagePlayer({
   src: string;
   isCurrentUser: boolean;
   isMediaOnly?: boolean;
-  createdAt?: any;
+  createdAt?: MessageTime;
   isStarred?: boolean;
-  formatMessageTime?: (time: any) => string;
+  formatMessageTime?: (time: MessageTime) => string;
   isTeacher?: boolean;
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -184,7 +187,7 @@ export function AudioMessagePlayer({
             isCurrentUser
               ? "bg-primary text-primary-foreground border-primary rounded-tr-none rtl:rounded-tr-2xl rtl:rounded-tl-none"
               : isTeacher
-              ? "bg-amber-500/5 dark:bg-amber-500/10 text-foreground border-amber-500/20 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
+              ? "bg-warning-500/5 dark:bg-warning-500/10 text-foreground border-warning-500/20 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
               : "bg-muted/40 text-foreground border-border/60 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
           )
         : cn(
@@ -245,7 +248,7 @@ export function AudioMessagePlayer({
       </div>
       {isMediaOnly && formatMessageTime && (
         <div className={cn("flex items-center justify-between gap-1.5 mt-2 w-full pt-1.5 opacity-80 shrink-0 border-t", isCurrentUser ? "border-white/10" : "border-border/20")}>
-          {isStarred && !isCurrentUser && <Star className="w-3 h-3 fill-amber-500 text-amber-500 shrink-0" />}
+          {isStarred && !isCurrentUser && <Star className="w-3 h-3 fill-warning-500 text-warning-500 shrink-0" />}
           <span className={cn("text-[10px] md:text-xs font-bold ms-auto", isCurrentUser ? "text-primary-foreground/90" : "text-muted-foreground")}>{formatMessageTime(createdAt)}</span>
         </div>
       )}
@@ -264,7 +267,7 @@ async function compressAudio(
 ): Promise<File> {
   try {
     const arrayBuffer = await fileOrBlob.arrayBuffer();
-    let actx = audioContext || initAudioContext();
+    const actx = audioContext || initAudioContext();
     if (actx.state === "suspended") {
       await actx.resume().catch(() => {});
     }
@@ -342,13 +345,17 @@ export function ChatRoom({
   };
 
   // Media attachment state
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingFile, setPendingFile] = useState<FileWithDuration | null>(null);
+  // Measured audio length in seconds (0 when unknown or not audio)
+  const pendingDuration = pendingFile?.duration ?? 0;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  // Mirrors recordingDuration for callbacks created when recording starts (mr.onstop)
+  const recordingDurationRef = useRef(0);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -398,7 +405,7 @@ export function ChatRoom({
             }}
             className="cursor-pointer font-bold text-xs"
           >
-            <Star className={cn("w-3.5 h-3.5", isStarred ? "fill-amber-500 text-amber-500" : "text-muted-foreground")} />
+            <Star className={cn("w-3.5 h-3.5", isStarred ? "fill-warning-500 text-warning-500" : "text-muted-foreground")} />
             <span>{isStarred ? t("unstarMessage") : t("starMessage")}</span>
           </DropdownMenuItem>
 
@@ -466,6 +473,7 @@ export function ChatRoom({
       }
     }
     setIsRecording(false);
+    recordingDurationRef.current = 0;
     setRecordingDuration(0);
     audioChunksRef.current = [];
   }, []);
@@ -479,7 +487,7 @@ export function ChatRoom({
 
       // Initialize/resume AudioContext on user interaction gesture
       if (!audioContextRef.current) {
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
           audioContextRef.current = new AudioCtx();
         }
@@ -523,14 +531,14 @@ export function ChatRoom({
         const blob = new Blob(audioChunksRef.current, { type: actualMimeType });
 
         const initAudioCtx = () => {
-          const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
           const actx = new AudioCtx();
           audioContextRef.current = actx;
           return actx;
         };
 
         const compressedFile = await compressAudio(blob, tempName, audioContextRef.current, initAudioCtx);
-        (compressedFile as any).duration = recordingDuration;
+        (compressedFile as FileWithDuration).duration = recordingDurationRef.current;
 
         const MAX_SIZE = 10 * 1024 * 1024;
         if (compressedFile.size > MAX_SIZE) {
@@ -547,16 +555,16 @@ export function ChatRoom({
 
       mr.start();
       setIsRecording(true);
+      recordingDurationRef.current = 0;
       setRecordingDuration(0);
       
       recordingTimerRef.current = setInterval(() => {
-        setRecordingDuration((prev) => {
-          if (prev >= 300) {
-            stopRecording();
-            return prev;
-          }
-          return prev + 1;
-        });
+        if (recordingDurationRef.current >= 300) {
+          stopRecording();
+          return;
+        }
+        recordingDurationRef.current += 1;
+        setRecordingDuration(recordingDurationRef.current);
       }, 1000);
 
     } catch (err) {
@@ -718,7 +726,7 @@ export function ChatRoom({
       // Compress selected audio files as in register form
       const processAudio = async () => {
         const initAudioCtx = () => {
-          const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
           const actx = new AudioCtx();
           audioContextRef.current = actx;
           return actx;
@@ -726,7 +734,7 @@ export function ChatRoom({
 
         const duration = await getAudioDuration(file);
         const compressedFile = await compressAudio(file, file.name, audioContextRef.current, initAudioCtx);
-        (compressedFile as any).duration = duration;
+        (compressedFile as FileWithDuration).duration = duration;
         setPendingFile(compressedFile);
         setPreviewUrl(null);
       };
@@ -749,9 +757,7 @@ export function ChatRoom({
 
     // Reject audio messages shorter than 10 seconds
     const isAudioTooShort = pendingFile && pendingFile.type.startsWith("audio/") && 
-                            (pendingFile as any).duration !== undefined && 
-                            (pendingFile as any).duration > 0 && 
-                            (pendingFile as any).duration < 10;
+                            pendingDuration > 0 && pendingDuration < 10;
     if (isAudioTooShort) {
       toast.error(tValidation("audioTooShort") || "Audio duration must be at least 10 seconds");
       return;
@@ -797,7 +803,7 @@ export function ChatRoom({
     }
   };
 
-  const formatMessageTime = (msgCreatedAt: Timestamp | { seconds: number; nanoseconds: number } | null) => {
+  const formatMessageTime = (msgCreatedAt: MessageTime) => {
     if (!msgCreatedAt) return "...";
     const date = (msgCreatedAt as Timestamp).toDate ? (msgCreatedAt as Timestamp).toDate() : new Date((msgCreatedAt as { seconds: number }).seconds * 1000);
     let hours = date.getHours();
@@ -904,7 +910,7 @@ export function ChatRoom({
     const parts = text.split(regex);
     return parts.map((part, i) =>
       regex.test(part) ? (
-        <mark key={i} className="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 rounded px-0.5 py-0.2 font-medium">
+        <mark key={i} className="bg-warning-100 dark:bg-warning-900/60 text-warning-900 dark:text-amber-100 rounded px-0.5 py-0.2 font-medium">
           {part}
         </mark>
       ) : (
@@ -964,7 +970,7 @@ export function ChatRoom({
             {/* Gradient Overlay with Star + Timestamp */}
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2 pt-6 flex items-center justify-between text-white select-none pointer-events-none">
               {msg.starredBy?.includes(String(currentUser.id)) && (
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                <Star className="w-3.5 h-3.5 fill-warning-400 text-warning-400 shrink-0" />
               )}
               <span className="text-[10px] md:text-xs font-bold opacity-90 ms-auto">
                 {formatMessageTime(msg.createdAt)}
@@ -1015,7 +1021,7 @@ export function ChatRoom({
             {/* Gradient Overlay with Star + Timestamp */}
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2 pt-6 flex items-center justify-between text-white select-none pointer-events-none">
               {msg.starredBy?.includes(String(currentUser.id)) && (
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                <Star className="w-3.5 h-3.5 fill-warning-400 text-warning-400 shrink-0" />
               )}
               <span className="text-[10px] md:text-xs font-bold opacity-90 ms-auto">
                 {formatMessageTime(msg.createdAt)}
@@ -1047,17 +1053,17 @@ export function ChatRoom({
       else if (nameOrUrl.endsWith(".doc") || nameOrUrl.endsWith(".docx")) docType = "word";
       else if (nameOrUrl.endsWith(".xls") || nameOrUrl.endsWith(".xlsx")) docType = "excel";
 
-      let badgeBg = "bg-red-500/10 dark:bg-red-500/20";
-      let badgeText = "text-red-600 dark:text-red-400";
+      let badgeBg = "bg-danger-500/10 dark:bg-danger-500/20";
+      let badgeText = "text-danger-600 dark:text-danger-400";
       let label = "PDF";
       
       if (docType === "word") {
-        badgeBg = "bg-blue-500/10 dark:bg-blue-500/20";
-        badgeText = "text-blue-600 dark:text-blue-400";
+        badgeBg = "bg-info-500/10 dark:bg-info-500/20";
+        badgeText = "text-info-600 dark:text-info-400";
         label = "WORD";
       } else if (docType === "excel") {
-        badgeBg = "bg-green-500/10 dark:bg-green-500/20";
-        badgeText = "text-green-600 dark:text-green-400";
+        badgeBg = "bg-success-500/10 dark:bg-success-500/20";
+        badgeText = "text-success-600 dark:text-success-400";
         label = "EXCEL";
       } else if (docType === "generic") {
         badgeBg = "bg-slate-500/10 dark:bg-slate-500/20";
@@ -1067,13 +1073,13 @@ export function ChatRoom({
 
       if (isCurrentUser) {
         if (docType === "pdf") {
-          badgeBg = "bg-red-500/25";
+          badgeBg = "bg-danger-500/25";
           badgeText = "text-red-100";
         } else if (docType === "word") {
-          badgeBg = "bg-blue-500/25";
+          badgeBg = "bg-info-500/25";
           badgeText = "text-blue-100";
         } else if (docType === "excel") {
-          badgeBg = "bg-green-500/25";
+          badgeBg = "bg-success-500/25";
           badgeText = "text-green-100";
         } else {
           badgeBg = "bg-white/20";
@@ -1095,7 +1101,7 @@ export function ChatRoom({
                   isCurrentUser
                     ? "border-primary bg-primary text-primary-foreground rounded-tr-none rtl:rounded-tr-2xl rtl:rounded-tl-none"
                     : isTeacher
-                    ? "border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10 text-foreground rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
+                    ? "border-warning-500/20 bg-warning-500/5 dark:bg-warning-500/10 text-foreground rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
                     : "border-border/60 bg-muted/40 text-foreground rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
                 )
               : cn(
@@ -1123,7 +1129,7 @@ export function ChatRoom({
               isCurrentUser ? "border-white/10" : "border-border/20"
             )}>
               {isStarred && !isCurrentUser && (
-                <Star className="w-3 h-3 fill-amber-500 text-amber-500 shrink-0" />
+                <Star className="w-3 h-3 fill-warning-500 text-warning-500 shrink-0" />
               )}
               <span className={cn("font-bold ms-auto", isCurrentUser ? "text-primary-foreground/90" : "text-muted-foreground")}>
                 {formatMessageTime(msg.createdAt)}
@@ -1221,11 +1227,11 @@ export function ChatRoom({
               className={cn(
                 "flex items-center gap-1 px-2.5 py-1.5 md:gap-1.5 md:px-3 md:py-2 rounded-xl border font-bold text-xs transition-all cursor-pointer",
                 showStarredOnly
-                  ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-500 shadow-sm"
+                  ? "bg-warning-500/10 border-warning-500/30 text-warning-600 dark:text-warning-500 shadow-sm"
                   : "border-border/60 bg-card hover:bg-muted/40 text-muted-foreground"
               )}
             >
-              <Star className={cn("w-3.5 h-3.5 md:w-4 md:h-4", showStarredOnly ? "fill-amber-500 text-amber-500" : "text-muted-foreground/60")} />
+              <Star className={cn("w-3.5 h-3.5 md:w-4 md:h-4", showStarredOnly ? "fill-warning-500 text-warning-500" : "text-muted-foreground/60")} />
               {t("starredOnly")}
             </button>
           </div>
@@ -1284,7 +1290,7 @@ export function ChatRoom({
                   <span className="text-[10px] md:text-xs font-bold text-muted-foreground mb-0.5 px-1 flex items-center gap-1 md:gap-1.5">
                     {isCurrentUser ? tCommon("me") || t("myBoard") || "أنا" : msg.senderName}
                     {isTeacher && !isCurrentUser && (
-                      <span className="bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[8px] md:text-[10px] px-1.5 py-0.2 rounded-full font-bold border border-amber-500/20">
+                      <span className="bg-warning-500/10 text-warning-600 dark:text-warning-500 text-[8px] md:text-[10px] px-1.5 py-0.2 rounded-full font-bold border border-warning-500/20">
                         {t("teacher")}
                       </span>
                     )}
@@ -1347,7 +1353,7 @@ export function ChatRoom({
                           isCurrentUser
                             ? "bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 rounded-tr-none rtl:rounded-tr-2xl rtl:rounded-tl-none"
                             : isTeacher
-                            ? "bg-amber-500/5 dark:bg-amber-500/10 text-amber-700 dark:text-amber-500 border-amber-500/20 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
+                            ? "bg-warning-500/5 dark:bg-warning-500/10 text-warning-700 dark:text-warning-500 border-warning-500/20 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
                             : "bg-muted/20 dark:bg-muted/40 text-muted-foreground border-border/40 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
                         )}
                       >
@@ -1362,11 +1368,11 @@ export function ChatRoom({
                         className={cn(
                           "p-2.5 md:p-3.5 rounded-xl md:rounded-2xl relative shadow-sm border text-sm md:text-base leading-relaxed w-fit max-w-full transition-all duration-500",
                           highlightedMsgId === msg.id
-                            ? "bg-amber-100 dark:bg-amber-900/60 border-amber-400 dark:border-amber-700 ring-2 ring-amber-400/50 scale-[1.02]"
+                            ? "bg-warning-100 dark:bg-warning-900/60 border-warning-400 dark:border-warning-700 ring-2 ring-warning-400/50 scale-[1.02]"
                             : isCurrentUser
                             ? "bg-primary text-primary-foreground border-primary rounded-tr-none rtl:rounded-tr-2xl rtl:rounded-tl-none"
                             : isTeacher
-                            ? "bg-amber-500/5 dark:bg-amber-500/10 text-foreground border-amber-500/20 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
+                            ? "bg-warning-500/5 dark:bg-warning-500/10 text-foreground border-warning-500/20 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
                             : "bg-muted/40 text-foreground border-border/60 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none"
                         )}
                         style={{
@@ -1399,7 +1405,7 @@ export function ChatRoom({
                         {/* Bottom row: Star indicator & timestamp */}
                         <div className="flex items-center justify-between gap-1.5 mt-1 shrink-0">
                           {isStarred && !isCurrentUser && (
-                            <Star className="w-3 h-3 fill-amber-500 text-amber-500 animate-in zoom-in duration-200 shrink-0" />
+                            <Star className="w-3 h-3 fill-warning-500 text-warning-500 animate-in zoom-in duration-200 shrink-0" />
                           )}
                           <span
                             className={cn(
@@ -1446,7 +1452,7 @@ export function ChatRoom({
                         className={cn(
                           "relative w-fit transition-all duration-500 rounded-2xl",
                           highlightedMsgId === msg.id
-                            ? "bg-amber-100/50 dark:bg-amber-900/40 p-1 border border-amber-400 dark:border-amber-700 scale-[1.02]"
+                            ? "bg-warning-100/50 dark:bg-warning-900/40 p-1 border border-warning-400 dark:border-warning-700 scale-[1.02]"
                             : ""
                         )}
                         style={{
@@ -1554,7 +1560,7 @@ export function ChatRoom({
             <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12 px-4 max-w-md mx-auto">
               <div className="w-16 h-16 rounded-3xl bg-muted flex items-center justify-center text-muted-foreground/80 shadow-inner">
                 {showStarredOnly ? (
-                  <Star className="h-8 w-8 text-amber-500 fill-amber-500 animate-pulse" />
+                  <Star className="h-8 w-8 text-warning-500 fill-warning-500 animate-pulse" />
                 ) : (
                   <MessageSquareQuote className="h-8 w-8 text-muted-foreground animate-bounce" />
                 )}
@@ -1679,9 +1685,9 @@ export function ChatRoom({
                   <p className="text-xs font-bold text-foreground truncate">{sliceFileName(pendingFile.name, 22)}</p>
                   <p className="text-[10px] text-muted-foreground">
                     {(pendingFile.size / 1024).toFixed(0)} KB
-                    {pendingFile.type.startsWith("audio/") && (pendingFile as any).duration !== undefined && (pendingFile as any).duration > 0 && (
+                    {pendingFile.type.startsWith("audio/") && pendingDuration > 0 && (
                       <span className="mx-1.5 opacity-60">
-                        • {Math.floor((pendingFile as any).duration)}s
+                        • {Math.floor(pendingDuration)}s
                       </span>
                     )}
                   </p>
@@ -1698,10 +1704,8 @@ export function ChatRoom({
             </div>
             {/* Audio Duration Warning Msg */}
             {pendingFile.type.startsWith("audio/") && 
-             (pendingFile as any).duration !== undefined && 
-             (pendingFile as any).duration > 0 && 
-             (pendingFile as any).duration < 10 && (
-              <p className="text-xs font-bold text-red-600 dark:text-red-400 px-1 text-start animate-in fade-in duration-200">
+             pendingDuration > 0 && pendingDuration < 10 && (
+              <p className="text-xs font-bold text-danger-600 dark:text-danger-400 px-1 text-start animate-in fade-in duration-200">
                 {tValidation("audioTooShort") || "Audio duration must be at least 10 seconds"}
               </p>
             )}
@@ -1732,13 +1736,13 @@ export function ChatRoom({
         )}
 
         {isRecording ? (
-          <div className="p-2.5 md:p-4 flex items-center justify-between gap-3 bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 rounded-xl md:rounded-2xl animate-in fade-in duration-200">
+          <div className="p-2.5 md:p-4 flex items-center justify-between gap-3 bg-danger-500/5 dark:bg-danger-500/10 border border-danger-500/20 rounded-xl md:rounded-2xl animate-in fade-in duration-200">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger-500"></span>
               </span>
-              <span className="text-xs md:text-sm font-bold text-red-600 dark:text-red-400">
+              <span className="text-xs md:text-sm font-bold text-danger-600 dark:text-danger-400">
                 {t("recording") || "Recording..."}
               </span>
               <span className="text-sm md:text-base font-black text-foreground font-mono leading-none ms-2">
@@ -1761,7 +1765,7 @@ export function ChatRoom({
               <button
                 type="button"
                 onClick={stopRecording}
-                className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-600/90 text-xs md:text-sm font-bold text-white transition-all hover:scale-105 cursor-pointer"
+                className="px-4 py-1.5 rounded-xl bg-danger-600 hover:bg-danger-600/90 text-xs md:text-sm font-bold text-white transition-all hover:scale-105 cursor-pointer"
               >
                 {t("stopRecording") || "Stop"}
               </button>
@@ -1821,9 +1825,7 @@ export function ChatRoom({
                 isSending || 
                 isUploading || 
                 (pendingFile !== null && pendingFile.type.startsWith("audio/") && 
-                 (pendingFile as any).duration !== undefined && 
-                 (pendingFile as any).duration > 0 && 
-                 (pendingFile as any).duration < 10)
+                 pendingDuration > 0 && pendingDuration < 10)
               }
               className="bg-primary hover:bg-primary/95 hover:scale-105 active:scale-95 text-primary-foreground h-9 w-9 md:h-11 md:w-11 rounded-xl md:rounded-2xl flex items-center justify-center transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Submit message"

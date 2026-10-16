@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { cn } from "@/lib/utils";
+import { RecaptchaDisclaimer } from "@/components/common/RecaptchaDisclaimer";
 
 // ============================================================
 // LoginForm – extracted form component for maintenance ease
@@ -244,6 +245,7 @@ export function LoginForm() {
                       </button>
                     </div>
                   </div>
+                  <RecaptchaDisclaimer className="mt-1" />
                 </CardFooter>
               </Form>
             )}

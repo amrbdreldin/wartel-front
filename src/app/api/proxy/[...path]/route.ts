@@ -1,3 +1,15 @@
+import { REFRESH_TOKEN_KEY, TOKEN_KEY, USER_KEY } from "@/lib/constants";
+import {
+  backupActiveSession,
+  clearActiveSession,
+  extractAndStripTokens,
+  isTrustedClientRequest,
+  refreshSession,
+  renewSession,
+  setSessionCookie,
+  writeTokens,
+  type SessionTokens,
+} from "@/lib/server/session";
 import { type NextRequest, NextResponse } from "next/server";
 
 // ============================================================
@@ -18,12 +30,8 @@ if (!API_BASE_URL) {
 }
 
 // Helper to check if a form-data value is a File or Blob
-function isFileLike(value: any): value is { name?: string; arrayBuffer(): Promise<ArrayBuffer> } {
-  return (
-    value &&
-    typeof value === "object" &&
-    typeof value.arrayBuffer === "function"
-  );
+function isFileLike(value: FormDataEntryValue): value is File {
+  return typeof value === "object" && value !== null && typeof value.arrayBuffer === "function";
 }
 
 // HTTP methods we allow through the proxy
@@ -42,6 +50,10 @@ const SKIP_REQUEST_HEADERS = new Set([
   "proxy-authenticate",
   "content-length", // fetch recalculates this
   "x-recaptcha-token", // Omit custom recaptcha token header from upstream call
+  // The upstream API authenticates with the Bearer header only; never leak the
+  // frontend's own cookies (tokens, consent, analytics) to another origin.
+  "cookie",
+  "x-wartel-client", // our same-origin marker, meaningless upstream
 ]);
 
 // Headers we do NOT forward back to the client
@@ -54,9 +66,38 @@ const SKIP_RESPONSE_HEADERS = new Set([
 ]);
 
 // ─── reCAPTCHA verification helper ───────────────────────────
+// OFF unless NEXT_PUBLIC_RECAPTCHA_ENABLED === "true" (the same flag gates the client),
+// and then requires RECAPTCHA_SECRET_KEY. While off, auth calls pass through as before.
+const RECAPTCHA_SECRET_KEY =
+  process.env.NEXT_PUBLIC_RECAPTCHA_ENABLED === "true" ? process.env.RECAPTCHA_SECRET_KEY : undefined;
+const RECAPTCHA_MIN_SCORE = Number(process.env.RECAPTCHA_MIN_SCORE ?? 0.5);
+
 async function verifyRecaptcha(token: string): Promise<boolean> {
-  // reCAPTCHA bypassed
-  return true;
+  if (!RECAPTCHA_SECRET_KEY) return true;
+  if (!token) return false;
+
+  try {
+    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret: RECAPTCHA_SECRET_KEY, response: token }),
+      cache: "no-store",
+    });
+    const data = (await response.json()) as { success?: boolean; score?: number; "error-codes"?: string[] };
+
+    if (!data.success) {
+      console.error("[proxy] reCAPTCHA siteverify failed", data["error-codes"]);
+      return false;
+    }
+    if (typeof data.score === "number" && data.score < RECAPTCHA_MIN_SCORE) {
+      console.warn(`[proxy] reCAPTCHA score below threshold: ${data.score}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[proxy] reCAPTCHA verification request failed:", err);
+    return false;
+  }
 }
 
 // ─── Core proxy handler ───────────────────────────────────────
@@ -76,6 +117,7 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
 
   const isLogin = pathStr === "auth/login";
   const isRegister = pathStr === "enrollment/submit";
+  const sessionMode = getSessionMode(method, pathStr);
 
   // Build target URL, preserving query string
   const search = req.nextUrl.search; // e.g. "?page=1&per_page=10"
@@ -88,6 +130,12 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
       forwardedHeaders.set(key, value);
     }
   });
+
+  // Authenticate from the HttpOnly session cookie (same-origin requests only — CSRF guard)
+  const clientAuth = req.headers.get("authorization");
+  const cookieToken = isTrustedClientRequest(req) ? req.cookies.get(TOKEN_KEY)?.value : undefined;
+  const usesSessionCookie = !clientAuth && Boolean(cookieToken);
+  if (usesSessionCookie) forwardedHeaders.set("authorization", `Bearer ${cookieToken}`);
 
   // Build fetch options
   const fetchOptions: RequestInit = {
@@ -115,7 +163,7 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
       formData.forEach((value, key) => {
         if (key !== "recaptcha_token") {
           if (isFileLike(value)) {
-            cleanFormData!.append(key, value as any, (value as any).name || "blob");
+            cleanFormData!.append(key, value, value.name || "blob");
           } else {
             cleanFormData!.append(key, value);
           }
@@ -134,8 +182,8 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
           // Delete it from JSON so we don't pass it upstream
           delete bodyJson.recaptcha_token;
           cleanBodyText = JSON.stringify(bodyJson);
-        } catch (err) {
-          // Parse error
+        } catch {
+          // Not JSON — forward the body unchanged
         }
       }
     }
@@ -145,7 +193,7 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
     // - Public login/register: hasAuth is false -> verification is required.
     // - Ongoing login modal: hasAuth is true but recaptchaToken is sent -> verification is performed.
     // - Login as child: hasAuth is true and no recaptchaToken is sent -> verification is skipped.
-    const hasAuth = !!req.headers.get("authorization");
+    const hasAuth = Boolean(clientAuth) || usesSessionCookie;
     const needsVerification = !hasAuth || !!recaptchaToken;
     if (needsVerification) {
       const isValid = await verifyRecaptcha(recaptchaToken);
@@ -187,7 +235,7 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
         const nonAuthCleanFormData = new FormData();
         formData.forEach((value, key) => {
           if (isFileLike(value)) {
-            nonAuthCleanFormData.append(key, value as any, (value as any).name || "blob");
+            nonAuthCleanFormData.append(key, value, value.name || "blob");
           } else {
             nonAuthCleanFormData.append(key, value);
           }
@@ -204,8 +252,22 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
 
   // ── Perform upstream request ──────────────────────────────
   let upstream: Response;
+  let refreshed: SessionTokens | null = null;
+  let sessionExpired = false;
   try {
     upstream = await fetch(targetUrl, fetchOptions);
+
+    // Expired access token → refresh server-side once, then retry the original request
+    if (upstream.status === 401 && usesSessionCookie && !pathStr.startsWith("auth/")) {
+      const refreshToken = req.cookies.get(REFRESH_TOKEN_KEY)?.value;
+      refreshed = refreshToken ? await refreshSession(API_BASE_URL!, refreshToken) : null;
+      if (refreshed) {
+        forwardedHeaders.set("authorization", `Bearer ${refreshed.accessToken}`);
+        upstream = await fetch(targetUrl, fetchOptions);
+      } else {
+        sessionExpired = true;
+      }
+    }
   } catch (err) {
     console.error("[proxy] Upstream fetch failed:", err);
     return NextResponse.json(
@@ -231,12 +293,67 @@ async function proxyRequest(req: NextRequest, params: { path: string[] }) {
     }
   });
 
-  // Return proxied response — stream body directly to avoid buffering in memory
-  return new NextResponse(upstream.body, {
+  // Auth responses: move tokens into HttpOnly cookies and strip them from the body.
+  // Everything else streams straight through to avoid buffering in memory.
+  let body: BodyInit | null = upstream.body;
+  let issued: SessionTokens | null = null;
+  let issuedUser: unknown = null;
+  if (sessionMode && upstream.ok) {
+    const text = await upstream.text();
+    body = text;
+    try {
+      const json = JSON.parse(text) as Record<string, unknown>;
+      issued = extractAndStripTokens(json);
+      if (issued) {
+        const data = json.data as Record<string, unknown> | undefined;
+        issuedUser = data?.user ?? json.user ?? null;
+        body = JSON.stringify(json);
+      }
+    } catch {
+      // Not JSON — pass the original text through
+    }
+  }
+
+  const response = new NextResponse(body, {
     status: upstream.status,
     statusText: upstream.statusText,
     headers: responseHeaders,
   });
+
+  if (issued) {
+    if (sessionMode === "switch") backupActiveSession(response, req);
+    writeTokens(response, req, issued);
+    if (issuedUser && typeof issuedUser === "object") {
+      setSessionCookie(response, req, USER_KEY, JSON.stringify(issuedUser));
+    }
+  } else if (refreshed) {
+    writeTokens(response, req, refreshed);
+  }
+
+  if (sessionExpired) {
+    clearActiveSession(response);
+  } else if (usesSessionCookie || issued) {
+    renewSession(response, req);
+  }
+
+  return response;
+}
+
+// Endpoints whose successful response carries tokens for a new session.
+// "switch" keeps the current account as a backup (teacher/parent → student).
+function getSessionMode(method: string, path: string): "login" | "switch" | null {
+  if (method !== "POST") return null;
+  if (path === "auth/login" || path === "auth/parent/register" || path === "groups/join" || path === "auth/refresh") {
+    return "login";
+  }
+  if (
+    path === "teacher/login-as-student" ||
+    path === "parent/login-as-student" ||
+    /^parent\/children\/[^/]+\/switch$/.test(path)
+  ) {
+    return "switch";
+  }
+  return null;
 }
 
 // ─── Route exports ────────────────────────────────────────────

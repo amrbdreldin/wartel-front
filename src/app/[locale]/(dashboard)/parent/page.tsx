@@ -21,6 +21,8 @@ import { ChildCard } from "./_components/ChildCard";
 import { AddChildModal } from "./_components/AddChildModal";
 import { ChildCardSkeleton } from "./_components/ChildCardSkeleton";
 import { TodaySessionCard } from "./_components/TodaySessionCard";
+import { UserRole } from "@/types/enums";
+import { hasEstablishedSession } from "@/lib/session-client";
 
 // ============================================================
 // Parent Dashboard Page
@@ -85,7 +87,7 @@ export default function ParentDashboardPage() {
 
   const handleAddStudent = async (
     values: typeof initialValues,
-    { resetForm }: any
+    { resetForm }: { resetForm: () => void }
   ) => {
     const fd = new FormData();
     fd.append("full_name", values.full_name);
@@ -111,7 +113,7 @@ export default function ParentDashboardPage() {
 
     try {
       const res = await addStudentMutateAsync(fd);
-      toast.success((res as any)?.message || t("childAddedSuccess"));
+      toast.success(res?.message || t("childAddedSuccess"));
       setIsAddModalOpen(false);
       resetForm();
     } catch (error) {
@@ -127,12 +129,9 @@ export default function ParentDashboardPage() {
     setSwitchingChildId(child.id);
     loginAsStudent(child.id, {
       onSuccess: (res) => {
-        const token = res.token || res.access_token || "";
-        if (token) {
+        if (hasEstablishedSession(res)) {
           switchToChild({
-            user: res.user || { id: child.id, full_name: child.name, role: "student" as any, phone: "" },
-            accessToken: token,
-            refreshToken: res.refresh_token || "",
+            user: res.user || { id: child.id, full_name: child.name, role: UserRole.STUDENT, phone: "" },
           });
 
           toast.success(t("loginAsChildSuccess", { name: child.name }));
@@ -150,7 +149,7 @@ export default function ParentDashboardPage() {
           toast.error(tCommon("error") || "Error logging in");
         }
       },
-      onError: (error: any) => {
+      onError: (error) => {
         console.error("Failed to login as student:", error);
         toast.error(tCommon("error") || "Error logging in");
       },
@@ -182,7 +181,7 @@ export default function ParentDashboardPage() {
           </div>
           {todaySessions && todaySessions.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {todaySessions.map((session: any) => (
+              {todaySessions.map((session) => (
                 <TodaySessionCard key={session.session_id} session={session} />
               ))}
             </div>

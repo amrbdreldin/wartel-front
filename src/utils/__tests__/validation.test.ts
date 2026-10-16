@@ -150,7 +150,7 @@ describe("Validation Schemas", () => {
       const data = {
         ...baseValidStudentData,
         enrollment_type_id: "type-no-tracks",
-        age: "" as any,
+        age: "" as unknown as number,
       };
 
       await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).rejects.toThrow(
@@ -162,7 +162,7 @@ describe("Validation Schemas", () => {
       const data = {
         ...baseValidStudentData,
         enrollment_type_id: "type-no-tracks",
-        age: "not-a-number" as any,
+        age: "not-a-number" as unknown as number,
       };
 
       await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).rejects.toThrow(

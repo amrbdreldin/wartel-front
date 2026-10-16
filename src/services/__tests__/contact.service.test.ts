@@ -19,7 +19,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { data: [], links: {}, meta: {} },
-      } as any);
+      } as never);
 
       await contactService.getThreads();
 
@@ -38,7 +38,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { data: [], links: {}, meta: {} },
-      } as any);
+      } as never);
 
       await contactService.getThreads({ page: 2, per_page: 10 });
 
@@ -59,7 +59,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { id: 3 },
-      } as any);
+      } as never);
 
       await contactService.getThread(3);
 
@@ -73,7 +73,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { id: 3 },
-      } as any);
+      } as never);
 
       await contactService.createThread({
         subject: "استفسار",
@@ -95,7 +95,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { id: 3 },
-      } as any);
+      } as never);
 
       const fakeFile = new File(["dummy content"], "test.png", { type: "image/png" });
 
@@ -119,7 +119,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { id: 10 },
-      } as any);
+      } as never);
 
       await contactService.replyThread({
         threadId: 3,
@@ -138,7 +138,7 @@ describe("contactService", () => {
         success: true,
         message: "success",
         data: { id: 10 },
-      } as any);
+      } as never);
 
       const fakeFile = new File(["dummy content"], "test.png", { type: "image/png" });
 

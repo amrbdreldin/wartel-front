@@ -11,7 +11,7 @@ interface WerdTableProps {
   werds: WerdRecord[];
   isLoading: boolean;
   isError: boolean;
-  error: any;
+  error: unknown;
   locale: string;
 }
 

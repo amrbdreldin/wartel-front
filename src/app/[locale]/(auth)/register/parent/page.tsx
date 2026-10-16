@@ -3,11 +3,12 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/enums";
 import { Loader2 } from "lucide-react";
 import { ParentRegisterForm } from "../_components/ParentRegisterForm";
+import { useIsClient } from "@/hooks/useIsClient";
 
 // ============================================================
 // Parent Register Page – layout shell only
@@ -19,11 +20,7 @@ export default function ParentRegisterPage() {
   const locale = params.locale as string;
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   useEffect(() => {
     if (mounted && isAuthenticated && user) {

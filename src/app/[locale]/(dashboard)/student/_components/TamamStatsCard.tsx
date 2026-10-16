@@ -23,7 +23,6 @@ export function TamamStatsCard({
   groups,
   tamamCard,
   onShowTamamModal,
-  onShowAssignModal,
   isStudentChild,
   selectedGroupId,
   onSelectGroup,
@@ -44,7 +43,7 @@ export function TamamStatsCard({
 
   const checkIsCompleted = (tamam?: DashboardTamamCard | null) => {
     if (!tamam || !tamam.status) return false;
-    const statusObj: any = tamam.status;
+    const statusObj = tamam.status as string | Record<string, unknown>;
     if (typeof statusObj === "string") {
       const s = statusObj.trim().toLowerCase();
       return s === "completed" || s === "مكتمل" || s === "done";
@@ -73,8 +72,8 @@ export function TamamStatsCard({
     const hasAssignedBuddy = !!buddy?.full_name;
     const isBuddyGroup = Boolean(
       activeTargetGroup.has_buddy &&
-      (activeTargetGroup.has_buddy as any) !== "false" &&
-      (activeTargetGroup.has_buddy as any) !== "0"
+      activeTargetGroup.has_buddy !== "false" &&
+      activeTargetGroup.has_buddy !== "0"
     );
     const hasBuddyFeature = isBuddyGroup || hasAssignedBuddy;
 
@@ -108,14 +107,14 @@ export function TamamStatsCard({
               className={cn(
                 "inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-xl border shrink-0",
                 isCompleted
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                  ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                   : "bg-warning-500/10 text-warning-600 border-warning-500/20"
               )}
             >
               <span
                 className={cn(
                   "w-1.5 h-1.5 rounded-full shrink-0",
-                  isCompleted ? "bg-emerald-500" : "bg-warning-500"
+                  isCompleted ? "bg-success-500" : "bg-warning-500"
                 )}
               />
               {isCompleted ? t("student.statusCompleted") : t("student.statusPending")}
@@ -247,13 +246,13 @@ export function TamamStatsCard({
                 className={cn(
                   "w-full py-2.5 text-center rounded-2xl font-extrabold text-xs border flex items-center justify-center gap-2 shadow-xs transition-all duration-300",
                   isCompleted
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                    ? "bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20"
                     : "bg-warning-500/10 text-warning-600 border-warning-500/20"
                 )}
               >
                 {isCompleted ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 animate-bounce" />
+                    <CheckCircle2 className="w-4 h-4 text-success-500 animate-bounce" />
                     <span>
                       {t("student.tamamStatus")}: {t("student.statusCompleted") || "مكتمل"}
                     </span>
@@ -341,7 +340,7 @@ export function TamamStatsCard({
                       <span
                         className={cn(
                           "w-2.5 h-2.5 rounded-full shrink-0",
-                          isCompleted ? "bg-emerald-500" : "bg-warning-500"
+                          isCompleted ? "bg-success-500" : "bg-warning-500"
                         )}
                       />
                     )}

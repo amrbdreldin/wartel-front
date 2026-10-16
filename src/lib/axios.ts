@@ -4,38 +4,27 @@ import axios, {
     type InternalAxiosRequestConfig
 } from "axios";
 import { toast } from "sonner";
-import { API_BASE_URL, REFRESH_TOKEN_KEY, TOKEN_KEY } from "./constants";
-import Cookies from "js-cookie";
+import { API_BASE_URL } from "./constants";
+import { CLIENT_REQUEST_HEADER, endServerSession } from "./session-client";
 
 
 // ============================================================
 // Axios Instance
+// ------------------------------------------------------------
+// Auth tokens live in HttpOnly cookies owned by the server. The proxy
+// (/api/proxy) attaches them and refreshes expired tokens itself, so the
+// browser never handles a token. Same-origin cookies are sent automatically.
 // ============================================================
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    ...CLIENT_REQUEST_HEADER,
   },
 });
-
-// ============================================================
-// Request Interceptor – Attach Bearer Token
-// ============================================================
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // Only access Cookies in client
-    if (typeof window !== "undefined") {
-      const token = Cookies.get(TOKEN_KEY);
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error: AxiosError) => Promise.reject(error)
-);
 
 function isCurrentPagePublic(): boolean {
   if (typeof window === "undefined") return false;
@@ -52,26 +41,16 @@ function isCurrentPagePublic(): boolean {
   );
 }
 
-// ============================================================
-// Response Interceptor – Handle Errors & Refresh
-// ============================================================
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (token: string) => void;
-  reject: (error: AxiosError) => void;
-}> = [];
+function redirectToLogin() {
+  if (typeof window !== "undefined" && !isCurrentPagePublic()) {
+    const locale = window.location.pathname.split("/")[1] || "ar";
+    window.location.href = `/${locale}/login`;
+  }
+}
 
-const processQueue = (error: AxiosError | null, token: string | null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token!);
-    }
-  });
-  failedQueue = [];
-};
-
+// ============================================================
+// Response Interceptor – Handle Errors & Expired Sessions
+// ============================================================
 api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
@@ -81,99 +60,40 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Handle 401 – Attempt token refresh
-    const isPublicEndpoint = originalRequest.url?.includes("/direct-join") || originalRequest.url?.includes("/groups/join");
+    // 401 here means the server could not refresh the session (it already tried)
+    const isPublicEndpoint = originalRequest?.url?.includes("/direct-join") || originalRequest?.url?.includes("/groups/join");
 
     if (
-      error.response?.status === 401 && 
+      error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       !originalRequest.url?.includes("/login")
     ) {
-      if (isPublicEndpoint) {
-        // Public/Guest endpoint – clean invalid cookies and retry unauthenticated without redirecting to login
-        originalRequest._retry = true;
-        Cookies.remove(TOKEN_KEY, { path: "/" });
-        Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
-        if (originalRequest.headers) {
-          delete originalRequest.headers.Authorization;
-        }
-        return api(originalRequest);
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (token: string) => {
-              if (originalRequest.headers) {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-              }
-              resolve(api(originalRequest));
-            },
-            reject,
-          });
-        });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
 
-      try {
-        const refreshToken = Cookies.get(REFRESH_TOKEN_KEY);
-        if (!refreshToken) {
-          // No refresh token – session is completely expired. Clean up.
-          processQueue(new Error("No refresh token") as unknown as AxiosError, null);
-          isRefreshing = false;
-          Cookies.remove(TOKEN_KEY, { path: "/" });
-          Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
-          if (typeof window !== "undefined" && !isCurrentPagePublic()) {
-            const locale = window.location.pathname.split("/")[1] || "ar";
-            window.location.href = `/${locale}/login`;
-          }
-          return Promise.reject(new Error("No refresh token"));
-        }
-
-        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refresh_token: refreshToken,
-        });
-
-        const newToken = data.data?.access_token;
-        const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-        Cookies.set(TOKEN_KEY, newToken, { expires: 365, path: "/", secure: isSecure, sameSite: "lax" });
-
-        if (data.data?.refresh_token) {
-          Cookies.set(REFRESH_TOKEN_KEY, data.data.refresh_token, { expires: 365, path: "/", secure: isSecure, sameSite: "lax" });
-        }
-
-        processQueue(null, newToken);
-
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        }
+      if (isPublicEndpoint) {
+        // Public/Guest endpoint – drop the invalid session and retry as a guest without redirecting
+        await endServerSession("active");
         return api(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError as AxiosError, null);
-        // Clear tokens
-        Cookies.remove(TOKEN_KEY, { path: "/" });
-        Cookies.remove(REFRESH_TOKEN_KEY, { path: "/" });
-        if (typeof window !== "undefined" && !isCurrentPagePublic()) {
-          const locale = window.location.pathname.split("/")[1] || "ar";
-          window.location.href = `/${locale}/login`;
-        }
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
+
+      // Session is completely expired. Clean up (keeps a teacher/parent backup, as before).
+      await endServerSession("active");
+      redirectToLogin();
+      return Promise.reject(error);
     }
 
     // Handle other errors
     const responseData = error.response?.data as { message?: string; errors?: Record<string, string[]> };
     const mainMessage = responseData?.message || error.message || "An unexpected error occurred";
     const validationErrors = responseData?.errors;
-    const isLoginRequest = originalRequest.url?.includes("/login");
+    const isLoginRequest = originalRequest?.url?.includes("/login");
 
     // Endpoints that handle their own validation display — skip global toast
     const silentEndpoints = ["/request-leave"];
-    const isSilent = silentEndpoints.some((url) => originalRequest.url?.includes(url)) || (originalRequest as any).skipGlobalToast;
+    const isSilent =
+      silentEndpoints.some((url) => originalRequest?.url?.includes(url)) ||
+      (originalRequest as { skipGlobalToast?: boolean } | undefined)?.skipGlobalToast;
 
     // Don't toast on 401 (handled above) or cancel, unless it's a login request
     if (!isSilent && (error.response?.status !== 401 || isLoginRequest) && !axios.isCancel(error)) {

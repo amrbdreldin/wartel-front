@@ -4,9 +4,10 @@ import { Trophy, ArrowLeft, ArrowRight, Award, AlertCircle } from "lucide-react"
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import type { DashboardLastGrade } from "@/types/student.types";
 
 interface LatestGradeCardProps {
-  lastGrade: any;
+  lastGrade?: DashboardLastGrade | null;
   locale: string;
 }
 
@@ -69,7 +70,7 @@ export function LatestGradeCard({ lastGrade, locale }: LatestGradeCardProps) {
                 {t("student.fail") || "راسب"}
               </span>
             ) : (
-              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 shadow-[0_2px_10px_rgba(16,185,129,0.05)]">
+              <span className="bg-success-500/10 text-success-600 dark:text-success-400 border border-success-500/20 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 shadow-[0_2px_10px_rgba(16,185,129,0.05)]">
                 <Award className="w-3.5 h-3.5" />
                 {percentage >= 90 ? t("student.excellentHigh") : t("student.passed") || "ناجح"}
               </span>

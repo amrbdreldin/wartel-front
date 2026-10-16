@@ -52,7 +52,7 @@ function getGradeLabel(
   const pct = (parseFloat(score) / max) * 100;
   if (pct >= 90) return { label: t("gradeExcellent"), color: "text-success-600" };
   if (pct >= 75) return { label: t("gradeVeryGood"), color: "text-warning-600" };
-  if (pct >= 65) return { label: t("gradeGood"), color: "text-amber-600" };
+  if (pct >= 65) return { label: t("gradeGood"), color: "text-warning-600" };
   if (pct >= 50) return { label: t("gradePass"), color: "text-info-600" };
   return { label: t("gradeFail"), color: "text-destructive" };
 }

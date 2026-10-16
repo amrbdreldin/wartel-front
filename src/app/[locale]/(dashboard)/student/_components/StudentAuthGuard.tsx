@@ -1,17 +1,17 @@
 "use client";
 
 import { DashboardSkeleton } from "@/components/common/DashboardSkeleton";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useIsClient } from "@/hooks/useIsClient";
 
 export function StudentAuthGuard({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
 
   useEffect(() => {
     // Clean up legacy switching flag if still present
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("switching_to_student");
     }
-    setMounted(true);
   }, []);
 
   if (!mounted) {

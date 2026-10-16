@@ -22,6 +22,7 @@ import { ChildCard } from "@/app/[locale]/(dashboard)/parent/_components/ChildCa
 import { AddChildModal } from "@/app/[locale]/(dashboard)/parent/_components/AddChildModal";
 import { ChildCardSkeleton } from "@/app/[locale]/(dashboard)/parent/_components/ChildCardSkeleton";
 import { TodaySessionCard } from "@/app/[locale]/(dashboard)/parent/_components/TodaySessionCard";
+import { hasEstablishedSession } from "@/lib/session-client";
 
 // ============================================================
 // Teacher Children Management Page (Replicates Parent Dashboard)
@@ -129,12 +130,9 @@ export default function TeacherChildrenPage() {
     setSwitchingChildId(child.id);
     loginAsStudent(child.id, {
       onSuccess: (res) => {
-        const token = res.token || res.access_token || "";
-        if (token) {
+        if (hasEstablishedSession(res)) {
           switchToChild({
             user: res.user || { id: child.id, full_name: child.name, role: UserRole.STUDENT, phone: "" },
-            accessToken: token,
-            refreshToken: res.refresh_token || "",
           });
 
           toast.success(t("loginAsChildSuccess", { name: child.name }));
@@ -184,7 +182,7 @@ export default function TeacherChildrenPage() {
           </div>
           {todaySessions && todaySessions.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {todaySessions.map((session: any) => (
+              {todaySessions.map((session) => (
                 <TodaySessionCard key={session.session_id} session={session} />
               ))}
             </div>

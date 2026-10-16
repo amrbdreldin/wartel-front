@@ -114,8 +114,8 @@ export function PreviousSessionsTable({
             className={cn(
               "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border",
               isCompleted
-                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
-                : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                ? "bg-success-500/10 text-success-700 dark:text-success-400 border-success-500/20"
+                : "bg-info-500/10 text-info-700 dark:text-info-400 border-info-500/20"
             )}
           >
             {status.name}
@@ -146,7 +146,7 @@ export function PreviousSessionsTable({
 
         if (isAttended) {
           return (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-success-500/15 text-success-700 dark:text-success-400 border border-success-500/20">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
               {row.attendance_status?.name ||
                 t("student.previousSessions.status.attended")}
@@ -156,7 +156,7 @@ export function PreviousSessionsTable({
 
         if (isAbsent) {
           return (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-danger-500/15 text-danger-700 dark:text-danger-400 border border-danger-500/20">
               <XCircle className="w-3.5 h-3.5 shrink-0" />
               {row.attendance_status?.name ||
                 t("student.previousSessions.status.absent")}
@@ -180,7 +180,7 @@ export function PreviousSessionsTable({
         if (row.degree_name) {
           return (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-foreground bg-muted/50 px-2.5 py-1 rounded-md">
-              <Trophy className="w-3.5 h-3.5 text-amber-500" />
+              <Trophy className="w-3.5 h-3.5 text-warning-500" />
               {row.degree_name}
             </span>
           );

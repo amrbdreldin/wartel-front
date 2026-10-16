@@ -6,14 +6,16 @@ import { Label } from "@/components/ui/label";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
+  ResponsiveDialogDescription,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/components/ui/responsive-dialog";
 import { useCreateContactThread } from "@/hooks/api/useContactQueries";
+import { ATTACHMENT_ACCEPT, validateAttachment } from "@/utils/contactThread";
 import { Loader2, Send, UploadCloud, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface CreateTicketModalProps {
@@ -21,9 +23,6 @@ interface CreateTicketModalProps {
   onOpenChange: (open: boolean) => void;
   onTicketCreated?: (ticketId: number) => void;
 }
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
 export function CreateTicketModal({
   open,
@@ -41,30 +40,29 @@ export function CreateTicketModal({
 
   const { mutate: createThread, isPending } = useCreateContactThread();
 
+  // Release the object URL when it is replaced or the modal unmounts
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    if (!ALLOWED_IMAGE_TYPES.includes(selectedFile.type)) {
-      setErrors((prev) => ({ ...prev, file: t("invalidFileType") }));
-      return;
-    }
-
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      setErrors((prev) => ({ ...prev, file: t("fileTooLarge") }));
+    const errorKey = validateAttachment(selectedFile);
+    if (errorKey) {
+      setErrors((prev) => ({ ...prev, file: t(errorKey) }));
       return;
     }
 
     setErrors((prev) => ({ ...prev, file: undefined }));
     setFile(selectedFile);
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreviewUrl(objectUrl);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
   };
 
   const handleRemoveFile = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setFile(null);
     setPreviewUrl(null);
     if (fileInputRef.current) {
@@ -104,6 +102,7 @@ export function CreateTicketModal({
     e.preventDefault();
     if (!validate() || isPending) return;
 
+    // Errors are toasted globally by the axios interceptor (src/lib/axios.ts)
     createThread(
       {
         subject: subject.trim(),
@@ -119,18 +118,12 @@ export function CreateTicketModal({
             onTicketCreated(createdId);
           }
         },
-        onError: (err: unknown) => {
-          const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
-          const errMsg =
-            errorObj?.response?.data?.message || errorObj?.message || t("errorLoading");
-          toast.error(errMsg);
-        },
       }
     );
   };
 
   return (
-    <ResponsiveDialog open={open} onOpenChange={handleClose}>
+    <ResponsiveDialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <ResponsiveDialogContent className="sm:max-w-xl max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
         {/* Subtle mobile sheet drag handle */}
         <div className="sm:hidden w-12 h-1.5 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-2.5 shrink-0" />
@@ -139,16 +132,16 @@ export function CreateTicketModal({
           <ResponsiveDialogTitle className="text-lg sm:text-xl font-bold text-foreground">
             {t("newTicketTitle")}
           </ResponsiveDialogTitle>
-          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+          <ResponsiveDialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             {t("newTicketSubtitle")}
-          </p>
+          </ResponsiveDialogDescription>
         </ResponsiveDialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 pt-2">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4 sm:space-y-5 pt-2">
           {/* Subject Field */}
           <div className="space-y-1.5">
             <Label htmlFor="ticket-subject" className="text-xs sm:text-sm font-semibold text-foreground">
-              {t("subject")} <span className="text-destructive">*</span>
+              {t("subject")} <span className="text-destructive" aria-hidden="true">*</span>
             </Label>
             <Input
               id="ticket-subject"
@@ -160,11 +153,14 @@ export function CreateTicketModal({
               placeholder={t("subjectPlaceholder")}
               disabled={isPending}
               maxLength={150}
+              required
+              aria-invalid={Boolean(errors.subject)}
+              aria-describedby={errors.subject ? "ticket-subject-error" : undefined}
               className="h-10 sm:h-11 rounded-xl bg-card border-border text-sm"
               autoFocus
             />
             {errors.subject && (
-              <p className="text-xs text-destructive animate-in fade-in">
+              <p id="ticket-subject-error" role="alert" className="text-xs text-destructive animate-in fade-in">
                 {errors.subject}
               </p>
             )}
@@ -173,7 +169,7 @@ export function CreateTicketModal({
           {/* Message Field */}
           <div className="space-y-1.5">
             <Label htmlFor="ticket-message" className="text-xs sm:text-sm font-semibold text-foreground">
-              {t("message")} <span className="text-destructive">*</span>
+              {t("message")} <span className="text-destructive" aria-hidden="true">*</span>
             </Label>
             <textarea
               id="ticket-message"
@@ -185,10 +181,13 @@ export function CreateTicketModal({
               }}
               placeholder={t("messagePlaceholder")}
               disabled={isPending}
+              required
+              aria-invalid={Boolean(errors.message)}
+              aria-describedby={errors.message ? "ticket-message-error" : undefined}
               className="w-full rounded-xl border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-y min-h-[90px] sm:min-h-[110px]"
             />
             {errors.message && (
-              <p className="text-xs text-destructive animate-in fade-in">
+              <p id="ticket-message-error" role="alert" className="text-xs text-destructive animate-in fade-in">
                 {errors.message}
               </p>
             )}
@@ -204,7 +203,7 @@ export function CreateTicketModal({
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
-              accept="image/png,image/jpeg,image/webp"
+              accept={ATTACHMENT_ACCEPT}
               className="hidden"
               disabled={isPending}
             />
@@ -214,10 +213,10 @@ export function CreateTicketModal({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isPending}
-                className="w-full flex flex-col items-center justify-center gap-1.5 p-3.5 sm:p-4 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-2xl transition-all cursor-pointer group text-center"
+                className="w-full flex flex-col items-center justify-center gap-1.5 p-3.5 sm:p-4 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-2xl transition-all group text-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
-                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <UploadCloud className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center motion-safe:group-hover:scale-110 transition-transform">
+                  <UploadCloud className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-foreground">
@@ -233,8 +232,9 @@ export function CreateTicketModal({
                 <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden shrink-0 border border-border bg-background">
                   <Image
                     src={previewUrl}
-                    alt="Attachment preview"
+                    alt={t("attachmentAlt")}
                     fill
+                    sizes="64px"
                     className="object-cover"
                   />
                 </div>
@@ -242,7 +242,7 @@ export function CreateTicketModal({
                   <p className="text-xs font-medium text-foreground truncate">
                     {file?.name}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground" dir="ltr">
                     {file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : ""}
                   </p>
                 </div>
@@ -255,13 +255,13 @@ export function CreateTicketModal({
                   className="rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                   aria-label={t("removeFile")}
                 >
-                  <X className="w-4 h-4" />
+                  <X />
                 </Button>
               </div>
             )}
 
             {errors.file && (
-              <p className="text-xs text-destructive animate-in fade-in">
+              <p role="alert" className="text-xs text-destructive animate-in fade-in">
                 {errors.file}
               </p>
             )}
@@ -274,7 +274,7 @@ export function CreateTicketModal({
               variant="outline"
               onClick={handleClose}
               disabled={isPending}
-              className="rounded-xl px-5 h-10 sm:h-10 w-full sm:w-auto cursor-pointer"
+              className="rounded-xl px-5 h-10 w-full sm:w-auto"
             >
               {t("cancel")}
             </Button>
@@ -282,16 +282,16 @@ export function CreateTicketModal({
             <Button
               type="submit"
               disabled={isPending}
-              className="rounded-xl px-6 h-10 sm:h-10 bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              className="rounded-xl px-6 h-10 font-semibold shadow-xs hover:bg-primary/90 gap-2 w-full sm:w-auto"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="animate-spin" aria-hidden="true" />
                   <span>{t("sending")}</span>
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4 rtl:rotate-180" />
+                  <Send className="rtl:rotate-180" aria-hidden="true" />
                   <span>{t("submitTicket")}</span>
                 </>
               )}
