@@ -3,9 +3,11 @@
 import * as React from "react";
 import { useTranslations } from "next-intl";
 import {
+  BookOpen,
   Calendar,
   CheckCircle2,
   Clock,
+  FileText,
   HelpCircle,
   MessageSquare,
   Sparkles,
@@ -105,6 +107,23 @@ export function PreviousSessionsTable({
           </span>
         </div>
       ),
+    },
+    {
+      key: "is_exam",
+      header: t("student.previousSessions.table.sessionType"),
+      className: "min-w-[120px]",
+      render: (row) =>
+        Number(row.is_exam) === 1 ? (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+            <FileText className="w-3.5 h-3.5 shrink-0" />
+            {t("student.previousSessions.status.exam")}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground border border-border/40">
+            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+            {t("student.previousSessions.status.regular")}
+          </span>
+        ),
     },
     {
       key: "session_status",

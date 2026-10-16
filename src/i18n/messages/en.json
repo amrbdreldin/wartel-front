@@ -876,7 +876,8 @@
         "details": "Details",
         "viewDetails": "View Details",
         "hideDetails": "Hide Details",
-        "teacherNotes": "Teacher Notes"
+        "teacherNotes": "Teacher Notes",
+        "sessionType": "Session Type"
       },
       "status": {
         "completed": "Completed",
@@ -884,7 +885,9 @@
         "cancelled": "Cancelled",
         "attended": "Attended",
         "absent": "Absent",
-        "notRecorded": "Not Recorded"
+        "notRecorded": "Not Recorded",
+        "exam": "Exam",
+        "regular": "Regular Session"
       },
       "detailsModal": {
         "title": "Session Details",

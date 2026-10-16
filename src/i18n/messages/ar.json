@@ -875,7 +875,8 @@
         "details": "التفاصيل",
         "viewDetails": "عرض التفاصيل",
         "hideDetails": "إخفاء التفاصيل",
-        "teacherNotes": "ملاحظات المعلم/ـة"
+        "teacherNotes": "ملاحظات المعلم/ـة",
+        "sessionType": "نوع الحلقة"
       },
       "status": {
         "completed": "مكتملة",
@@ -883,7 +884,9 @@
         "cancelled": "ملغاة",
         "attended": "حضور",
         "absent": "غياب",
-        "notRecorded": "غير مرصود"
+        "notRecorded": "غير مرصود",
+        "exam": "اختبار",
+        "regular": "حلقة عادية"
       },
       "detailsModal": {
         "title": "تفاصيل الحلقة",

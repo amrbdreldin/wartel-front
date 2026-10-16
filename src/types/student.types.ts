@@ -539,6 +539,7 @@ export interface StudentPreviousSession {
   comment: string | null;
   points: string | number | null;
   is_attended: boolean;
+  is_exam?: boolean | number | null;
   url: string | null;
 }
 
