@@ -195,7 +195,7 @@ export function SessionRosterTable({
               <th className="px-2 py-3.5 text-center">{t("subjectExam")}</th>
               <th className="px-2 py-3.5 text-center">{t("loginTime")}</th>
               <th className="px-2 py-3.5 text-center min-w-[270px]">{t("finalDecision")}</th>
-              {hasPoints && <th className="px-2 py-3.5 text-center min-w-[90px]">{t("scoreMax", { max: maxScore })}</th>}
+              {hasPoints && <th className="px-2 py-3.5 text-center min-w-[90px]">{t("scoreLabel")}</th>}
               <th className="px-3 py-3.5 text-start min-w-[140px]">{t("additionalNotes")}</th>
               <th className="px-3 py-3.5 text-start min-w-[160px]">{t("privateNote")}</th>
               <th className="px-3 py-3.5 text-center min-w-[110px]">
@@ -284,7 +284,7 @@ export function SessionRosterTable({
                     <td className="px-2 py-3.5 text-center align-middle">
                       <input
                         type="text"
-                        inputMode="decimal"
+                        inputMode="numeric"
                         value={student.score}
                         onChange={(e) => handleScoreChange(student.id, e.target.value)}
                         placeholder="--"
@@ -418,7 +418,7 @@ export function SessionRosterTable({
                   <div className="w-20 shrink-0">
                     <input
                       type="text"
-                      inputMode="decimal"
+                      inputMode="numeric"
                       value={student.score}
                       onChange={(e) => handleScoreChange(student.id, e.target.value)}
                       placeholder={t("scoreLabel") || "الدرجة"}

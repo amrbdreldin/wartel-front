@@ -252,6 +252,7 @@ export default function TeacherSessionsPage() {
       );
 
       const mapped = attendanceRes.map((record) => {
+        const points = Math.round(parseFloat(String(record.points ?? ""))) || 0;
         let decision: AttendanceDecision = "present";
         if (record.status_id === "2" || record.status_id === 2 || record.status?.name === "absent") {
           decision = "absent";
@@ -264,7 +265,8 @@ export default function TeacherSessionsPage() {
           name: record.student.full_name,
           loginTime: (record.status_id === 1 || record.status_id === "1" || record.status?.name === "present") ? "دخلن للرابط" : null,
           decision,
-          score: record.points ? parseFloat(record.points.toString()).toString() : "0",
+          // API returns points like "0.00"; show 0 as an empty field (empty is submitted as 0)
+          score: points ? points.toString() : "",
           notes: record.comment || "",
           secret_note: record.secret_note || "",
           group: resolvedGroupName 
@@ -300,7 +302,7 @@ export default function TeacherSessionsPage() {
                 return {
                   ...student,
                   decision: studentDraft.decision ?? student.decision,
-                  score: studentDraft.score !== undefined ? studentDraft.score : student.score,
+                  score: studentDraft.score !== undefined && studentDraft.score !== "0" ? studentDraft.score : student.score,
                   notes: studentDraft.notes !== undefined ? studentDraft.notes : student.notes,
                   secret_note: studentDraft.secret_note !== undefined ? studentDraft.secret_note : student.secret_note,
                 };
@@ -438,7 +440,7 @@ export default function TeacherSessionsPage() {
   }, [roster, isExam, sessionId, locked]);
 
   const handleScoreChange = (id: string, value: string) => {
-    if (value !== "" && (!/^\d*\.?\d*$/.test(value) || parseFloat(value) > MAX_SCORE)) return;
+    if (value !== "" && (!/^\d*$/.test(value) || parseFloat(value) > MAX_SCORE)) return;
     isUserModified.current = true;
     setRoster((prev) => prev.map((s) => (s.id === id ? { ...s, score: value } : s)));
   };
@@ -500,7 +502,7 @@ export default function TeacherSessionsPage() {
         status_id: statusIdMap[s.decision],
         comment: s.notes || null,
         secret_note: s.secret_note || null,
-        points: hasPoints ? (parseFloat(s.score) || 0) : 0,
+        points: hasPoints ? (Math.round(parseFloat(s.score)) || 0) : 0,
       })),
       is_exam: isExam ? 1 : 0,
     };
