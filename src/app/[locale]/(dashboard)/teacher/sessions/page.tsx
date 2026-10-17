@@ -112,7 +112,6 @@ export default function TeacherSessionsPage() {
   const [copied, setCopied] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isExam, setIsExam] = useState(false);
-  const [hasDraft, setHasDraft] = useState(false);
 
   const isUserModified = useRef(false);
   const hasNotifiedDraftRestored = useRef(false);
@@ -223,7 +222,6 @@ export default function TeacherSessionsPage() {
   useEffect(() => {
     setRoster([]);
     setLocked(false);
-    setHasDraft(false);
     isUserModified.current = false;
     hasNotifiedDraftRestored.current = false;
   }, [sessionId]);
@@ -238,7 +236,6 @@ export default function TeacherSessionsPage() {
         setLocked(true);
         if (sessionId) {
           clearSessionDraft(sessionId);
-          setHasDraft(false);
         }
       }
     }
@@ -288,7 +285,6 @@ export default function TeacherSessionsPage() {
           if (!isAlreadyRecorded && sessionId) {
             const draft = getSessionDraft(sessionId);
             if (draft && draft.students && Object.keys(draft.students).length > 0) {
-              setHasDraft(true);
               if (typeof draft.isExam === "boolean") {
                 setIsExam(draft.isExam);
               }
@@ -362,7 +358,6 @@ export default function TeacherSessionsPage() {
     onSuccess: (res) => {
       if (sessionId) {
         clearSessionDraft(sessionId);
-        setHasDraft(false);
         isUserModified.current = false;
       }
       toast.success(res?.message || t("gradesSaved") || "تم الحفظ بنجاح");
@@ -418,7 +413,6 @@ export default function TeacherSessionsPage() {
         students: buildStudentsDraft(roster),
         isExam,
       });
-      setHasDraft(true);
     }, 300);
 
     return () => clearTimeout(timer);
@@ -471,18 +465,6 @@ export default function TeacherSessionsPage() {
     if (locked) return;
     isUserModified.current = true;
     setIsExam(val);
-  };
-
-  const handleClearDraft = () => {
-    if (sessionId) {
-      clearSessionDraft(sessionId);
-      setHasDraft(false);
-      isUserModified.current = false;
-      hasNotifiedDraftRestored.current = false;
-      toast.success(t("draftCleared") || "تم مسح المسودة واستعادة البيانات الأصلية");
-      setRoster([]);
-      refetchAttendance();
-    }
   };
 
   const handleConfirm = () => {
@@ -623,8 +605,6 @@ export default function TeacherSessionsPage() {
         hasPoints={hasPoints}
         isExam={isExam}
         onIsExamChange={handleIsExamChange}
-        hasDraft={hasDraft}
-        onClearDraft={handleClearDraft}
       />
 
       {/* Confirm Submit Dialog */}
