@@ -117,6 +117,12 @@ export interface RegisterDataResponse {
   tracks: FormDataTrack[];
 }
 
+/** Response of GET /data (general app data polled by logged-in users) */
+export interface AppDataResponse {
+  /** Live recitation-correction session meeting link (null/empty when no session is open) */
+  session_24?: string | null;
+}
+
 export interface UserReactivationRequest {
   name: string;
   phone: string;

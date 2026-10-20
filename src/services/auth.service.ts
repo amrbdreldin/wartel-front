@@ -9,6 +9,7 @@ import type {
   User,
   RegisterDataResponse,
   UserReactivationRequest,
+  AppDataResponse,
 } from "@/types/auth.types";
 
 // ============================================================
@@ -153,6 +154,11 @@ export const authService = {
       return ((resp?.data ?? resp) as RegisterDataResponse);
     });
   },
+
+  // ─── General app data (live session link, …) ─────────────
+
+  getAppData: (options?: ApiCallOptions) =>
+    apiGet<ApiResponse<AppDataResponse>>("/data", options).then((r) => r.data),
 };
 
 

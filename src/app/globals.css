@@ -104,6 +104,18 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* ── Animations ────────────────────────────────── */
+  --animate-live-flash: live-flash 4s ease-in-out infinite;
+
+  @keyframes live-flash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
   @keyframes caret-blink {
     0%,
     70%,

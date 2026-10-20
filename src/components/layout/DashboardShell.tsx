@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { MobileSidebar } from "./MobileSidebar";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
+import { LiveSessionBanner } from "./LiveSessionBanner";
 import { useAuth } from "@/hooks/useAuth";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { authService } from "@/services/auth.service";
@@ -89,6 +90,8 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
           collapsed ? "lg:ps-[72px]" : "lg:ps-[260px]"
         )}
       >
+        <LiveSessionBanner />
+
         <Topbar
           onMenuClick={() => setMobileOpen(true)}
           sidebarCollapsed={collapsed}

@@ -1704,5 +1704,13 @@
     "statusClosedDesc": "This conversation has been closed",
     "page": "Page",
     "of": "of"
+  },
+  "liveSession": {
+    "title": "The recitation correction session is live now!",
+    "subtitle": "Join now to get your recitation corrected by the teacher",
+    "join": "Join session",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "copyFailed": "Couldn't copy the link"
   }
 }

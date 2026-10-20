@@ -196,3 +196,27 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
     retry: 2,
   });
 }
+
+// ─── Live recitation session link (session_24) ────────────────
+const SESSION_24_POLL_MS = 30 * 60_000; // 30 minutes
+
+/**
+ * Polls /data every 30 minutes for any logged-in user and returns
+ * the live session meeting link (or null when no session is open).
+ */
+export function useLiveSessionLinkQuery(enabled = true) {
+  const lang = useLocale() as Locale;
+
+  return useQuery<string | null>({
+    queryKey: ["app-data", "session-24"],
+    queryFn: async () => {
+      const res = await authService.getAppData({ lang });
+      const link = res?.session_24;
+      return typeof link === "string" && link.trim() ? link.trim() : null;
+    },
+    enabled,
+    refetchInterval: SESSION_24_POLL_MS,
+    refetchIntervalInBackground: true,
+    staleTime: SESSION_24_POLL_MS,
+  });
+}
