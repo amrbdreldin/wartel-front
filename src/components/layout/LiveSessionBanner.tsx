@@ -2,6 +2,7 @@
 
 import { Copy, ExternalLink, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useLiveSessionLinkQuery } from "@/hooks/api/useAuthMutations";
@@ -14,7 +15,8 @@ import { useLiveSessionLinkQuery } from "@/hooks/api/useAuthMutations";
 export function LiveSessionBanner() {
   const t = useTranslations("liveSession");
   const { isAuthenticated } = useAuth();
-  const { data: link } = useLiveSessionLinkQuery(isAuthenticated);
+  const pathname = usePathname();
+  const { data: link } = useLiveSessionLinkQuery(pathname, isAuthenticated);
 
   if (!isAuthenticated || !link) return null;
 

@@ -198,25 +198,28 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
 }
 
 // ─── Live recitation session link (session_24) ────────────────
-const SESSION_24_POLL_MS = 30 * 60_000; // 30 minutes
-
 /**
- * Polls /data every 30 minutes for any logged-in user and returns
- * the live session meeting link (or null when no session is open).
+ * Fetches /data once per page visit (navigation or refresh) for logged-in users
+ * and returns the live session meeting link (or null when no session is open).
+ * No caching, polling or retries — `pathname` in the key triggers a single
+ * fresh request on every page change.
  */
-export function useLiveSessionLinkQuery(enabled = true) {
+export function useLiveSessionLinkQuery(pathname: string, enabled = true) {
   const lang = useLocale() as Locale;
 
   return useQuery<string | null>({
-    queryKey: ["app-data", "session-24"],
+    queryKey: ["app-data", "session-24", pathname],
     queryFn: async () => {
       const res = await authService.getAppData({ lang });
       const link = res?.session_24;
       return typeof link === "string" && link.trim() ? link.trim() : null;
     },
     enabled,
-    refetchInterval: SESSION_24_POLL_MS,
-    refetchIntervalInBackground: true,
-    staleTime: SESSION_24_POLL_MS,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: (prev) => prev,
   });
 }
