@@ -28,13 +28,13 @@ function getGradeLabel(
   max: number,
   t: (key: string) => string
 ): { label: string; color: string } {
-  if (!score || score.trim() === "") return { label: t("gradeAbsent") || "غائب 🔴", color: "text-destructive" };
+  if (!score || score.trim() === "") return { label: t("gradeNotRecorded") || "لم تُرصد بعد", color: "text-muted-foreground" };
   const pct = (parseFloat(score) / max) * 100;
   if (pct >= 90) return { label: t("gradeExcellent") || "ممتاز 🟢", color: "text-success-600" };
   if (pct >= 75) return { label: t("gradeVeryGood") || "جيد جداً 🟡", color: "text-warning-600" };
   if (pct >= 65) return { label: t("gradeGood") || "جيد 🟠", color: "text-amber-600" };
   if (pct >= 50) return { label: t("gradePass") || "مقبول 🔵", color: "text-info-600" };
-  return { label: t("gradeFail") || "ضعيف 🔴", color: "text-destructive" };
+  return { label: t("gradeFail") || "تحتاج لمزيد من الجهد 🌱", color: "text-orange-600" };
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────

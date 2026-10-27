@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   AlertTriangle, ArrowLeft, ArrowRight, Award, Check, CheckCircle2, 
   ChevronLeft, ClipboardCheck, CornerDownLeft, HelpCircle, 
-  Info, MessageSquareQuote, RotateCcw, Trophy, Volume2, X, XCircle
+  Info, MessageSquareQuote, RotateCcw, Trophy, Volume2, TrendingUp, X, XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -161,10 +161,10 @@ export default function ExamResultPage() {
             <span className={cn(
               "px-4 py-1.5 rounded-full text-xs font-black border inline-flex items-center gap-1.5 shadow-sm",
               isFailed
-                ? "bg-destructive/10 text-destructive border-destructive/20"
+                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
                 : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
             )}>
-              {isFailed ? <XCircle className="w-4 h-4" /> : <Award className="w-4 h-4" />}
+              {isFailed ? <TrendingUp className="w-4 h-4" /> : <Award className="w-4 h-4" />}
               {scorePercent >= 90 ? t("student.excellentHigh") : scorePercent >= 50 ? t("student.passed") : t("student.fail")}
             </span>
           </div>

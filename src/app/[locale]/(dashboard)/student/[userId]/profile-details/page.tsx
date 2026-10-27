@@ -768,7 +768,7 @@ export default function StudentProfileDetailsPage() {
                                     "px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase shrink-0",
                                     isPassed
                                       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                                      : "bg-destructive/10 text-destructive border-destructive/20"
+                                      : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
                                   )}>
                                     {isPassed 
                                       ? (t("student.passed") || "Passed")
@@ -789,7 +789,7 @@ export default function StudentProfileDetailsPage() {
 
                                   <span className={cn(
                                     "text-lg font-black font-sans leading-none",
-                                    isPassed ? "text-emerald-500" : "text-destructive"
+                                    isPassed ? "text-emerald-500" : "text-amber-500"
                                   )}>
                                     {pct}%
                                   </span>

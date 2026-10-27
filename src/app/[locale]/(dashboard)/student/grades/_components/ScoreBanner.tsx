@@ -31,7 +31,7 @@ export function ScoreBanner({ averageScore }: { averageScore: number }) {
           <div className="text-6xl md:text-7xl font-black mb-3 text-white drop-shadow-md">{averageScore}%</div>
           <span className={cn(
             "bg-white px-5 py-2 font-black rounded-full shadow-lg text-sm flex items-center gap-2",
-            averageScore < 50 ? "text-destructive" : "text-success-600"
+            averageScore < 50 ? "text-amber-600" : "text-success-600"
           )}>
             {t("student.overallRating")} {averageScore >= 90 ? t("student.excellentHigh") : averageScore >= 50 ? t("student.passed") : t("student.fail")} 
           </span>

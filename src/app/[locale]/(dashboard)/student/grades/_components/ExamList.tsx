@@ -79,7 +79,7 @@ export function ExamList({
                   <span className={cn(
                     "px-4 py-2 font-bold rounded-full text-sm border relative z-20",
                     isFailed
-                      ? "bg-destructive/10 text-destructive border-destructive/20"
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
                       : "bg-primary/10 text-primary border-primary/20"
                   )}>
                      {percentage >= 90 ? t("student.excellentHigh") : percentage >= 50 ? t("student.passed") : t("student.fail")}

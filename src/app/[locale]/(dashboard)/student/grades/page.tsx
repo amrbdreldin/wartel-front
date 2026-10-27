@@ -1,6 +1,6 @@
 "use client";
 
-import { Trophy, Loader2 } from "lucide-react";
+import { Trophy, Loader2, Sprout } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useQueries, useQuery } from "@tanstack/react-query";
@@ -125,10 +125,22 @@ export default function GradesPage() {
         </h3>
       </div>
 
-      <div className="pb-16">
-        <ScoreBanner averageScore={averageScore} />
-        <ExamList examResults={examResults} totalMarksByExam={totalMarksByExam} />
-      </div>
+      {examResults.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center py-16 px-6 border border-dashed border-border/80 rounded-3xl bg-muted/20">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-accent/20 to-accent/5 text-accent border border-accent/15 flex items-center justify-center mb-5">
+            <Sprout className="h-8 w-8" />
+          </div>
+          <h4 className="text-lg font-extrabold text-foreground mb-2">{t("student.noExamsTakenYet")}</h4>
+          <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
+            {t("student.noExamsTakenYetDesc")}
+          </p>
+        </div>
+      ) : (
+        <div className="pb-16">
+          <ScoreBanner averageScore={averageScore} />
+          <ExamList examResults={examResults} totalMarksByExam={totalMarksByExam} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Trophy, ArrowLeft, ArrowRight, Award, AlertCircle } from "lucide-react";
+import { Trophy, ArrowLeft, ArrowRight, Award, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -44,19 +44,19 @@ export function LatestGradeCard({ lastGrade, locale }: LatestGradeCardProps) {
           <div className={cn(
             "relative w-28 h-28 rounded-full flex flex-col items-center justify-center border-4 shadow-sm transition-all duration-500 group-hover:scale-105",
             isFailed
-              ? "border-destructive/20 bg-destructive/5 dark:bg-destructive/10"
+              ? "border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10"
               : "border-accent/20 bg-accent/5 dark:bg-accent/10"
           )}>
             {/* Elegant glowing background layer inside gauge */}
             <div className={cn(
               "absolute inset-0 rounded-full blur-md opacity-20 mix-blend-screen pointer-events-none",
-              isFailed ? "bg-destructive" : "bg-accent"
+              isFailed ? "bg-amber-500" : "bg-accent"
             )} />
 
             {/* Score */}
             <span className={cn(
               "text-4xl font-black font-sans tracking-tight relative z-10 leading-none",
-              isFailed ? "text-destructive font-bold" : "text-accent"
+              isFailed ? "text-amber-600 dark:text-amber-400" : "text-accent"
             )}>
               {formatMark(lastGrade.score)}
             </span>
@@ -70,9 +70,9 @@ export function LatestGradeCard({ lastGrade, locale }: LatestGradeCardProps) {
           {/* Pass/Fail Status Pill */}
           <div className="mt-4">
             {isFailed ? (
-              <span className="bg-destructive/10 text-destructive border border-destructive/20 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 animate-pulse shadow-[0_2px_10px_rgba(239,68,68,0.05)]">
-                <AlertCircle className="w-3.5 h-3.5" />
-                {t("student.fail") || "راسب"}
+              <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 shadow-[0_2px_10px_rgba(245,158,11,0.05)]">
+                <TrendingUp className="w-3.5 h-3.5" />
+                {t("student.fail") || "تحتاج لمزيد من الجهد"}
               </span>
             ) : (
               <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 shadow-[0_2px_10px_rgba(16,185,129,0.05)]">
