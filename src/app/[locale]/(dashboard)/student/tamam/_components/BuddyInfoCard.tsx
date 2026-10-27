@@ -1,10 +1,11 @@
 "use client";
 
-import { UserCheck, Users, Info } from "lucide-react";
+import { UserCheck, Users, Info, MessageCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getWhatsAppLink } from "@/utils/phone";
 
 interface BuddyInfoCardProps {
   buddy: any;
@@ -35,9 +36,24 @@ export function BuddyInfoCard({ buddy, tamamCard }: BuddyInfoCardProps) {
         <h5 className="text-xl font-bold text-foreground mb-1 relative z-10">
           {t("student.rafeqaName")}: {buddy?.full_name}
         </h5>
-        <p className="text-muted-foreground text-sm font-medium mb-6 relative z-10" dir="ltr">
-          {buddy?.phone || "—"}
-        </p>
+        <div className="flex items-center gap-2 mb-6 relative z-10">
+          <p className="text-muted-foreground text-sm font-medium" dir="ltr">
+            {buddy?.phone || "—"}
+          </p>
+          {getWhatsAppLink(buddy?.phone) && (
+            <a
+              href={getWhatsAppLink(buddy?.phone)!}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("student.contactViaWhatsapp")}
+              aria-label={t("student.contactViaWhatsapp")}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-success-500/10 text-success-600 hover:bg-success-500/20 text-xs font-bold transition-colors"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              {t("student.whatsapp")}
+            </a>
+          )}
+        </div>
 
         <div className="w-full border-t border-border/50 mb-6 relative z-10"></div>
 

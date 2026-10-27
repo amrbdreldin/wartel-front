@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 interface TamamActionCardProps {
-  onConfirm: (pastChecked: boolean, presentChecked: boolean) => void;
+  onConfirm: (pastChecked: boolean, presentChecked: boolean, withoutBuddyChecked: boolean) => void;
   isSubmitting: boolean;
   isSuccess: boolean;
   presentStatus?: string;
@@ -15,9 +15,17 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
   const t = useTranslations();
   const [pastChecked, setPastChecked] = useState(false);
   const [presentChecked, setPresentChecked] = useState(false);
+  const [withoutBuddyChecked, setWithoutBuddyChecked] = useState(false);
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked);
+  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked);
+
+  // "Recited without companion" is exclusive with the past/present confirmations
+  const toggleWithoutBuddy = () => {
+    setWithoutBuddyChecked(prev => !prev);
+    setPastChecked(false);
+    setPresentChecked(false);
+  };
 
   return (
     <div className="bg-card rounded-3xl p-8 border border-border/50 shadow-sm h-full">
@@ -61,7 +69,7 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                 <button
                   type="button"
                   disabled={!isPending}
-                  onClick={() => setPastChecked(prev => !prev)}
+                  onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); }}
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                     pastChecked
@@ -93,7 +101,7 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                 <button
                   type="button"
                   disabled={!isPending}
-                  onClick={() => setPresentChecked(prev => !prev)}
+                  onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); }}
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                     presentChecked
@@ -120,12 +128,44 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                       : (t("student.tamamPresentConfirmation") || "أؤكد أن الرفيقة سمعت ورد الحاضر")}
                   </span>
                 </button>
+
+                {/* Recited Without Companion Card */}
+                {!isStudentChild && (
+                  <button
+                    type="button"
+                    disabled={!isPending}
+                    onClick={toggleWithoutBuddy}
+                    className={cn(
+                      "sm:col-span-2 flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
+                      withoutBuddyChecked
+                        ? "border-primary bg-primary/5 text-foreground shadow-sm"
+                        : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
+                      !isPending && "opacity-60 cursor-not-allowed"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                      withoutBuddyChecked
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-muted-foreground/40 bg-transparent"
+                    )}>
+                      {withoutBuddyChecked && (
+                        <svg className="w-3 h-3 stroke-current stroke-[3]" fill="none" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm font-bold text-foreground">
+                      {t("student.tamamWithoutBuddyConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لديها"}
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
               <button
-                onClick={() => onConfirm(pastChecked, presentChecked)}
+                onClick={() => onConfirm(pastChecked, presentChecked, withoutBuddyChecked)}
                 disabled={isButtonDisabled}
                 className={cn(
                   "w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 px-6 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 shadow-sm",

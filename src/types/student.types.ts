@@ -216,6 +216,7 @@ export interface TamamSubmissionRequest {
   persent_status_id: number;
   present_status_id?: number;
   pair_id?: string | null;
+  recited_without_buddy?: boolean;
 }
 
 export interface DashboardAlert {

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Clock, UserPlus, Loader2, CheckCircle2, Calendar } from "lucide-react";
+import { Phone, Clock, UserPlus, Loader2, CheckCircle2, Calendar, MessageCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { studentService } from "@/services/student.service";
 import type { AvailableBuddy } from "@/types/student.types";
+import { getWhatsAppLink } from "@/utils/phone";
 
 // ============================================================
 // Buddy Card – Shows an available buddy with their times
@@ -93,6 +94,19 @@ export function BuddyCard({ buddy, groupId, onRequestSent }: BuddyCardProps) {
             <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
               <Phone className="h-3 w-3 shrink-0" />
               <span className="font-medium" dir="ltr">{buddy.phone}</span>
+              {getWhatsAppLink(buddy.phone) && (
+                <a
+                  href={getWhatsAppLink(buddy.phone)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={t("student.contactViaWhatsapp")}
+                  aria-label={t("student.contactViaWhatsapp")}
+                  className="inline-flex items-center gap-1 ms-1 px-2 py-0.5 rounded-full bg-success-500/10 text-success-600 hover:bg-success-500/20 font-bold transition-colors"
+                >
+                  <MessageCircle className="h-3 w-3" />
+                  {t("student.whatsapp")}
+                </a>
+              )}
             </div>
           </div>
         </div>

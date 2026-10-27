@@ -4,11 +4,12 @@ import { studentService } from "@/services/student.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     CheckCircle2, Heart, Info, Loader2,
-    Users, UserCheck, X, Phone
+    Users, UserCheck, X, Phone, MessageCircle
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getWhatsAppLink } from "@/utils/phone";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import type { TamamSubmissionRequest } from "@/types/student.types";
@@ -46,14 +47,22 @@ export function TamamModal({
 
   const [pastChecked, setPastChecked] = useState(false);
   const [presentChecked, setPresentChecked] = useState(false);
+  const [withoutBuddyChecked, setWithoutBuddyChecked] = useState(false);
 
   const effectiveStudentId = studentId ?? user?.id;
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked);
+  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked);
 
   // If companion name is missing or explicitly has no buddy -> perform self tamam
   const isSelfTamam = !companionName || hasBuddy === false;
+
+  // "Recited without companion" is exclusive with the past/present confirmations
+  const toggleWithoutBuddy = () => {
+    setWithoutBuddyChecked(prev => !prev);
+    setPastChecked(false);
+    setPresentChecked(false);
+  };
 
   // Mutation for submitting Tamam
   const submitTamamMutation = useMutation({
@@ -98,6 +107,7 @@ export function TamamModal({
       past_status_id: pastChecked ? 2 : 3,
       persent_status_id: presentChecked ? 2 : 3,
       present_status_id: presentChecked ? 2 : 3,
+      recited_without_buddy: !isSelfTamam && withoutBuddyChecked,
     });
   };
 
@@ -108,6 +118,7 @@ export function TamamModal({
         setIsSubmitting(false);
         setPastChecked(false);
         setPresentChecked(false);
+        setWithoutBuddyChecked(false);
     }, 300);
   };
 
@@ -189,6 +200,19 @@ export function TamamModal({
                                 <a href={`tel:${companionPhone}`} dir="ltr" className="hover:text-primary transition-colors font-bold">
                                   {companionPhone}
                                 </a>
+                                {getWhatsAppLink(companionPhone) && (
+                                  <a
+                                    href={getWhatsAppLink(companionPhone)!}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title={t("student.contactViaWhatsapp")}
+                                    aria-label={t("student.contactViaWhatsapp")}
+                                    className="inline-flex items-center gap-1 ms-1 px-2 py-0.5 rounded-full bg-success-500/10 text-success-600 hover:bg-success-500/20 font-bold transition-colors"
+                                  >
+                                    <MessageCircle className="w-3.5 h-3.5" />
+                                    {t("student.whatsapp")}
+                                  </a>
+                                )}
                               </div>
                             )}
                             <p className="text-primary font-bold text-sm tracking-wide mt-2">{t("student.confirmAttendance") || "تأكيد حضور الرفيقة"}</p>
@@ -223,7 +247,7 @@ export function TamamModal({
                                     role="checkbox"
                                     aria-checked={pastChecked}
                                     disabled={!isPending}
-                                    onClick={() => setPastChecked(prev => !prev)}
+                                    onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); }}
                                     className={cn(
                                         "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         pastChecked
@@ -255,7 +279,7 @@ export function TamamModal({
                                     role="checkbox"
                                     aria-checked={presentChecked}
                                     disabled={!isPending}
-                                    onClick={() => setPresentChecked(prev => !prev)}
+                                    onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); }}
                                     className={cn(
                                         "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         presentChecked
@@ -280,6 +304,40 @@ export function TamamModal({
                                         {isSelfTamam ? (t("student.tamamPresentConfirmationChild") || "أؤكد أنني قمت بتسميع ورد الحاضر") : (t("student.tamamPresentConfirmation") || "أؤكد أن الرفيقة سمعت ورد الحاضر")}
                                     </span>
                                 </button>
+
+                                {/* Recited Without Companion Card */}
+                                {!isSelfTamam && (
+                                    <button
+                                        type="button"
+                                        role="checkbox"
+                                        aria-checked={withoutBuddyChecked}
+                                        disabled={!isPending}
+                                        onClick={toggleWithoutBuddy}
+                                        className={cn(
+                                            "sm:col-span-2 flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
+                                            withoutBuddyChecked
+                                                ? "border-primary bg-primary/5 text-foreground shadow-sm"
+                                                : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
+                                            !isPending && "opacity-60 cursor-not-allowed"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                                            withoutBuddyChecked
+                                                ? "border-primary bg-primary text-primary-foreground"
+                                                : "border-muted-foreground/40 bg-transparent"
+                                        )}>
+                                            {withoutBuddyChecked && (
+                                                <svg className="w-3 h-3 stroke-current stroke-[3]" fill="none" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <span className="text-sm font-bold text-foreground">
+                                            {t("student.tamamWithoutBuddyConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لديها"}
+                                        </span>
+                                    </button>
+                                )}
                             </div>
                         </div>
 

@@ -1393,3 +1393,16 @@ export const isValidPhoneByPattern = (phoneNumber: string | undefined | null) =>
   const normalized = String(phoneNumber).replace(/\s/g, '');
   return phonePatterns.some((entry) => entry.pattern.test(normalized));
 };
+
+/**
+ * Builds a direct WhatsApp chat link (wa.me) for a phone number.
+ * Local Egyptian numbers (e.g. 01012345678) are converted to international format.
+ */
+export const getWhatsAppLink = (phoneNumber: string | undefined | null) => {
+  if (!phoneNumber) return null;
+  let digits = String(phoneNumber).replace(/[^\d+]/g, '');
+  if (digits.startsWith('+')) digits = digits.slice(1);
+  else if (digits.startsWith('00')) digits = digits.slice(2);
+  else if (digits.startsWith('0')) digits = `20${digits.slice(1)}`;
+  return digits ? `https://wa.me/${digits}` : null;
+};

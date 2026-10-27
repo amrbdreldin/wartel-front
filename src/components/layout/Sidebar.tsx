@@ -80,11 +80,12 @@ export function Sidebar({ collapsed = false, locale }: SidebarProps) {
               {group.items.map((item) => {
                 const resolvedHref = item.href.replace("[userId]", String(user?.id || ""));
                 const href = `/${locale}${resolvedHref}`;
-                // Check if active: match exact or starts-with for nested routes
+                // Check if active: match exact, or nested routes for non-root items
+                // (root dashboard items like "/teacher" must match exactly)
+                const isRootItem = resolvedHref.split("/").filter(Boolean).length <= 1;
                 const isActive =
                   pathname === href ||
-                  (resolvedHref !== `/${activeRole}` &&
-                    pathname.startsWith(href));
+                  (!isRootItem && pathname.startsWith(`${href}/`));
 
                 // Compute dynamic badge and red dot
                 const isMessagesLink = item.labelKey === "nav.messages";
