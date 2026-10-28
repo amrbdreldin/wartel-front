@@ -144,7 +144,7 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
 
   return (
     <header
-      className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-background/95 backdrop-blur-sm px-4 lg:px-6"
+      className="sticky top-0 z-40 flex h-16 min-w-0 items-center gap-2 sm:gap-3 border-b border-border bg-background/95 backdrop-blur-sm px-4 lg:px-6"
     >
       <Button
         variant="ghost"
@@ -170,8 +170,8 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Action buttons */}
-      <div className="flex items-center gap-1.5 sm:gap-2">
+      {/* Action buttons – min-w-0 lets the role-switch button shrink so the bar never overflows on mobile */}
+      <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
         {/* Return to Parent / Teacher Button */}
         {(hasParentSession || isDirectTeacherAsStudent || isDirectParentAsStudent) && (
           <Button
@@ -184,10 +184,10 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
                 ? () => router.push(`/${locale}/teacher`)
                 : () => router.push(`/${locale}/parent`)
             }
-            className="h-9 gap-1 sm:gap-1.5 px-2 sm:px-3 border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary transition-all font-semibold rounded-xl text-[10px] sm:text-xs cursor-pointer shadow-sm shrink-0 animate-in fade-in duration-300"
+            className="h-9 gap-1 sm:gap-1.5 px-2 sm:px-3 border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary transition-all font-semibold rounded-xl text-[10px] sm:text-xs cursor-pointer shadow-sm h-auto min-h-9 py-1 min-w-0 shrink whitespace-normal sm:whitespace-nowrap animate-in fade-in duration-300"
           >
             <ArrowLeftRight className="h-3.5 w-3.5" />
-            <span>
+            <span className="text-start leading-tight">
               {hasParentSession
                 ? isRestoringTeacher
                   ? t("backToTeacher")
@@ -205,10 +205,10 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
             variant="outline"
             size="sm"
             onClick={() => router.push(`/${locale}/student`)}
-            className="h-9 gap-1 sm:gap-1.5 px-2 sm:px-3 border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary transition-all font-semibold rounded-xl text-[10px] sm:text-xs cursor-pointer shadow-sm shrink-0 animate-in fade-in duration-300"
+            className="h-9 gap-1 sm:gap-1.5 px-2 sm:px-3 border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary transition-all font-semibold rounded-xl text-[10px] sm:text-xs cursor-pointer shadow-sm h-auto min-h-9 py-1 min-w-0 shrink whitespace-normal sm:whitespace-nowrap animate-in fade-in duration-300"
           >
             <GraduationCap className="h-3.5 w-3.5" />
-            <span>{t("switchToStudent")}</span>
+            <span className="text-start leading-tight">{t("switchToStudent")}</span>
           </Button>
         )}
 
@@ -371,7 +371,7 @@ export function Topbar({ onMenuClick, onToggleCollapse }: TopbarProps) {
         {/* User menu */}
         <Link
           href={`/${locale}/${activeRole}`}
-          className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="flex shrink-0 items-center gap-2 rounded-lg px-1 sm:px-2 py-1.5 hover:bg-muted transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">

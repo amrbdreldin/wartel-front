@@ -87,7 +87,7 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
       {/* Main Content */}
       <div
         className={cn(
-          "flex flex-col transition-all duration-300",
+          "flex min-w-0 flex-col transition-all duration-300",
           collapsed ? "lg:ps-[72px]" : "lg:ps-[260px]"
         )}
       >
