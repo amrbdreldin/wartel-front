@@ -197,22 +197,31 @@ export function useRegisterFormDataQuery(roleId?: string | number | null) {
   });
 }
 
-// ─── Live recitation session link (session_24) ────────────────
+// ─── Live recitation session links (session_24 / session_child_24) ────
+export interface LiveSessionLinks {
+  adult: string | null;
+  child: string | null;
+}
+
+const cleanLink = (link: unknown) =>
+  typeof link === "string" && link.trim() ? link.trim() : null;
+
 /**
  * Fetches /data once per page visit (navigation or refresh) for logged-in users
- * and returns the live session meeting link (or null when no session is open).
+ * and returns the live session meeting links (or null when no session is open).
  * No caching, polling or retries — `pathname` in the key triggers a single
  * fresh request on every page change.
  */
 export function useLiveSessionLinkQuery(pathname: string, enabled = true) {
   const lang = useLocale() as Locale;
 
-  return useQuery<string | null>({
+  return useQuery<LiveSessionLinks | null>({
     queryKey: ["app-data", "session-24", pathname],
     queryFn: async () => {
       const res = await authService.getAppData({ lang });
-      const link = res?.session_24;
-      return typeof link === "string" && link.trim() ? link.trim() : null;
+      const adult = cleanLink(res?.session_24);
+      const child = cleanLink(res?.session_child_24);
+      return adult || child ? { adult, child } : null;
     },
     enabled,
     staleTime: 0,

@@ -23,13 +23,13 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
 
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 start-6 z-50 animate-in fade-in duration-500">
+    <div className="fixed bottom-4 sm:bottom-6 inset-s-3 sm:inset-s-6 z-50 animate-in fade-in duration-500">
       <a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          "flex items-center justify-center gap-2 h-12 w-12 sm:w-auto sm:px-4 rounded-full",
+          "flex items-center justify-center gap-2 h-10 w-10 sm:h-12 sm:w-auto sm:px-4 rounded-full",
           "bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white",
           "shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30",
           "hover:-translate-y-1 active:translate-y-0 transition-all duration-300 ease-out",
@@ -39,7 +39,7 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
         title={t("whatsappFloating") || "Contact us on WhatsApp"}
       >
         <svg 
-          className="w-6 h-6 fill-current flex-shrink-0 animate-pulse duration-1000" 
+          className="w-5 h-5 sm:w-6 sm:h-6 fill-current flex-shrink-0 animate-pulse duration-1000" 
           viewBox="0 0 24 24" 
           xmlns="http://www.w3.org/2000/svg"
         >

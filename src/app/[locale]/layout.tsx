@@ -51,9 +51,10 @@ export async function generateMetadata({
   const host = headersList.get("host") || "";
   const saasConfig = await getTenantConfig(host);
   const { tenant_metadata, seo_and_metadata } = saasConfig;
-  const logoUrl = saasConfig.branding.logos.light_mode_logo_url || "/icon.png";
+  const shareImageUrl = seo_and_metadata.default_share_image_url || "/og-image.jpg";
 
   return {
+    metadataBase: host ? new URL(`https://${host}`) : undefined,
     title: {
       template: `%s | ${tenant_metadata.academy_name}`,
       default: `${tenant_metadata.academy_name}`,
@@ -92,7 +93,7 @@ export async function generateMetadata({
       siteName: tenant_metadata.academy_name,
       images: [
         {
-          url: logoUrl,
+          url: shareImageUrl,
           width: 1200,
           height: 630,
           alt: tenant_metadata.academy_name,
@@ -105,7 +106,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: tenant_metadata.academy_name,
       description: seo_and_metadata.default_meta_description || "منصة قرآنية متكاملة لإدارة الحلقات والتسميع والمتابعة",
-      images: [logoUrl],
+      images: [shareImageUrl],
     },
     alternates: {
       canonical: `https://${host}/${locale}`,

@@ -40,7 +40,8 @@ import {
   Loader2,
   Mail,
   Save,
-  Camera
+  Camera,
+  Download
 } from "lucide-react";
 
 // Helper to resolve media URLs
@@ -85,6 +86,9 @@ export default function StudentProfileDetailsPage() {
   // Profile Avatar State & Ref
   const [avatar, setAvatar] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Certificate currently being downloaded (shows a spinner on its button)
+  const [downloadingCertId, setDownloadingCertId] = useState<number | string | null>(null);
 
   // Fetch detailed profile using react-query
   const { data: profileResponse, isLoading, isError, error } = useQuery({
@@ -253,6 +257,33 @@ export default function StudentProfileDetailsPage() {
       case UserRole.STUDENT:
       default:
         return t("student.profileDetails.backToStudent") || "Back to Dashboard";
+    }
+  };
+
+  // Download a certificate (image or PDF) through /api/download — storage has no CORS,
+  // so the browser can't fetch it directly. Fetching as a blob lets us show a spinner.
+  const handleCertificateDownload = async (certId: number | string, fileUrl: string, title: string) => {
+    const url = resolveMediaUrl(fileUrl);
+    if (!url) return;
+    const name = title || "certificate";
+    setDownloadingCertId(certId);
+    try {
+      const res = await fetch(`/api/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const ext = url.split("?")[0].split(".").pop()?.toLowerCase();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = ext && ext.length <= 5 ? `${name}.${ext}` : name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      toast.error(t("common.error") || "Failed to download file.");
+    } finally {
+      setDownloadingCertId(null);
     }
   };
 
@@ -1105,14 +1136,27 @@ export default function StudentProfileDetailsPage() {
                                   </p>
                                 </div>
                                 {cert.file_url && (
-                                  <a
-                                    href={cert.file_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-all"
-                                  >
-                                    {t("student.profileDetails.viewFile") || "View"}
-                                  </a>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <a
+                                      href={resolveMediaUrl(cert.file_url)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-all"
+                                    >
+                                      {t("student.profileDetails.viewFile") || "View"}
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCertificateDownload(cert.id, cert.file_url!, cert.title)}
+                                      disabled={downloadingCertId === cert.id}
+                                      className="px-3 py-1.5 border border-primary text-primary text-xs font-bold rounded-lg hover:bg-primary/10 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+                                    >
+                                      {downloadingCertId === cert.id
+                                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        : <Download className="w-3.5 h-3.5" />}
+                                      {t("student.profileDetails.downloadFile") || "Download"}
+                                    </button>
+                                  </div>
                                 )}
                               </div>
                             ))}

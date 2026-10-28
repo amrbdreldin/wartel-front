@@ -1,33 +1,24 @@
 "use client";
 
-import { Copy, ExternalLink, Radio } from "lucide-react";
+import { Baby, ExternalLink, Radio } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useLiveSessionLinkQuery } from "@/hooks/api/useAuthMutations";
 
 // ============================================================
 // LiveSessionBanner – flashing announcement for the open
-// recitation-correction session (session_24). Hidden when no link.
+// recitation-correction sessions (session_24 for adults,
+// session_child_24 for children). Hidden when no link.
 // ============================================================
 
 export function LiveSessionBanner() {
   const t = useTranslations("liveSession");
   const { isAuthenticated } = useAuth();
   const pathname = usePathname();
-  const { data: link } = useLiveSessionLinkQuery(pathname, isAuthenticated);
+  const { data: links } = useLiveSessionLinkQuery(pathname, isAuthenticated);
 
-  if (!isAuthenticated || !link) return null;
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      toast.success(t("copied"));
-    } catch {
-      toast.error(t("copyFailed"));
-    }
-  };
+  if (!isAuthenticated || !links) return null;
 
   return (
     <div
@@ -58,24 +49,29 @@ export function LiveSessionBanner() {
         </div>
       </div>
 
-      <div className="relative flex shrink-0 items-center gap-2">
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-bold text-wartel-primary-dark shadow-md transition hover:scale-105 hover:bg-wartel-secondary hover:text-white"
-        >
-          <ExternalLink className="size-4" />
-          {t("join")}
-        </a>
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="inline-flex items-center gap-2 rounded-lg border-2 border-white px-4 py-2 text-sm font-bold text-white transition hover:bg-white/15"
-        >
-          <Copy className="size-4" />
-          {t("copy")}
-        </button>
+      <div className="relative flex shrink-0 flex-wrap items-center justify-center gap-2">
+        {links.adult && (
+          <a
+            href={links.adult}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-bold text-wartel-primary-dark shadow-md transition hover:scale-105 hover:bg-wartel-secondary hover:text-white"
+          >
+            <ExternalLink className="size-4" />
+            {t("join")}
+          </a>
+        )}
+        {links.child && (
+          <a
+            href={links.child}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border-2 border-white px-4 py-2 text-sm font-bold text-white transition hover:bg-white/15"
+          >
+            <Baby className="size-4" />
+            {t("joinChild")}
+          </a>
+        )}
       </div>
     </div>
   );

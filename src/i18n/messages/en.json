@@ -725,6 +725,7 @@
       "noCertifications": "No certifications found.",
       "noWarnings": "No warnings found.",
       "viewFile": "View File",
+      "downloadFile": "Download",
       "startDate": "Start Date",
       "endDate": "End Date",
       "reason": "Reason",
@@ -1715,8 +1716,6 @@
     "title": "The recitation correction session is live now!",
     "subtitle": "Join now to get your recitation corrected by the teacher",
     "join": "Join session",
-    "copy": "Copy link",
-    "copied": "Link copied",
-    "copyFailed": "Couldn't copy the link"
+    "joinChild": "Children's session"
   }
 }

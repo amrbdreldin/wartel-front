@@ -1,6 +1,6 @@
 import { apiGet, type ApiCallOptions } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
-import type { FaqItem } from "@/types/faq.types";
+import type { FaqCategory } from "@/types/faq.types";
 
 // ============================================================
 // FAQ Service
@@ -8,5 +8,5 @@ import type { FaqItem } from "@/types/faq.types";
 
 export const faqService = {
   getFaqs: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<FaqItem[]>>("/faqs", options),
+    apiGet<ApiResponse<FaqCategory[]>>("/faqs", options),
 };

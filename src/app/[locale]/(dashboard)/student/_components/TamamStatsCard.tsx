@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown, Phone, Copy } from "lucide-react";
+import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown, Phone, Copy, MessageCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getWhatsAppLink } from "@/utils/phone";
 import type { StudentDashboardGroup, DashboardTamamCard } from "@/types/student.types";
 
 interface TamamStatsCardProps {
@@ -70,6 +71,9 @@ export function TamamStatsCard({
     const groupTamam = activeTargetGroup.tamam_card || tamamCard;
     const buddy = groupTamam?.buddy;
     const isCompleted = checkIsCompleted(groupTamam);
+    // Same rule TamamModal uses to lock the form: any non-pending status means tamam was already recorded
+    const presentStatus = groupTamam?.status?.presentStatus;
+    const isTamamRecorded = isCompleted || (!!presentStatus && presentStatus.toLowerCase() !== "pending");
     const hasAssignedBuddy = !!buddy?.full_name;
     const isBuddyGroup = Boolean(
       activeTargetGroup.has_buddy &&
@@ -180,6 +184,18 @@ export function TamamStatsCard({
                       >
                         <Phone className="w-3.5 h-3.5" />
                       </a>
+                      {getWhatsAppLink(buddy.phone) && (
+                        <a
+                          href={getWhatsAppLink(buddy.phone)!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg bg-success-500/10 hover:bg-success-500/20 text-success-600 transition-colors"
+                          title={t("student.contactViaWhatsapp")}
+                          aria-label={t("student.contactViaWhatsapp")}
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </a>
+                      )}
                       <button
                         type="button"
                         onClick={() => {
@@ -232,7 +248,7 @@ export function TamamStatsCard({
           {/* Tamam Status & Action */}
           {activeTargetGroup.has_tamam ? (
             <div className="space-y-2 pt-1">
-              {isCompleted && (
+              {isTamamRecorded && (
                 <div className="w-full py-2.5 text-center rounded-2xl font-extrabold text-xs border flex items-center justify-center gap-2 shadow-xs transition-all duration-300 bg-success-500/10 text-success-600 dark:text-success-400 border-success-500/20">
                   <CheckCircle2 className="w-4 h-4 text-success-500 animate-bounce" />
                   <span>
@@ -241,7 +257,7 @@ export function TamamStatsCard({
                 </div>
               )}
 
-              {(isStudentChild || !hasBuddyFeature || hasAssignedBuddy) && !isCompleted && (
+              {(isStudentChild || !hasBuddyFeature || hasAssignedBuddy) && !isTamamRecorded && (
                 <button
                   type="button"
                   onClick={() => onShowTamamModal(activeTargetGroup)}

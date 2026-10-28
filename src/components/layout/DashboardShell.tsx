@@ -62,7 +62,8 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
 
         fcmSyncedRef.current = true;
       } catch (err) {
-        console.error("[FCM Sync] Failed to sync FCM token:", err);
+        // Non-critical background sync – retried on next mount, so don't surface as an error
+        console.warn("[FCM Sync] Failed to sync FCM token:", err);
       }
     };
 

@@ -30,14 +30,14 @@ export function ScrollToTop() {
   };
 
   return (
-    <div className={cn("fixed bottom-20 sm:bottom-6 end-6 z-50 transition-opacity duration-300", isVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
+    <div className={cn("fixed bottom-4 sm:bottom-6 inset-e-3 sm:inset-e-6 z-50 transition-opacity duration-300", isVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
       <Button
         onClick={scrollToTop}
         size="icon"
-        className="h-12 w-12 rounded-full gradient-primary text-white shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+        className="h-10 w-10 sm:h-12 sm:w-12 rounded-full gradient-primary text-white shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
         aria-label="Scroll to top"
       >
-        <ArrowUp className="h-6 w-6" />
+        <ArrowUp className="h-5 w-5 sm:h-6 sm:w-6" />
       </Button>
     </div>
   );

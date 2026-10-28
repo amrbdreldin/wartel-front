@@ -121,6 +121,8 @@ export interface RegisterDataResponse {
 export interface AppDataResponse {
   /** Live recitation-correction session meeting link (null/empty when no session is open) */
   session_24?: string | null;
+  /** Children's recitation-correction session meeting link (null/empty when no session is open) */
+  session_child_24?: string | null;
 }
 
 export interface UserReactivationRequest {

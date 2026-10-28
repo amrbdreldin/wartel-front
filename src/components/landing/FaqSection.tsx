@@ -15,7 +15,7 @@ export function FaqSection() {
   const t = useTranslations("landing.faq");
   const { data: response, isLoading, isError, refetch } = useFaqs();
 
-  const faqs = response?.data || [];
+  const categories = (response?.data || []).filter((c) => c.data.length > 0);
 
   return (
     <section id="faq" className="py-24 bg-background relative">
@@ -60,30 +60,41 @@ export function FaqSection() {
         )}
 
         {/* Empty State */}
-        {!isLoading && !isError && faqs.length === 0 && (
+        {!isLoading && !isError && categories.length === 0 && (
           <div className="text-center py-12 text-muted-foreground border border-border/40 rounded-2xl bg-muted/10">
             <p>{t("empty")}</p>
           </div>
         )}
 
         {/* Dynamic Accordion */}
-        {!isLoading && !isError && faqs.length > 0 && (
-          <Accordion className="w-full space-y-4">
-            {faqs.map((faq) => (
-              <AccordionItem
-                key={faq.id}
-                value={`item-${faq.id}`}
-                className="border border-border/50 rounded-2xl bg-muted/30 px-6 transition-colors hover:border-primary/30"
-              >
-                <AccordionTrigger className="hover:no-underline font-bold text-foreground text-start py-5">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed pb-5 text-base">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
+        {!isLoading && !isError && categories.length > 0 && (
+          <div className="space-y-10">
+            {categories.map((category) => (
+              <div key={category.id} className="space-y-4">
+                {categories.length > 1 && (
+                  <h3 className="text-xl font-bold text-foreground font-heading">
+                    {category.name}
+                  </h3>
+                )}
+                <Accordion className="w-full space-y-4">
+                  {category.data.map((faq) => (
+                    <AccordionItem
+                      key={faq.id}
+                      value={`item-${category.id}-${faq.id}`}
+                      className="border border-border/50 rounded-2xl bg-muted/30 px-6 transition-colors hover:border-primary/30"
+                    >
+                      <AccordionTrigger className="hover:no-underline font-bold text-foreground text-start py-5">
+                        {faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground leading-relaxed pb-5 text-base">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
             ))}
-          </Accordion>
+          </div>
         )}
 
         {/* Support Callout */}

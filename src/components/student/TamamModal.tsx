@@ -125,21 +125,21 @@ export function TamamModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center px-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-300">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
-      <div className="relative w-full max-w-lg bg-card rounded-[2.5rem] shadow-2xl border border-border/50 overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-400 z-10">
+
+      <div className="relative w-full max-w-lg max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col bg-card rounded-3xl sm:rounded-[2.5rem] shadow-2xl border border-border/50 overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-400 z-10">
         {/* Top Header */}
-        <div className="bg-primary/5 border-b border-border/50 p-6 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className="shrink-0 bg-primary/5 border-b border-border/50 px-4 py-3 sm:p-6 flex justify-between items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <Users className="h-5 w-5" />
                 </div>
-                <div>
-                    <h3 className="font-black text-foreground">
+                <div className="min-w-0">
+                    <h3 className="font-black text-foreground text-sm sm:text-base truncate">
                         {t("student.weeklyTamam") || "التمام اليومي"}
                         {groupName ? ` • ${groupName}` : ""}
                     </h3>
@@ -148,23 +148,23 @@ export function TamamModal({
             </div>
             <button
                 onClick={handleClose}
-                className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors shrink-0"
                 aria-label={t("common.close")}
             >
                 <X className="w-5 h-5" />
             </button>
         </div>
 
-        <div className="p-8">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-8">
             {showSuccess ? (
-                <div className="animate-in zoom-in-95 fade-in duration-400 text-center py-10 space-y-6">
+                <div className="animate-in zoom-in-95 fade-in duration-400 text-center py-6 sm:py-10 space-y-6">
                     <div className="relative">
                         <div className="absolute inset-0 bg-success-500 blur-3xl opacity-20 animate-pulse" />
-                        <Heart className="h-20 w-20 text-success-500 mx-auto relative z-10 animate-bounce" />
+                        <Heart className="h-16 w-16 sm:h-20 sm:w-20 text-success-500 mx-auto relative z-10 animate-bounce" />
                     </div>
                     <div className="space-y-2">
-                            <h5 className="text-3xl font-black text-success-600">{t("student.tamamRecordedSuccessfully") || "تم تسجيل التمام بنجاح"}</h5>
-                            <p className="text-xl text-muted-foreground font-medium">
+                            <h5 className="text-2xl sm:text-3xl font-black text-success-600">{t("student.tamamRecordedSuccessfully") || "تم تسجيل التمام بنجاح"}</h5>
+                            <p className="text-base sm:text-xl text-muted-foreground font-medium">
                                 {isSelfTamam
                                     ? (t("student.tamamCompletedDescChild") || "لقد قمتِ بتأكيد التسميع والتمام بنجاح لهذا اليوم. نسأل الله لكِ التوفيق والسداد.")
                                     : (t("student.mayAllahBlessYou") || "بارك الله فيك ونفع بك")}
@@ -178,24 +178,24 @@ export function TamamModal({
                     </button>
                 </div>
             ) : (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="space-y-5 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     {/* Highlight Section */}
                     {isSelfTamam ? (
-                        <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10 flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 border border-primary/10">
-                                <CheckCircle2 className="h-8 w-8 text-primary" />
+                        <div className="bg-primary/5 rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 border border-primary/10 flex flex-col items-center text-center">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-3 sm:mb-4 border border-primary/10">
+                                <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                             </div>
-                            <h4 className="text-xl font-bold text-foreground mb-1">{t("student.tamamHeaderChild") || "تأكيد تسميع الورد"}</h4>
+                            <h4 className="text-lg sm:text-xl font-bold text-foreground mb-1 break-words">{t("student.tamamHeaderChild") || "تأكيد تسميع الورد"}</h4>
                             <p className="text-primary font-bold text-sm tracking-wide">{t("student.confirmYourTamam") || "تأكيد تمام ورد هذا اليوم"}</p>
                         </div>
                     ) : (
-                        <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10 flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 border border-primary/10">
-                                <UserCheck className="h-8 w-8 text-primary" />
+                        <div className="bg-primary/5 rounded-2xl sm:rounded-[2rem] p-4 sm:p-6 border border-primary/10 flex flex-col items-center text-center">
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-3 sm:mb-4 border border-primary/10">
+                                <UserCheck className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                             </div>
-                            <h4 className="text-xl font-bold text-foreground mb-1">{t("student.rafeqaName")}: {companionName}</h4>
+                            <h4 className="text-lg sm:text-xl font-bold text-foreground mb-1 break-words">{t("student.rafeqaName")}: {companionName}</h4>
                             {companionPhone && (
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold mt-1">
+                              <div className="flex flex-wrap items-center justify-center gap-1.5 text-xs text-muted-foreground font-semibold mt-1">
                                 <Phone className="w-3.5 h-3.5 text-primary" />
                                 <a href={`tel:${companionPhone}`} dir="ltr" className="hover:text-primary transition-colors font-bold">
                                   {companionPhone}
@@ -219,9 +219,9 @@ export function TamamModal({
                         </div>
                     )}
 
-                    <div className="space-y-6">
-                        <div className="bg-muted/30 p-5 rounded-2xl border border-border/50 text-sm text-muted-foreground font-medium leading-relaxed flex items-start gap-4">
-                            <Info className="h-6 w-6 text-primary shrink-0" />
+                    <div className="space-y-4 sm:space-y-6">
+                        <div className="bg-muted/30 p-4 sm:p-5 rounded-2xl border border-border/50 text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed flex items-start gap-3 sm:gap-4">
+                            <Info className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
                             <span>
                                 {isSelfTamam
                                     ? (t("student.tamamInstructionChild") || "الرجاء تأكيد إتمام ورد الحفظ والتسميع لهذا اليوم، ثم الضغط على زر التأكيد أدناه لتوثيق التمام في نظامكِ.")
@@ -230,7 +230,7 @@ export function TamamModal({
                         </div>
 
                         {/* Confirmation Checkboxes */}
-                        <div className="space-y-4 bg-muted/20 border border-border/40 rounded-2xl p-4 md:p-5">
+                        <div className="space-y-3 sm:space-y-4 bg-muted/20 border border-border/40 rounded-2xl p-3 sm:p-5">
                             <h6 className="font-bold text-sm text-foreground flex items-center gap-2">
                                 <span className="w-1.5 h-3 bg-primary rounded-full"></span>
                                 {isSelfTamam ? (t("student.tamamHeaderChild") || "تأكيد تسميع الورد") : (t("student.tamamCompanionHeader") || "تأكيد سماع الرفيقة")}
@@ -240,7 +240,7 @@ export function TamamModal({
                                 {isSelfTamam ? (t("student.tamamInstructionCheckChild") || "يرجى تأكيد تسميع ورد الماضي والحاضر لتتمكني من إرسال التمام:") : (t("student.tamamCompanionInstructionCheck") || "يرجى تأكيد سماع الرفيقة لورد الماضي والحاضر لتتمكني من إرسال التمام:")}
                             </p>
                             
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                                 {/* Past Checkbox Card */}
                                 <button
                                     type="button"
@@ -249,7 +249,7 @@ export function TamamModal({
                                     disabled={!isPending}
                                     onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); }}
                                     className={cn(
-                                        "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
+                                        "flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         pastChecked
                                             ? "border-primary bg-primary/5 text-foreground shadow-sm"
                                             : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
@@ -281,7 +281,7 @@ export function TamamModal({
                                     disabled={!isPending}
                                     onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); }}
                                     className={cn(
-                                        "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
+                                        "flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         presentChecked
                                             ? "border-primary bg-primary/5 text-foreground shadow-sm"
                                             : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
@@ -314,7 +314,7 @@ export function TamamModal({
                                         disabled={!isPending}
                                         onClick={toggleWithoutBuddy}
                                         className={cn(
-                                            "sm:col-span-2 flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
+                                            "sm:col-span-2 flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                             withoutBuddyChecked
                                                 ? "border-primary bg-primary/5 text-foreground shadow-sm"
                                                 : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
@@ -345,7 +345,7 @@ export function TamamModal({
                             onClick={handleConfirmTamam}
                             disabled={isButtonDisabled}
                             className={cn(
-                                "w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black py-5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3 shadow-xl shadow-primary/20",
+                                "w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black py-4 sm:py-5 px-6 rounded-2xl transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3 shadow-xl shadow-primary/20",
                                 isButtonDisabled && "opacity-50 cursor-not-allowed transform-none"
                             )}
                         >

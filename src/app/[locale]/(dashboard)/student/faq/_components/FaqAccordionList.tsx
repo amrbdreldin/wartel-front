@@ -7,12 +7,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { FaqItem } from "@/types/faq.types";
+import type { FaqCategory } from "@/types/faq.types";
 import { AlertTriangle, HelpCircle, RefreshCw, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface FaqAccordionListProps {
-  faqs: FaqItem[];
+  categories: FaqCategory[];
   totalCount: number;
   isLoading: boolean;
   isError: boolean;
@@ -22,7 +22,7 @@ interface FaqAccordionListProps {
 }
 
 export function FaqAccordionList({
-  faqs,
+  categories,
   totalCount,
   isLoading,
   isError,
@@ -89,7 +89,7 @@ export function FaqAccordionList({
   }
 
   // Search Returned No Matches
-  if (faqs.length === 0 && isSearching) {
+  if (categories.length === 0 && isSearching) {
     return (
       <div className="bg-card border border-border/60 rounded-3xl p-10 text-center space-y-4 shadow-xs">
         <div className="w-12 h-12 rounded-2xl bg-muted text-muted-foreground mx-auto flex items-center justify-center">
@@ -115,23 +115,38 @@ export function FaqAccordionList({
     );
   }
 
-  // Accordion List
+  // Categorized Accordion List
   return (
-    <Accordion className="w-full space-y-4">
-      {faqs.map((faq) => (
-        <AccordionItem
-          key={faq.id}
-          value={`student-faq-${faq.id}`}
-          className="border border-border/70 rounded-2xl bg-card px-6 transition-all duration-200 hover:border-primary/40 hover:shadow-xs group"
-        >
-          <AccordionTrigger className="hover:no-underline font-bold text-foreground text-start py-5 text-base md:text-lg transition-colors group-hover:text-primary">
-            <span className="pe-4">{faq.question}</span>
-          </AccordionTrigger>
-          <AccordionContent className="text-muted-foreground leading-relaxed pb-6 text-sm md:text-base border-t border-border/40 pt-4">
-            {faq.answer}
-          </AccordionContent>
-        </AccordionItem>
+    <div className="space-y-8">
+      {categories.map((category) => (
+        <section key={category.id} className="space-y-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg md:text-xl font-black text-foreground font-heading">
+              {category.name}
+            </h2>
+            <span className="text-xs font-bold text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
+              {category.data.length}
+            </span>
+            <div className="flex-1 h-px bg-border/60" />
+          </div>
+          <Accordion className="w-full space-y-4">
+            {category.data.map((faq) => (
+              <AccordionItem
+                key={faq.id}
+                value={`student-faq-${category.id}-${faq.id}`}
+                className="border border-border/70 rounded-2xl bg-card px-6 transition-all duration-200 hover:border-primary/40 hover:shadow-xs group"
+              >
+                <AccordionTrigger className="hover:no-underline font-bold text-foreground text-start py-5 text-base md:text-lg transition-colors group-hover:text-primary">
+                  <span className="pe-4">{faq.question}</span>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed pb-6 text-sm md:text-base border-t border-border/40 pt-4">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
       ))}
-    </Accordion>
+    </div>
   );
 }

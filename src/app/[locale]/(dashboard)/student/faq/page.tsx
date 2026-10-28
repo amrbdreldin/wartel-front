@@ -10,25 +10,35 @@ import { FaqSupportCards } from "./_components/FaqSupportCards";
 export default function StudentFaqPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: response, isLoading, isError, refetch } = useFaqs();
-  const faqs = response?.data || [];
+  const categories = useMemo(() => response?.data || [], [response]);
+  const totalCount = categories.reduce((sum, c) => sum + c.data.length, 0);
 
-  // Filter FAQs based on search input (matching question or answer)
-  const filteredFaqs = useMemo(() => {
-    if (!searchQuery.trim()) return faqs;
+  // Filter FAQs inside each category (matching question or answer), dropping empty categories
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) return categories;
     const q = searchQuery.toLowerCase().trim();
-    return faqs.filter(
-      (item) =>
-        item.question.toLowerCase().includes(q) ||
-        item.answer.toLowerCase().includes(q)
-    );
-  }, [faqs, searchQuery]);
+    return categories
+      .map((category) => ({
+        ...category,
+        data: category.data.filter(
+          (item) =>
+            item.question.toLowerCase().includes(q) ||
+            item.answer.toLowerCase().includes(q)
+        ),
+      }))
+      .filter((category) => category.data.length > 0);
+  }, [categories, searchQuery]);
+  const filteredCount = filteredCategories.reduce(
+    (sum, c) => sum + c.data.length,
+    0
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-12">
       {/* Header Banner */}
       <FaqHeader
-        totalCount={faqs.length}
-        filteredCount={filteredFaqs.length}
+        totalCount={totalCount}
+        filteredCount={filteredCount}
         isSearching={Boolean(searchQuery.trim())}
         isLoading={isLoading}
         isError={isError}
@@ -41,8 +51,8 @@ export default function StudentFaqPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-8 space-y-6">
           <FaqAccordionList
-            faqs={filteredFaqs}
-            totalCount={faqs.length}
+            categories={filteredCategories}
+            totalCount={totalCount}
             isLoading={isLoading}
             isError={isError}
             onRetry={() => refetch()}
