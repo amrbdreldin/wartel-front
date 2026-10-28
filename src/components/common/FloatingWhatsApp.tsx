@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "floating_whatsapp_offset";
 const EDGE_GAP = 8;
@@ -17,6 +18,9 @@ interface FloatingWhatsAppProps {
 
 export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
   const t = useTranslations("common");
+  const pathname = usePathname();
+  // Student chat has a message composer pinned to the bottom; sit above it
+  const isStudentChat = pathname?.endsWith("/student/messages");
   const [mounted, setMounted] = useState(false);
   const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -120,7 +124,10 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
   return (
     <div
       ref={wrapperRef}
-      className="fixed bottom-4 sm:bottom-6 inset-s-3 sm:inset-s-6 z-50 animate-in fade-in duration-500"
+      className={cn(
+        "fixed inset-s-3 sm:inset-s-6 z-50 animate-in fade-in duration-500",
+        isStudentChat ? "bottom-28 sm:bottom-36" : "bottom-4 sm:bottom-6"
+      )}
       style={{ translate: `${offset.x}px ${offset.y}px` }}
     >
       <a
