@@ -2,15 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-
-const STORAGE_KEY = "floating_whatsapp_offset";
-const EDGE_GAP = 8;
-// Movement (px) before a press counts as a drag instead of a tap
-const DRAG_THRESHOLD = 5;
-
-type Offset = { x: number; y: number };
 
 interface FloatingWhatsAppProps {
   whatsappNumber: string;
@@ -22,98 +15,10 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
   // Student chat has a message composer pinned to the bottom; sit above it
   const isStudentChat = pathname?.endsWith("/student/messages");
   const [mounted, setMounted] = useState(false);
-  const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    startX: number;
-    startY: number;
-    startOffset: Offset;
-    rect: DOMRect;
-    moved: boolean;
-  } | null>(null);
-  const suppressClickRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setOffset(JSON.parse(saved));
-    } catch {
-      // Ignore unavailable storage or malformed value
-    }
   }, []);
-
-  // Keep the button inside the viewport (e.g. saved offset on a smaller screen, rotation)
-  useEffect(() => {
-    if (!mounted) return;
-    const keepInView = () => {
-      const el = wrapperRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      setOffset((prev) => clampOffset(prev, rect, prev));
-    };
-    keepInView();
-    window.addEventListener("resize", keepInView);
-    return () => window.removeEventListener("resize", keepInView);
-  }, [mounted]);
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLAnchorElement>) => {
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    const el = wrapperRef.current;
-    if (!el) return;
-    dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startOffset: offset,
-      rect: el.getBoundingClientRect(),
-      moved: false,
-    };
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLAnchorElement>) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    const dx = e.clientX - drag.startX;
-    const dy = e.clientY - drag.startY;
-    if (!drag.moved) {
-      if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-      drag.moved = true;
-      setDragging(true);
-      e.currentTarget.setPointerCapture(e.pointerId);
-    }
-    setOffset(
-      clampOffset(
-        { x: drag.startOffset.x + dx, y: drag.startOffset.y + dy },
-        drag.rect,
-        drag.startOffset
-      )
-    );
-  };
-
-  const handlePointerEnd = () => {
-    const drag = dragRef.current;
-    dragRef.current = null;
-    if (!drag?.moved) return;
-    suppressClickRef.current = true;
-    setDragging(false);
-    setOffset((current) => {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
-      } catch {
-        // Position just won't persist
-      }
-      return current;
-    });
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // A drag must not open WhatsApp
-    if (suppressClickRef.current) {
-      e.preventDefault();
-      suppressClickRef.current = false;
-    }
-  };
 
   if (!mounted || !whatsappNumber) return null;
 
@@ -123,31 +28,21 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
 
   return (
     <div
-      ref={wrapperRef}
       className={cn(
         "fixed inset-s-3 sm:inset-s-6 z-50 animate-in fade-in duration-500",
-        isStudentChat ? "bottom-28 sm:bottom-36" : "bottom-4 sm:bottom-6"
+        isStudentChat ? "bottom-48 sm:bottom-56" : "bottom-4 sm:bottom-6"
       )}
-      style={{ translate: `${offset.x}px ${offset.y}px` }}
     >
       <a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        draggable={false}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerEnd}
-        onPointerCancel={handlePointerEnd}
-        onClick={handleClick}
         className={cn(
           "flex items-center justify-center gap-2 h-10 w-10 sm:h-12 sm:w-auto sm:px-4 rounded-full",
           "bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white",
           "shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30",
           "hover:-translate-y-1 active:translate-y-0 transition-all duration-300 ease-out",
-          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25D366]",
-          "touch-none select-none",
-          dragging ? "cursor-grabbing" : "cursor-grab"
+          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25D366]"
         )}
         aria-label={t("whatsappFloating") || "Contact us on WhatsApp"}
         title={t("whatsappFloating") || "Contact us on WhatsApp"}
@@ -162,16 +57,4 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
       </a>
     </div>
   );
-}
-
-// `rect` is the element's box when it sat at `rectOffset`
-function clampOffset(next: Offset, rect: DOMRect, rectOffset: Offset): Offset {
-  const baseLeft = rect.left - rectOffset.x;
-  const baseTop = rect.top - rectOffset.y;
-  const maxX = window.innerWidth - EDGE_GAP - rect.width - baseLeft;
-  const maxY = window.innerHeight - EDGE_GAP - rect.height - baseTop;
-  return {
-    x: Math.min(Math.max(next.x, EDGE_GAP - baseLeft), maxX),
-    y: Math.min(Math.max(next.y, EDGE_GAP - baseTop), maxY),
-  };
 }
