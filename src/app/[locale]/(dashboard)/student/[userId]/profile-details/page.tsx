@@ -279,7 +279,8 @@ export default function StudentProfileDetailsPage() {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      URL.revokeObjectURL(objectUrl);
+      // Revoking synchronously can cancel the download in Safari/Firefox
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     } catch {
       toast.error(t("common.error") || "Failed to download file.");
     } finally {

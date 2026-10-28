@@ -22,6 +22,16 @@ export interface NavGroup {
 }
 
 /**
+ * Whether a nav item is active for the current pathname.
+ * Root dashboard items like "/teacher" must match exactly; others also match nested routes.
+ */
+export function isNavItemActive(pathname: string, href: string, resolvedHref: string): boolean {
+  if (pathname === href) return true;
+  const isRootItem = resolvedHref.split("/").filter(Boolean).length <= 1;
+  return !isRootItem && pathname.startsWith(`${href}/`);
+}
+
+/**
  * Get sidebar navigation items for a given role
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

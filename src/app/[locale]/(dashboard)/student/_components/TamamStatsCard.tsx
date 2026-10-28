@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown, Phone, Copy, MessageCircle } from "lucide-react";
+import { Users, CheckCircle2, UserCheck, Calendar, Clock, User, ChevronDown, Phone, Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { getWhatsAppLink } from "@/utils/phone";
+import { WhatsAppLink } from "@/components/common/WhatsAppLink";
 import type { StudentDashboardGroup, DashboardTamamCard } from "@/types/student.types";
 
 interface TamamStatsCardProps {
@@ -184,18 +184,7 @@ export function TamamStatsCard({
                       >
                         <Phone className="w-3.5 h-3.5" />
                       </a>
-                      {getWhatsAppLink(buddy.phone) && (
-                        <a
-                          href={getWhatsAppLink(buddy.phone)!}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-success-500/10 hover:bg-success-500/20 text-success-600 transition-colors"
-                          title={t("student.contactViaWhatsapp")}
-                          aria-label={t("student.contactViaWhatsapp")}
-                        >
-                          <MessageCircle className="w-3.5 h-3.5" />
-                        </a>
-                      )}
+                      <WhatsAppLink phone={buddy.phone} showLabel={false} className="p-1.5 rounded-lg" />
                       <button
                         type="button"
                         onClick={() => {

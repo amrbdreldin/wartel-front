@@ -11,11 +11,12 @@ import { type NextRequest, NextResponse } from "next/server";
 // ============================================================
 
 // Only these hosts may be fetched — keeps this from being an open proxy
-const ALLOWED_HOST_SUFFIXES = [".r2.dev", "wartel.amrbdr.com"];
+const ALLOWED_DOMAINS = ["r2.dev", "wartel.amrbdr.com"];
 
+// Exact domain or a real subdomain of it (so "evilwartel.amrbdr.com" doesn't pass)
 function isAllowedHost(hostname: string) {
-  return ALLOWED_HOST_SUFFIXES.some(
-    (suffix) => hostname === suffix.replace(/^\./, "") || hostname.endsWith(suffix)
+  return ALLOWED_DOMAINS.some(
+    (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
   );
 }
 
@@ -36,14 +37,17 @@ export async function GET(req: NextRequest) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(target, { cache: "no-store" });
+    // Don't follow redirects — they could lead outside the allow-list
+    upstream = await fetch(target, { cache: "no-store", redirect: "manual" });
   } catch (err) {
     console.error("[download] Upstream fetch failed:", err);
     return NextResponse.json({ message: "File unreachable" }, { status: 502 });
   }
 
   if (!upstream.ok || !upstream.body) {
-    return NextResponse.json({ message: "File not found" }, { status: upstream.status || 404 });
+    // Redirects (3xx) and opaque statuses (0) are reported as 404
+    const status = upstream.status >= 400 ? upstream.status : 404;
+    return NextResponse.json({ message: "File not found" }, { status });
   }
 
   // Keep the original extension (jpg / png / pdf ...)

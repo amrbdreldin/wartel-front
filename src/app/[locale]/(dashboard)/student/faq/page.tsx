@@ -10,7 +10,11 @@ import { FaqSupportCards } from "./_components/FaqSupportCards";
 export default function StudentFaqPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: response, isLoading, isError, refetch } = useFaqs();
-  const categories = useMemo(() => response?.data || [], [response]);
+  // Drop empty categories so they don't render a header with no questions (matches the landing FaqSection)
+  const categories = useMemo(
+    () => (response?.data || []).filter((c) => c.data.length > 0),
+    [response]
+  );
   const totalCount = categories.reduce((sum, c) => sum + c.data.length, 0);
 
   // Filter FAQs inside each category (matching question or answer), dropping empty categories

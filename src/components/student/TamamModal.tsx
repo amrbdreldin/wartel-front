@@ -4,12 +4,12 @@ import { studentService } from "@/services/student.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     CheckCircle2, Heart, Info, Loader2,
-    Users, UserCheck, X, Phone, MessageCircle
+    Users, UserCheck, X, Phone
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { getWhatsAppLink } from "@/utils/phone";
+import { WhatsAppLink } from "@/components/common/WhatsAppLink";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import type { TamamSubmissionRequest } from "@/types/student.types";
@@ -200,19 +200,10 @@ export function TamamModal({
                                 <a href={`tel:${companionPhone}`} dir="ltr" className="hover:text-primary transition-colors font-bold">
                                   {companionPhone}
                                 </a>
-                                {getWhatsAppLink(companionPhone) && (
-                                  <a
-                                    href={getWhatsAppLink(companionPhone)!}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title={t("student.contactViaWhatsapp")}
-                                    aria-label={t("student.contactViaWhatsapp")}
-                                    className="inline-flex items-center gap-1 ms-1 px-2 py-0.5 rounded-full bg-success-500/10 text-success-600 hover:bg-success-500/20 font-bold transition-colors"
-                                  >
-                                    <MessageCircle className="w-3.5 h-3.5" />
-                                    {t("student.whatsapp")}
-                                  </a>
-                                )}
+                                <WhatsAppLink
+                                  phone={companionPhone}
+                                  className="inline-flex items-center gap-1 ms-1 px-2 py-0.5 rounded-full font-bold"
+                                />
                               </div>
                             )}
                             <p className="text-primary font-bold text-sm tracking-wide mt-2">{t("student.confirmAttendance") || "تأكيد حضور الرفيقة"}</p>
