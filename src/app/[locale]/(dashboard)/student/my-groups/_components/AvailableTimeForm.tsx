@@ -297,16 +297,18 @@ export function AvailableTimeForm({
                   {index + 1}
                 </div>
 
-                {/* Remove Slot Button */}
-                <button
-                  type="button"
-                  onClick={() => removeSlot(index)}
-                  className="absolute top-3 end-4 w-8 h-8 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 cursor-pointer"
-                  aria-label={t("student.myGroups.removeSlot")}
-                  title={t("student.myGroups.removeSlot")}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {/* Remove Slot Button – hidden when it's the only, empty slot */}
+                {(slots.length > 1 || slot.start_time || slot.end_time) && (
+                  <button
+                    type="button"
+                    onClick={() => removeSlot(index)}
+                    className="absolute top-3 end-4 w-8 h-8 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-all duration-200 cursor-pointer"
+                    aria-label={t("student.myGroups.removeSlot")}
+                    title={t("student.myGroups.removeSlot")}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-1">
                   {/* Start Time / From */}
