@@ -27,24 +27,24 @@ export const SOCIAL_PROFILES = [
 ];
 
 /**
- * Public, indexable routes (without locale prefix).
- * Anything not listed here is either private (dashboards) or utility (forgot-password, join links).
+ * Sitemap routes (without locale prefix) – content pages only, each must return 200.
+ * Login/register stay indexable (own canonical) but are left out of the sitemap;
+ * private areas and utility pages (forgot-password, join links) are excluded entirely.
+ * Bump `lastModified` when a page's content actually changes.
  */
 export const PUBLIC_ROUTES: {
   path: string;
   priority: number;
   changeFrequency: "daily" | "weekly" | "monthly" | "yearly";
+  lastModified: string;
 }[] = [
-  { path: "", priority: 1, changeFrequency: "weekly" },
-  { path: "/instructions", priority: 0.9, changeFrequency: "monthly" },
-  { path: "/register", priority: 0.9, changeFrequency: "monthly" },
-  { path: "/register/parent", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/contact-us", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/login", priority: 0.5, changeFrequency: "yearly" },
+  { path: "", priority: 1, changeFrequency: "weekly", lastModified: "2026-10-29" },
+  { path: "/instructions", priority: 0.8, changeFrequency: "monthly", lastModified: "2026-10-29" },
+  { path: "/contact-us", priority: 0.6, changeFrequency: "monthly", lastModified: "2026-10-29" },
 ];
 
 /** Private areas – blocked in robots.txt and marked noindex */
-export const PRIVATE_SEGMENTS = ["student", "teacher", "parent", "courses", "forgot-password"];
+export const PRIVATE_SEGMENTS = ["dashboard", "admin", "student", "teacher", "parent", "courses", "forgot-password"];
 
 /** Abusive SEO scrapers – blocked in robots.txt and by middleware */
 export const BLOCKED_BOTS = [

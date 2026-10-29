@@ -305,7 +305,7 @@
     "excuseFromTamam": "عذر عن التمام",
     "latestGrade": "آخر درجة",
     "alerts": "التنبيهات",
-    "alert": "تنبيه",
+    "alert": "إنذار",
     "viewAlertDetails": "عرض تفاصيل الإنذار",
     "quickLinks": "روابط سريعة",
     "tajweedLectures": "محاضرات التجويد",
@@ -622,6 +622,7 @@
     "pastStatus": "تمام الماضي",
     "presentStatus": "تمام الحاضر",
     "history": "السجل",
+    "alert": "تنبيه",
     "notRecordedYet": "لم يتم تسجيل التمام لهذا اليوم بعد.",
     "sessionMeeting": "لقاء الحلقة",
     "activeUsersTable": "الطلاب النشطون في الحلقة حالياً",
@@ -1750,5 +1751,17 @@
       "title": "الانضمام إلى حلقة | أكاديمية ورتل",
       "description": "انضم إلى حلقة لتحفيظ القرآن الكريم في أكاديمية ورتل."
     }
+  },
+  "faqBrowser": {
+    "categories": "الأقسام",
+    "searchPlaceholder": "ابحث في جميع الأسئلة...",
+    "clearSearch": "مسح البحث",
+    "questionsCount": "{count, plural, =0 {لا توجد أسئلة} one {سؤال واحد} two {سؤالان} few {# أسئلة} many {# سؤالاً} other {# سؤال}}",
+    "resultsSummary": "{count, plural, one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}} في كل الأقسام",
+    "noResults": "لا توجد نتائج مطابقة",
+    "noResultsDesc": "جرّب كلمات مختلفة أو أكثر عمومية.",
+    "empty": "لا توجد أسئلة شائعة مضافة حالياً.",
+    "error": "تعذر تحميل الأسئلة الشائعة، يرجى المحاولة لاحقاً.",
+    "retry": "إعادة المحاولة"
   }
 }

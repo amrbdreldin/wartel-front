@@ -306,7 +306,7 @@
     "excuseFromTamam": "Excuse from Tamam",
     "latestGrade": "Latest Grade",
     "alerts": "Alerts",
-    "alert": "Alert",
+    "alert": "Warning",
     "viewAlertDetails": "View Warning Details",
     "quickLinks": "Quick Links",
     "tajweedLectures": "Tajweed Lectures",
@@ -623,6 +623,7 @@
     "pastStatus": "Past Tamam",
     "presentStatus": "Present Tamam",
     "history": "History",
+    "alert": "Alert",
     "notRecordedYet": "Tamam has not been recorded for today yet.",
     "sessionMeeting": "Session Meeting",
     "activeUsersTable": "Active Students in Session",
@@ -1751,5 +1752,17 @@
       "title": "Join a Circle | Wartel Academy",
       "description": "Join a Quran memorization circle at Wartel Academy."
     }
+  },
+  "faqBrowser": {
+    "categories": "Sections",
+    "searchPlaceholder": "Search all questions...",
+    "clearSearch": "Clear search",
+    "questionsCount": "{count, plural, =0 {No questions} one {# question} other {# questions}}",
+    "resultsSummary": "{count, plural, one {# result} other {# results}} across all sections",
+    "noResults": "No matching results",
+    "noResultsDesc": "Try different or more general keywords.",
+    "empty": "No FAQs have been added yet.",
+    "error": "Couldn't load FAQs, please try again later.",
+    "retry": "Retry"
   }
 }
