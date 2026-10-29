@@ -1,43 +1,26 @@
 import { MetadataRoute } from "next";
-import { headers } from "next/headers";
+import { LOCALES } from "@/lib/constants";
+import { DEFAULT_SEO_LOCALE, PUBLIC_ROUTES, getBaseUrl } from "@/lib/seo";
+
+// Stable per-deploy timestamp – a fresh `new Date()` per request tells crawlers
+// every page changed on every fetch, which erodes trust in <lastmod>.
+const LAST_MODIFIED = new Date();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const headersList = await headers();
-  const host = headersList.get("host") || "";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const baseUrl = `${protocol}://${host}`;
+  const baseUrl = await getBaseUrl();
 
-  // High-level SEO requires identifying all public crawlable routes.
-  // In a fully scaled SaaS, we would query the database here to include dynamic public pages (e.g. public course catalogs).
-  const coreRoutes = ["", "/login", "/register", "/about"];
+  return PUBLIC_ROUTES.flatMap(({ path, priority, changeFrequency }) => {
+    const languages: Record<string, string> = {};
+    for (const l of LOCALES) languages[l] = `${baseUrl}/${l}${path}`;
+    languages["x-default"] = `${baseUrl}/${DEFAULT_SEO_LOCALE}${path}`;
 
-  return coreRoutes.flatMap((route) => [
-    {
-      url: `${baseUrl}/ar${route}`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: route === "" ? 1 : 0.8,
-      alternates: {
-        languages: {
-          ar: `${baseUrl}/ar${route}`,
-          en: `${baseUrl}/en${route}`,
-          // Provide an x-default fallback for untargeted GEOs
-          "x-default": `${baseUrl}/ar${route}`, 
-        },
-      },
-    },
-    {
-      url: `${baseUrl}/en${route}`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: route === "" ? 1 : 0.8,
-      alternates: {
-        languages: {
-          ar: `${baseUrl}/ar${route}`,
-          en: `${baseUrl}/en${route}`,
-          "x-default": `${baseUrl}/ar${route}`,
-        },
-      },
-    },
-  ]);
+    return LOCALES.map((locale) => ({
+      url: `${baseUrl}/${locale}${path}`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency,
+      priority,
+      alternates: { languages },
+      ...(path === "" ? { images: [`${baseUrl}/og-image.jpg`, `${baseUrl}/hero.png`] } : {}),
+    }));
+  });
 }
