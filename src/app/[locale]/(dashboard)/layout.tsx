@@ -1,4 +1,10 @@
 import { DashboardShell } from "@/components/layout/DashboardShell";
+import type { Metadata } from "next";
+
+// Private, authenticated area – keep it out of search & AI indexes
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
+};
 
 // ============================================================
 // Dashboard Layout – Shared sidebar + topbar shell

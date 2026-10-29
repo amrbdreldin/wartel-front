@@ -95,7 +95,7 @@ export const DEFAULT_SAAS_CONFIG: TenantSaaSConfig = {
   },
   contact_and_support: {
     support_email: "support@warattel.com",
-    contact_phone: "+966500000000",
+    contact_phone: "+201229449474",
     whatsapp_number: "201229449474",
   },
   feature_flags: {

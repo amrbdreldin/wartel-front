@@ -306,7 +306,7 @@
     "excuseFromTamam": "Excuse from Tamam",
     "latestGrade": "Latest Grade",
     "alerts": "Alerts",
-    "alert": "Warning",
+    "alert": "Alert",
     "viewAlertDetails": "View Warning Details",
     "quickLinks": "Quick Links",
     "tajweedLectures": "Tajweed Lectures",
@@ -623,7 +623,6 @@
     "pastStatus": "Past Tamam",
     "presentStatus": "Present Tamam",
     "history": "History",
-    "alert": "Alert",
     "notRecordedYet": "Tamam has not been recorded for today yet.",
     "sessionMeeting": "Session Meeting",
     "activeUsersTable": "Active Students in Session",
@@ -1717,5 +1716,40 @@
     "subtitle": "Join now to get your recitation corrected by the teacher",
     "join": "Join session",
     "joinChild": "Children's session"
+  },
+  "seo": {
+    "siteName": "Wartel Academy",
+    "home": {
+      "title": "Wartel Academy | Free Online Quran Memorization for Women & Children",
+      "description": "Wartel is a non-profit online Quran academy offering free Quran memorization (Hifz) and Tajweed classes for women and children with certified (Ijazah) teachers, structured tracks, and real-time progress reports for parents."
+    },
+    "instructions": {
+      "title": "Admission Criteria | Wartel Academy",
+      "description": "Learn the admission requirements and registration steps for students and parents at Wartel online Quran academy."
+    },
+    "register": {
+      "title": "Student Registration | Wartel Quran Academy",
+      "description": "Register for free at Wartel Academy and start your online Quran memorization and Tajweed journey with certified teachers."
+    },
+    "registerParent": {
+      "title": "Parent Registration | Wartel Quran Academy for Kids",
+      "description": "Register as a parent at Wartel Academy to enroll your children in free online Quran classes and track their attendance and grades."
+    },
+    "login": {
+      "title": "Login | Wartel Academy",
+      "description": "Log in to Wartel Academy to follow your Quran circles, daily portions and grades."
+    },
+    "forgotPassword": {
+      "title": "Reset Password | Wartel Academy",
+      "description": "Recover access to your Wartel Academy account."
+    },
+    "contactUs": {
+      "title": "Contact Us | Wartel Academy",
+      "description": "Contact Wartel Academy about Quran classes, registration and technical support via WhatsApp and Telegram."
+    },
+    "joinCourse": {
+      "title": "Join a Circle | Wartel Academy",
+      "description": "Join a Quran memorization circle at Wartel Academy."
+    }
   }
 }

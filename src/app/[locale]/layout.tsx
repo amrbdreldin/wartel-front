@@ -4,7 +4,8 @@ import { RTL_LOCALES, type Locale } from "@/lib/constants";
 import Providers from "@/store/provider";
 import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
+import { OG_LOCALES, SOCIAL_PROFILES, getBaseUrl, jsonLd } from "@/lib/seo";
 import { Inter, Tajawal } from "next/font/google";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
@@ -48,20 +49,33 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const headersList = await headers();
-  const host = headersList.get("host") || "";
-  const saasConfig = await getTenantConfig(host);
+  const saasConfig = await getTenantConfig(headersList.get("host") || "");
   const { tenant_metadata, seo_and_metadata } = saasConfig;
+  const t = await getTranslations({ locale, namespace: "seo" });
+  const baseUrl = await getBaseUrl();
+  const siteName = locale === "ar" ? tenant_metadata.academy_name : t("siteName");
+  const description =
+    locale === "ar"
+      ? seo_and_metadata.default_meta_description || t("home.description")
+      : t("home.description");
   const shareImageUrl = seo_and_metadata.default_share_image_url || "/og-image.jpg";
+  const publisher = tenant_metadata.legal_name || tenant_metadata.academy_name;
 
+  // NOTE: no `alternates.canonical` here – a layout-level canonical is inherited by every page
+  // and would point them all at the home page. Public pages set their own via buildPageMetadata().
   return {
-    metadataBase: host ? new URL(`https://${host}`) : undefined,
+    metadataBase: new URL(baseUrl),
+    applicationName: siteName,
     title: {
-      template: `%s | ${tenant_metadata.academy_name}`,
-      default: `${tenant_metadata.academy_name}`,
+      template: `%s | ${siteName}`,
+      default: t("home.title"),
     },
-    description: seo_and_metadata.default_meta_description || "منصة قرآنية متكاملة لإدارة الحلقات والتسميع والمتابعة",
+    description,
     keywords: [...seo_and_metadata.default_keywords, tenant_metadata.academy_name],
-    authors: [{ name: tenant_metadata.legal_name || tenant_metadata.academy_name }],
+    authors: [{ name: publisher }],
+    creator: publisher,
+    publisher,
+    category: "education",
     manifest: "/manifest.json",
     icons: {
       icon: [
@@ -76,40 +90,48 @@ export async function generateMetadata({
     },
     appleWebApp: {
       capable: true,
-      title: tenant_metadata.academy_name,
+      title: siteName,
       statusBarStyle: "default",
       startupImage: "/apple-touch-icon.png",
     },
     verification: {
-      google: seo_and_metadata.google_site_verification_id,
+      google: seo_and_metadata.google_site_verification_id || undefined,
     },
     formatDetection: {
       telephone: false,
     },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
     openGraph: {
-      title: tenant_metadata.academy_name,
-      description: seo_and_metadata.default_meta_description || "منصة قرآنية متكاملة لإدارة الحلقات والتسميع والمتابعة",
-      url: `https://${host}/${locale}`,
-      siteName: tenant_metadata.academy_name,
+      title: t("home.title"),
+      description,
+      url: `${baseUrl}/${locale}`,
+      siteName,
       images: [
         {
           url: shareImageUrl,
           width: 1200,
           height: 630,
-          alt: tenant_metadata.academy_name,
+          alt: siteName,
         },
       ],
-      locale: locale,
+      locale: OG_LOCALES[locale as Locale] ?? OG_LOCALES.ar,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: tenant_metadata.academy_name,
-      description: seo_and_metadata.default_meta_description || "منصة قرآنية متكاملة لإدارة الحلقات والتسميع والمتابعة",
+      title: t("home.title"),
+      description,
       images: [shareImageUrl],
-    },
-    alternates: {
-      canonical: `https://${host}/${locale}`,
     },
   };
 }
@@ -138,6 +160,50 @@ export default async function LocaleLayout({
   const host = headersList.get("host") || "";
   const nonce = headersList.get("x-nonce") || "";
   const saasConfig = await getTenantConfig(host);
+  const baseUrl = await getBaseUrl();
+  const t = await getTranslations({ locale, namespace: "seo" });
+  const { tenant_metadata, contact_and_support } = saasConfig;
+  const whatsapp = contact_and_support.whatsapp_number || contact_and_support.contact_phone;
+
+  // Site-wide entity graph: lets Google / AI engines identify the academy, its site and official profiles
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["EducationalOrganization", "NGO"],
+        "@id": `${baseUrl}/#organization`,
+        name: tenant_metadata.academy_name,
+        alternateName: [t("siteName"), "Wartel Academy", "أكاديمية ورتل", "ورتل"],
+        legalName: tenant_metadata.legal_name || tenant_metadata.academy_name,
+        url: baseUrl,
+        logo: {
+          "@type": "ImageObject",
+          url: `${baseUrl}/logo.png`,
+        },
+        image: `${baseUrl}/og-image.jpg`,
+        description: t("home.description"),
+        sameAs: SOCIAL_PROFILES,
+        knowsAbout: ["Quran memorization", "Tajweed", "Ijazah", "Noorani Qaida", "تحفيظ القرآن", "التجويد", "الإجازات القرآنية"],
+        knowsLanguage: ["ar", "en"],
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: contact_and_support.support_email,
+          telephone: whatsapp ? `+${whatsapp.replace(/^\+/, "")}` : undefined,
+          contactType: "customer support",
+          availableLanguage: ["Arabic", "English"],
+        },
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${baseUrl}/#website`,
+        url: baseUrl,
+        name: locale === "ar" ? tenant_metadata.academy_name : t("siteName"),
+        description: t("home.description"),
+        inLanguage: locale,
+        publisher: { "@id": `${baseUrl}/#organization` },
+      },
+    ],
+  };
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
@@ -145,23 +211,7 @@ export default async function LocaleLayout({
         <script
           type="application/ld+json"
           nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "EducationalOrganization",
-              name: saasConfig.tenant_metadata.academy_name,
-              legalName: saasConfig.tenant_metadata.legal_name || saasConfig.tenant_metadata.academy_name,
-              url: `https://${host}`,
-              logo: saasConfig.branding.logos.light_mode_logo_url,
-              description: saasConfig.seo_and_metadata.default_meta_description,
-              contactPoint: {
-                "@type": "ContactPoint",
-                email: saasConfig.contact_and_support.support_email,
-                telephone: saasConfig.contact_and_support.contact_phone,
-                contactType: "customer support",
-              },
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
         />
       </head>
       <body

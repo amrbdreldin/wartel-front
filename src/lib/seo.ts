@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { LOCALES, type Locale } from "./constants";
 
 export const DEFAULT_SEO_LOCALE: Locale = "ar";
@@ -75,19 +76,22 @@ export const AI_BOTS = [
   "MistralAI-User",
 ];
 
+/** Production origin – canonical host (www) for every public URL */
+export const DEFAULT_SITE_URL = "https://www.wartel-academy.com";
+
 /**
  * Canonical site origin.
- * Prefers NEXT_PUBLIC_SITE_URL (set it in production), otherwise derives it from the request host
- * so every tenant domain gets correct absolute URLs.
+ * NEXT_PUBLIC_SITE_URL overrides; local dev uses the request host; everything else
+ * (incl. the bare wartel-academy.com domain) canonicalises to DEFAULT_SITE_URL.
  */
 export async function getBaseUrl(): Promise<string> {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (envUrl) return envUrl.replace(/\/+$/, "");
 
   const headersList = await headers();
-  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000";
+  const host = headersList.get("x-forwarded-host") || headersList.get("host") || "";
   const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-  return `${isLocal ? "http" : "https"}://${host}`;
+  return isLocal ? `http://${host}` : DEFAULT_SITE_URL;
 }
 
 /** canonical + hreflang alternates (incl. x-default) for a locale-agnostic path like "/register" */
@@ -118,22 +122,32 @@ export async function buildPageMetadata({
 }): Promise<Metadata> {
   const baseUrl = await getBaseUrl();
   const url = `${baseUrl}/${locale}${path}`;
+  const t = await getTranslations({ locale, namespace: "seo" });
+  const siteName = t("siteName");
+  const image = { url: `${baseUrl}/og-image.jpg`, width: 1200, height: 630, alt: siteName };
 
+  // openGraph / twitter objects REPLACE the parent layout's (no deep merge),
+  // so they must be complete here – image, siteName and card included.
   return {
-    ...(title ? { title } : {}),
+    // seo.* titles already carry the brand, so bypass the layout's "%s | site" template
+    ...(title ? { title: { absolute: title } } : {}),
     ...(description ? { description } : {}),
     alternates: buildAlternates(baseUrl, locale, path),
     openGraph: {
       ...(title ? { title } : {}),
       ...(description ? { description } : {}),
       url,
+      siteName,
+      images: [image],
       locale: OG_LOCALES[locale as Locale] ?? OG_LOCALES.ar,
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALES[l]),
       type: "website",
     },
     twitter: {
+      card: "summary_large_image",
       ...(title ? { title } : {}),
       ...(description ? { description } : {}),
+      images: [image.url],
     },
     ...(noindex ? { robots: { index: false, follow: true } } : {}),
   };

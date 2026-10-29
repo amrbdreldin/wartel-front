@@ -1,8 +1,21 @@
+import { buildPageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "إنشاء حساب جديد",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "seo.register" });
+  return buildPageMetadata({
+    locale,
+    path: "/register",
+    title: t("title"),
+    description: t("description"),
+  });
+}
 
 export default function RegisterLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;

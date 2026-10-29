@@ -1,7 +1,14 @@
 {
+  "id": "/ar",
   "name": "أكاديمية ورتل",
   "short_name": "ورتل",
   "description": "منصة قرآنية متكاملة تجمع بين روحانية حلقات القرآن والتقنية الاحترافية",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": [
+    "education",
+    "books"
+  ],
   "start_url": "/ar",
   "display": "standalone",
   "background_color": "#ffffff",

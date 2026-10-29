@@ -29,11 +29,11 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       // Abusive SEO scrapers – no value, only load
       { userAgent: BLOCKED_BOTS, disallow: "/" },
       // AI search / answer engines (GEO & AEO) – welcome on public pages
-      { userAgent: AI_BOTS, allow: ["/", "/llms.txt", "/llms-full.txt"], disallow: privatePaths },
+      // (crawlDelay is a hint for bots that honour it; middleware enforces a hard rate limit with 429)
+      { userAgent: AI_BOTS, allow: ["/", "/llms.txt", "/llms-full.txt"], disallow: privatePaths, crawlDelay: 10 },
       // Everyone else (Googlebot, Bingbot, …). /_next/ must stay crawlable so Google can render CSS/JS.
       { userAgent: "*", allow: "/", disallow: privatePaths },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
   };
 }

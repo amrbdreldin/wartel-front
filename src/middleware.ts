@@ -5,14 +5,45 @@ import type { NextRequest } from "next/server";
 
 const intlMiddleware = createMiddleware(routing);
 
+// AI crawlers are allowed (GEO/AEO) but throttled so a crawl burst can't overload the server.
+// Keep in sync with AI_BOTS in src/lib/seo.ts.
+const AI_BOT_REGEX =
+  /gptbot|oai-searchbot|chatgpt-user|claudebot|claude-user|claude-searchbot|perplexitybot|perplexity-user|google-extended|applebot-extended|duckassistbot|meta-externalagent|amazonbot|ccbot|cohere-ai|mistralai-user/i;
+const AI_BOT_LIMIT = 30; // requests per window, per bot family
+const AI_BOT_WINDOW_MS = 60_000;
+const aiBotHits = new Map<string, { count: number; resetAt: number }>();
 
+/** Fixed-window limiter keyed by bot family (in-memory, per server instance). Returns Retry-After seconds when over the limit. */
+function aiBotRetryAfter(bot: string): number | null {
+  const now = Date.now();
+  const entry = aiBotHits.get(bot);
+  if (!entry || now >= entry.resetAt) {
+    aiBotHits.set(bot, { count: 1, resetAt: now + AI_BOT_WINDOW_MS });
+    return null;
+  }
+  entry.count += 1;
+  return entry.count > AI_BOT_LIMIT ? Math.ceil((entry.resetAt - now) / 1000) : null;
+}
 
 export function middleware(request: NextRequest) {
-  // Block aggressive crawler / scraper bots early to save bandwidth/compute
+  // Block abusive scraper bots early to save bandwidth/compute.
+  // Keep this list in sync with BLOCKED_BOTS in src/lib/seo.ts.
   const userAgent = request.headers.get("user-agent") || "";
-  const botRegex = /bytespider|petalbot|gptbot|claudebot|ccbot|google-extended|applebot-extended|amazonbot|semrushbot|ahrefsbot|dotbot|mj12bot|cohere-ai|meta-externalagent/i;
+  const botRegex = /bytespider|petalbot|semrushbot|ahrefsbot|dotbot|mj12bot/i;
   if (botRegex.test(userAgent)) {
     return new NextResponse("Access Denied: Blocked Bot", { status: 403 });
+  }
+
+  // Throttle AI crawlers – 429 + Retry-After is the standard "slow down" signal they honour
+  const aiBot = userAgent.match(AI_BOT_REGEX)?.[0].toLowerCase();
+  if (aiBot) {
+    const retryAfter = aiBotRetryAfter(aiBot);
+    if (retryAfter !== null) {
+      return new NextResponse("Too Many Requests", {
+        status: 429,
+        headers: { "Retry-After": String(retryAfter) },
+      });
+    }
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
