@@ -1247,7 +1247,8 @@
       "privacy": "Privacy Policy",
       "terms": "Terms & Conditions",
       "rights": "All rights reserved Wartel Platform ©",
-      "madeBy": "Programmed and designed with love to serve the Book of Allah"
+      "madeBy": "Programmed and designed with love to serve the Book of Allah",
+      "howToRegister": "How to register"
     },
     "achievements": {
       "subtitle": "A Journey of Giving & Excellence",
@@ -1728,11 +1729,11 @@
       "description": "Learn the admission requirements and registration steps for students and parents at Wartel online Quran academy."
     },
     "register": {
-      "title": "Student Registration | Wartel Quran Academy",
+      "title": "Register at Wartel Academy | Free Online Quran Classes",
       "description": "Register for free at Wartel Academy and start your online Quran memorization and Tajweed journey with certified teachers."
     },
     "registerParent": {
-      "title": "Parent Registration | Wartel Quran Academy for Kids",
+      "title": "Parent Registration at Wartel Academy | Quran for Kids",
       "description": "Register as a parent at Wartel Academy to enroll your children in free online Quran classes and track their attendance and grades."
     },
     "login": {
@@ -1763,5 +1764,25 @@
     "empty": "No FAQs have been added yet.",
     "error": "Couldn't load FAQs, please try again later.",
     "retry": "Retry"
+  },
+  "seoPages": {
+    "home": "Home",
+    "breadcrumb": "Breadcrumb",
+    "toc": "On this page",
+    "faq": "Frequently asked questions",
+    "related": "Related pages",
+    "updated": "Last updated",
+    "author": "Author",
+    "howToRegister": "How to register",
+    "sectionSubtitle": "Start here",
+    "sectionTitle": "Wartel Online Quran Academy",
+    "sectionDesc": "Choose what fits you: circles for women, a children's section, all free, plus a step-by-step registration guide.",
+    "blogTitle": "Articles (Arabic)",
+    "registerLink": "How to register at Wartel Academy, step by step",
+    "registerTitle": "Register at Wartel Academy",
+    "registerIntro": "Registration is completely free: read the rules, fill in the form and upload a short recitation for placement. You'll be contacted once your application is reviewed.",
+    "registerParentTitle": "Parent registration at Wartel Academy",
+    "registerParentIntro": "Create a free parent account, log in and add your children to online Quran memorization circles, then follow their attendance and grades from the portal.",
+    "loginHelp": "No account yet? See how to register at Wartel Academy"
   }
 }

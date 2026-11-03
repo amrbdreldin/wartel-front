@@ -2,6 +2,7 @@ import { AboutSection } from "@/components/landing/AboutSection";
 import { CtaSection } from "@/components/landing/CtaSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
+import { GuidesSection } from "@/components/landing/GuidesSection";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
@@ -104,6 +105,7 @@ export default async function Home({ params }: Props) {
         <FeaturesSection />
         <TimelineSection />
         <ProgramsSection />
+        <GuidesSection locale={locale} />
         <StatsSection />
         <AchievementsSection />
         <TestimonialsSection />

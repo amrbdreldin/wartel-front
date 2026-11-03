@@ -14,6 +14,8 @@ export async function generateMetadata({
     path: "/login",
     title: t("title"),
     description: t("description"),
+    // Utility page: keep out of the index but let crawlers follow its links (e.g. /how-to-register)
+    noindex: true,
   });
 }
 

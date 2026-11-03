@@ -28,8 +28,9 @@ export const SOCIAL_PROFILES = [
 
 /**
  * Sitemap routes (without locale prefix) – content pages only, each must return 200.
- * Login/register stay indexable (own canonical) but are left out of the sitemap;
- * private areas and utility pages (forgot-password, join links) are excluded entirely.
+ * Login is noindex and left out; private areas and utility pages (forgot-password,
+ * join links) are excluded entirely.
+ * `locales` limits a route to the languages it exists in (default: all).
  * Bump `lastModified` when a page's content actually changes.
  */
 export const PUBLIC_ROUTES: {
@@ -37,9 +38,19 @@ export const PUBLIC_ROUTES: {
   priority: number;
   changeFrequency: "daily" | "weekly" | "monthly" | "yearly";
   lastModified: string;
+  locales?: readonly Locale[];
 }[] = [
-  { path: "", priority: 1, changeFrequency: "weekly", lastModified: "2026-10-29" },
+  { path: "", priority: 1, changeFrequency: "weekly", lastModified: "2026-10-30" },
+  { path: "/quran-for-women", priority: 0.9, changeFrequency: "monthly", lastModified: "2026-10-30" },
+  { path: "/quran-for-kids", priority: 0.9, changeFrequency: "monthly", lastModified: "2026-10-30" },
+  { path: "/free-quran-memorization", priority: 0.9, changeFrequency: "monthly", lastModified: "2026-10-30" },
+  { path: "/how-to-register", priority: 0.9, changeFrequency: "monthly", lastModified: "2026-10-30" },
+  { path: "/blog/warattil-al-quran-tartila", priority: 0.7, changeFrequency: "yearly", lastModified: "2026-10-30", locales: ["ar"] },
+  { path: "/blog/how-to-memorize-quran", priority: 0.7, changeFrequency: "yearly", lastModified: "2026-10-30", locales: ["ar"] },
+  { path: "/blog/tajweed-for-beginners", priority: 0.7, changeFrequency: "yearly", lastModified: "2026-10-30", locales: ["ar"] },
   { path: "/instructions", priority: 0.8, changeFrequency: "monthly", lastModified: "2026-10-29" },
+  { path: "/register", priority: 0.7, changeFrequency: "monthly", lastModified: "2026-10-30" },
+  { path: "/register/parent", priority: 0.7, changeFrequency: "monthly", lastModified: "2026-10-30" },
   { path: "/contact-us", priority: 0.6, changeFrequency: "monthly", lastModified: "2026-10-29" },
 ];
 
@@ -94,15 +105,29 @@ export async function getBaseUrl(): Promise<string> {
   return isLocal ? `http://${host}` : DEFAULT_SITE_URL;
 }
 
-/** canonical + hreflang alternates (incl. x-default) for a locale-agnostic path like "/register" */
-export function buildAlternates(baseUrl: string, locale: string, path = ""): Metadata["alternates"] {
+/** hreflang map (incl. x-default) for a path; `locales` limits it to the languages the page exists in */
+export function buildLanguages(
+  baseUrl: string,
+  path = "",
+  locales: readonly Locale[] = LOCALES,
+): Record<string, string> {
   const languages: Record<string, string> = {};
-  for (const l of LOCALES) languages[l] = `${baseUrl}/${l}${path}`;
-  languages["x-default"] = `${baseUrl}/${DEFAULT_SEO_LOCALE}${path}`;
+  for (const l of locales) languages[l] = `${baseUrl}/${l}${path}`;
+  const xDefault = locales.includes(DEFAULT_SEO_LOCALE) ? DEFAULT_SEO_LOCALE : locales[0];
+  languages["x-default"] = `${baseUrl}/${xDefault}${path}`;
+  return languages;
+}
 
+/** canonical + hreflang alternates (incl. x-default) for a locale-agnostic path like "/register" */
+export function buildAlternates(
+  baseUrl: string,
+  locale: string,
+  path = "",
+  locales: readonly Locale[] = LOCALES,
+): Metadata["alternates"] {
   return {
     canonical: `${baseUrl}/${locale}${path}`,
-    languages,
+    languages: buildLanguages(baseUrl, path, locales),
   };
 }
 
@@ -113,12 +138,18 @@ export async function buildPageMetadata({
   title,
   description,
   noindex = false,
+  locales = LOCALES,
+  article,
 }: {
   locale: string;
   path?: string;
   title?: string;
   description?: string;
   noindex?: boolean;
+  /** languages this page exists in (hreflang + og:locale:alternate) */
+  locales?: readonly Locale[];
+  /** blog posts: og:type=article with publish/modify dates */
+  article?: { publishedTime: string; modifiedTime: string };
 }): Promise<Metadata> {
   const baseUrl = await getBaseUrl();
   const url = `${baseUrl}/${locale}${path}`;
@@ -132,7 +163,7 @@ export async function buildPageMetadata({
     // seo.* titles already carry the brand, so bypass the layout's "%s | site" template
     ...(title ? { title: { absolute: title } } : {}),
     ...(description ? { description } : {}),
-    alternates: buildAlternates(baseUrl, locale, path),
+    alternates: buildAlternates(baseUrl, locale, path, locales),
     openGraph: {
       ...(title ? { title } : {}),
       ...(description ? { description } : {}),
@@ -140,8 +171,8 @@ export async function buildPageMetadata({
       siteName,
       images: [image],
       locale: OG_LOCALES[locale as Locale] ?? OG_LOCALES.ar,
-      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALES[l]),
-      type: "website",
+      alternateLocale: locales.filter((l) => l !== locale).map((l) => OG_LOCALES[l]),
+      ...(article ? { type: "article", ...article } : { type: "website" }),
     },
     twitter: {
       card: "summary_large_image",

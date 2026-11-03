@@ -90,25 +90,25 @@ export function LandingNavbar() {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 text-primary font-semibold">
           <a
-            href="#about"
+            href={`/${locale}#about`}
             className="px-4 py-2 rounded-full text-sm font-bold text-primary/80 hover:text-primary hover:bg-primary/5 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           >
             {t("vision")}
           </a>
           <a
-            href="#features"
+            href={`/${locale}#features`}
             className="px-4 py-2 rounded-full text-sm font-bold text-primary/80 hover:text-primary hover:bg-primary/5 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           >
             {t("features")}
           </a>
           <a
-            href="#programs"
+            href={`/${locale}#programs`}
             className="px-4 py-2 rounded-full text-sm font-bold text-primary/80 hover:text-primary hover:bg-primary/5 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           >
             {t("tracks")}
           </a>
           <a
-            href="#faq"
+            href={`/${locale}#faq`}
             className="px-4 py-2 rounded-full text-sm font-bold text-primary/80 hover:text-primary hover:bg-primary/5 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           >
             {t("faq")}
@@ -167,10 +167,10 @@ export function LandingNavbar() {
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-6 py-8">
-                <a href="#about" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("vision")}</a>
-                <a href="#features" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("features")}</a>
-                <a href="#programs" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("tracks")}</a>
-                <a href="#faq" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("faq")}</a>
+                <a href={`/${locale}#about`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("vision")}</a>
+                <a href={`/${locale}#features`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("features")}</a>
+                <a href={`/${locale}#programs`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("tracks")}</a>
+                <a href={`/${locale}#faq`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("faq")}</a>
 
                 <div className="mt-6 pt-6 border-t border-border/50 flex flex-col gap-4">
                   {isAuthenticated && user ? (

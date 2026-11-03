@@ -71,6 +71,14 @@ export default function ParentRegisterPage() {
             وَرَتِّلْ
           </Link>
           <p className="text-white/80 text-sm font-medium">{t("auth.registerWelcome")}</p>
+          <h1 className="mt-4 text-2xl md:text-3xl font-bold text-white">{t("seoPages.registerParentTitle")}</h1>
+          <p className="mx-auto mt-2 max-w-2xl text-white/85 leading-relaxed">{t("seoPages.registerParentIntro")}</p>
+          <Link
+            href={`/${locale}/how-to-register`}
+            className="mt-2 inline-block text-sm font-bold text-white underline underline-offset-4 hover:text-white/80"
+          >
+            {t("seoPages.registerLink")}
+          </Link>
         </div>
 
         {/* Parent Registration Form */}

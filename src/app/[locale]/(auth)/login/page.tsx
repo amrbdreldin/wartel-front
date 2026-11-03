@@ -2,6 +2,8 @@
 
 import { LoginForm } from "./_components/LoginForm";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 // ============================================================
 // Login Page – layout shell only
@@ -9,6 +11,7 @@ import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
   const t = useTranslations();
+  const locale = useParams().locale as string;
 
   return (
     <div className="relative flex min-h-screen overflow-hidden">
@@ -72,6 +75,13 @@ export default function LoginPage() {
         </div>
 
         <LoginForm />
+
+        <Link
+          href={`/${locale}/how-to-register`}
+          className="mt-6 text-sm font-bold text-primary underline underline-offset-4 hover:text-primary/80"
+        >
+          {t("seoPages.loginHelp")}
+        </Link>
 
         <p className="mt-8 text-xs text-muted-foreground text-center">
           {t("auth.copyright", { year: new Date().getFullYear() })}

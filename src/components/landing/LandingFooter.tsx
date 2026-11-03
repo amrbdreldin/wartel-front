@@ -81,16 +81,17 @@ export function LandingFooter() {
               </li> */}
               <li><Link href={`/${locale}/login`} className="text-muted-foreground hover:text-primary transition-colors">{t("studentLogin")}</Link></li>
               <li><Link href={`/${locale}/instructions?type=parent`} className="text-muted-foreground hover:text-primary transition-colors">{t("parentLogin")}</Link></li>
+              <li><Link href={`/${locale}/how-to-register`} className="text-muted-foreground hover:text-primary transition-colors">{t("howToRegister")}</Link></li>
             </ul>
           </div>
 
           {/* <div>
             <h4 className="font-bold text-foreground mb-4 text-lg">{t("support")}</h4>
             <ul className="space-y-3">
-              <li><a href="#faq" className="text-muted-foreground hover:text-primary transition-colors">{t("faq")}</a></li>
+              <li><a href={`/${locale}#faq`} className="text-muted-foreground hover:text-primary transition-colors">{t("faq")}</a></li>
               <li><Link href={`/${locale}/contact-us`} className="text-muted-foreground hover:text-primary transition-colors">{t("contact")}</Link></li>
-              <li><a href="#faq" className="text-muted-foreground hover:text-primary transition-colors">{t("privacy")}</a></li>
-              <li><a href="#faq" className="text-muted-foreground hover:text-primary transition-colors">{t("terms")}</a></li>
+              <li><a href={`/${locale}#faq`} className="text-muted-foreground hover:text-primary transition-colors">{t("privacy")}</a></li>
+              <li><a href={`/${locale}#faq`} className="text-muted-foreground hover:text-primary transition-colors">{t("terms")}</a></li>
             </ul>
           </div> */}
         </div>

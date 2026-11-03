@@ -7,6 +7,7 @@
 
 import ar from "@/i18n/messages/ar.json";
 import en from "@/i18n/messages/en.json";
+import { pageLocales, plainText, SEO_PAGES } from "@/content/seo-pages";
 import { fetchPublicFaqs, getBaseUrl, SOCIAL_PROFILES } from "./seo";
 
 type Landing = typeof en.landing;
@@ -39,6 +40,16 @@ function achievements(l: Landing): string[] {
     .map((k) => `- **${a[`${k}Title`]}**: ${a[`${k}Desc`]}`);
 }
 
+/** Keyword landing pages and articles – every locale they exist in, with their direct-answer lead */
+function guides(base: string): string[] {
+  return Object.values(SEO_PAGES).flatMap((def) =>
+    pageLocales(def).map((locale) => {
+      const c = def.content[locale]!;
+      return `- [${c.h1}](${base}/${locale}${def.path}): ${plainText(c.description)}`;
+    }),
+  );
+}
+
 /** Short index – /llms.txt */
 export async function buildLlmsTxt(): Promise<string> {
   const base = await getBaseUrl();
@@ -66,6 +77,7 @@ export async function buildLlmsTxt(): Promise<string> {
       `- [Parent registration](${base}/en/register/parent): enrol children through a parent account`,
       `- [Contact us](${base}/en/contact-us): support and enquiries`,
     ]),
+    section("Guides & programs", guides(base)),
     section("Learning tracks", programs(l)),
     section("How to join", steps(l)),
     section("Contact", [
