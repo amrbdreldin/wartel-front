@@ -4,6 +4,7 @@ import { AdCard } from "../AdCard";
 import { AdHeader } from "../AdHeader";
 import { AdPopup } from "../AdPopup";
 import { AdMedia } from "../AdMedia";
+import { normalizeAdsData, getAdsByPlacement } from "@/hooks/api/useAdsQueries";
 import type { Ad } from "@/types/ad.types";
 
 const mockAd: Ad = {
@@ -149,4 +150,30 @@ describe("AdMedia Component", () => {
     expect(container.firstChild).toBeNull();
   });
 });
+
+describe("normalizeAdsData", () => {
+  it("flattens grouped placement payload from /ads API", () => {
+    const popupAd: Ad = {
+      ...mockAd,
+      id: 1,
+      placement: "popup",
+      allowed_roles: [{ id: 2, name: "المعلمون" }],
+      target_roles_text: "المعلمون",
+      start_at: "2020-01-01T00:00:00+02:00",
+      end_at: "2099-01-01T00:00:00+02:00",
+    };
+
+    const normalized = normalizeAdsData({
+      header: [],
+      card: [],
+      popup: [popupAd],
+    });
+
+    expect(normalized).toHaveLength(1);
+    expect(getAdsByPlacement(normalized, "popup")).toEqual([popupAd]);
+    expect(getAdsByPlacement(normalized, "header")).toEqual([]);
+    expect(getAdsByPlacement(normalized, "card")).toEqual([]);
+  });
+});
+
 

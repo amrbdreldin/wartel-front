@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { registerSchema, isAudioRequiredForSelection } from "@/utils/validation";
 import { useRegisterMutation, useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { Form, Formik, type FormikProps } from "formik";
-import type { ValidationError } from "yup";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, AlertCircle, Info, Users, X, ShieldCheck,
 } from "lucide-react";
@@ -68,7 +67,7 @@ export function RegisterForm() {
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [telegramTrackingUrl, setTelegramTrackingUrl] = useState<string | null>(null);
 
-  const formikRef = useRef<FormikProps<typeof initialValues>>(null);
+  const formikRef = useRef<FormikProps<any>>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"women" | "children">("women");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -163,7 +162,7 @@ export function RegisterForm() {
         toast.success(successMsg);
         setIsSuccess(true);
       },
-      onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
+      onError: (err: any) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("common.errorOccurred");
         const validationErrors = responseData?.errors;
@@ -217,15 +216,15 @@ export function RegisterForm() {
           innerRef={formikRef}
           initialValues={initialValues}
           validate={(values) => {
-            const errors: Record<string, string> = {};
+            const errors: any = {};
             try {
               registerSchema.validateSync(values, {
                 abortEarly: false,
                 context: { enrollmentTypes, allTracks }
               });
-            } catch (err) {
-              (err as ValidationError).inner?.forEach((currentError) => {
-                if (currentError.path) errors[currentError.path] = currentError.message;
+            } catch (err: any) {
+              err.inner.forEach((currentError: any) => {
+                errors[currentError.path] = currentError.message;
               });
             }
 

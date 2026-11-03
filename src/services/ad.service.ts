@@ -1,6 +1,6 @@
 import { apiGet, type ApiCallOptions } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
-import type { Ad, GetAdsParams } from "@/types/ad.types";
+import type { AdsResponseData, GetAdsParams } from "@/types/ad.types";
 
 // ============================================================
 // Ads Service
@@ -20,7 +20,7 @@ export const adService = {
       queryParams.role_id = params.role_id;
     }
 
-    return apiGet<ApiResponse<Ad[]>>("/ads", {
+    return apiGet<ApiResponse<AdsResponseData>>("/ads", {
       ...options,
       config: {
         ...options?.config,

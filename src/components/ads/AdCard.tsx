@@ -36,9 +36,9 @@ export function AdCard({ ad, className }: AdCardProps) {
             {ad.placement_name || t("guide")}
           </span>
 
-          {ad.role_name && (
+          {(ad.role_name || ad.target_roles_text) && (
             <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
-              {ad.role_name}
+              {ad.role_name || ad.target_roles_text}
             </span>
           )}
         </div>

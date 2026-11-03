@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { X, Sparkles } from "lucide-react";
+import { X } from "lucide-react";
 import type { Ad } from "@/types/ad.types";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { AdMedia } from "./AdMedia";
@@ -50,11 +50,6 @@ export function AdPopup({ ad, isOpen, onClose }: AdPopupProps) {
         )}
 
         <div className="flex-1 space-y-4 overflow-y-auto p-6">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{ad.placement_name || t("announcement")}</span>
-          </div>
-
           <DialogTitle className="text-xl font-bold leading-snug text-foreground">{ad.title}</DialogTitle>
 
           {ad.content && (

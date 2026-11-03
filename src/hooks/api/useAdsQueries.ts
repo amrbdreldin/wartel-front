@@ -5,11 +5,35 @@ import { adService } from "@/services/ad.service";
 import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
 import { resolveRoleId } from "@/utils/role";
-import type { Ad, AdPlacement } from "@/types/ad.types";
+import type { Ad, AdPlacement, AdsResponseData } from "@/types/ad.types";
+
+const AD_PLACEMENTS: readonly AdPlacement[] = ["header", "card", "popup"];
 
 // ============================================================
 // Helpers
 // ============================================================
+
+/**
+ * Normalizes API ads payload which may be either a flat Ad[] array
+ * or an object grouped by placement ({ header: [], card: [], popup: [] }).
+ */
+export function normalizeAdsData(data?: AdsResponseData | null): Ad[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+
+  if (typeof data === "object") {
+    return AD_PLACEMENTS.flatMap((placement) => {
+      const group = data[placement];
+      if (!Array.isArray(group)) return [];
+      return group.map((ad) => ({
+        ...ad,
+        placement: ad.placement || placement,
+      }));
+    });
+  }
+
+  return [];
+}
 
 /**
  * Checks if an ad is currently active based on start_at and end_at.
@@ -95,8 +119,7 @@ export function useAdsQuery(roleId?: number | string | null) {
       const response = await adService.getAds(
         resolvedRoleId !== null ? { role_id: resolvedRoleId } : undefined
       );
-      const data = response?.data;
-      return Array.isArray(data) ? data : [];
+      return normalizeAdsData(response?.data);
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     refetchOnWindowFocus: false,
