@@ -10,20 +10,16 @@ import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { AudioUploadField } from "@/app/[locale]/(auth)/register/_components/AudioUploadField";
 import { PathSelectionField } from "@/app/[locale]/(auth)/register/_components/PathSelectionField";
 import { ScrollToFieldError } from "@/app/[locale]/(auth)/register/_components/ScrollToFieldError";
-import {
-  registerSchema,
-  isAudioRequiredForSelection,
-  type EnrollmentType,
-  type Track,
-} from "@/utils/validation";
+import { registerSchema, isAudioRequiredForSelection } from "@/utils/validation";
+import type { FormDataEnrollmentType, FormDataTrack } from "@/types/auth.types";
 import { AudioSyncController } from "@/app/[locale]/(auth)/register/_components/AudioSyncController";
 
 interface AddChildModalProps<TValues extends Record<string, unknown> = Record<string, unknown>> {
   isOpen: boolean;
   onClose: () => void;
   isAddPending: boolean;
-  enrollmentTypes: EnrollmentType[];
-  allTracks?: Track[];
+  enrollmentTypes: FormDataEnrollmentType[];
+  allTracks?: FormDataTrack[];
   isFormDataLoading: boolean;
   onSubmit: (values: TValues, helpers: FormikHelpers<TValues>) => Promise<void>;
   initialValues: TValues;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Video, Calendar, Clock, User, Users, Loader2 } from "lucide-react";
+import { Video, Calendar, User, Users, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { parentService } from "@/services/parent.service";
@@ -33,15 +33,15 @@ export function TodaySessionCard({ session }: TodaySessionCardProps) {
       const response = await parentService.attendChildren({ session_id: session.session_id });
       
       if (response && response.success !== false) {
-        toast.success((response as any)?.message || t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        toast.success(response.message || t("student.attendanceRegistered") || "Attendance recorded successfully!");
         setHasJoined(true);
         if (session.url) {
           window.open(session.url, "_blank", "noopener,noreferrer");
         }
       } else {
-        toast.error((response as any)?.message || t("student.errorRegisteringAttendance") || "Failed to record attendance.");
+        toast.error(response?.message || t("student.errorRegisteringAttendance") || "Failed to record attendance.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to register attendance", error);
       toast.error(t("student.errorRegisteringAttendance") || "Failed to record attendance.");
     } finally {
