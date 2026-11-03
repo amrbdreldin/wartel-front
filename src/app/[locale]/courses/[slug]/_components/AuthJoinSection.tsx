@@ -7,6 +7,7 @@ import { useJoinGroupMutation } from "@/hooks/api/useGroupQueries";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { toast } from "sonner";
 import { LogIn, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { extractDirectJoinError, type DirectJoinApiError } from "./direct-join-utils";
 
 // ============================================================
 // AuthJoinSection – Single join button for authenticated users
@@ -39,16 +40,8 @@ export function AuthJoinSection({ groupId }: AuthJoinSectionProps) {
           setSuccess(successMsg);
           toast.success(successMsg);
         },
-        onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
-          const responseData = err.response?.data;
-          const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
-          const validationErrors = responseData?.errors;
-          if (validationErrors && typeof validationErrors === "object") {
-            const firstErr = Object.values(validationErrors).flat()[0];
-            setError(firstErr as string);
-          } else {
-            setError(mainMessage);
-          }
+        onError: (err: DirectJoinApiError) => {
+          setError(extractDirectJoinError(err, t("directJoin.joinError")));
         },
       }
     );

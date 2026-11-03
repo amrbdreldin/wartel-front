@@ -25,8 +25,8 @@ const enrollmentSlice = createSlice({
   name: "enrollment",
   initialState,
   reducers: {
-    setEnrollmentData: (state, action: PayloadAction<EnrollmentData>) => {
-      state.currentEnrollment = action.payload;
+    setEnrollmentData: (state, action: PayloadAction<Partial<EnrollmentData>>) => {
+      state.currentEnrollment = action.payload as EnrollmentData;
     },
     clearEnrollmentData: (state) => {
       state.currentEnrollment = null;

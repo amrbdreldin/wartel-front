@@ -210,7 +210,7 @@ function buildStructuredData(
             name: schema.name,
             description: schema.description,
             url,
-            inLanguage: "ar",
+            inLanguage: locale,
             isAccessibleForFree: true,
             provider: organization,
             audience: { "@type": "EducationalAudience", audienceType: schema.audience },

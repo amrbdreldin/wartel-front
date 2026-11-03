@@ -15,14 +15,17 @@ import {
 import { useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { resolveRoleId } from "@/utils/role";
-import { findPendingGroup, isAudioRequiredForGroup } from "@/utils/validation";
+import { isAudioRequiredForSelection } from "@/utils/validation";
 import { UserRole } from "@/types/enums";
 
 import { ParentHeader } from "@/app/[locale]/(dashboard)/parent/_components/ParentHeader";
 import { ChildCard } from "@/app/[locale]/(dashboard)/parent/_components/ChildCard";
 import { AddChildModal } from "@/app/[locale]/(dashboard)/parent/_components/AddChildModal";
 import { ChildCardSkeleton } from "@/app/[locale]/(dashboard)/parent/_components/ChildCardSkeleton";
-import { TodaySessionCard } from "@/app/[locale]/(dashboard)/parent/_components/TodaySessionCard";
+import {
+  TodaySessionCard,
+  type ParentTodaySession,
+} from "@/app/[locale]/(dashboard)/parent/_components/TodaySessionCard";
 
 // ============================================================
 // Teacher Children Management Page (Replicates Parent Dashboard)
@@ -101,14 +104,13 @@ export default function TeacherChildrenPage() {
     if (values.selected_group_id) {
       fd.append("group_id", values.selected_group_id);
     }
-    const selectedGroup = findPendingGroup(values.selected_group_id, {
-      enrollmentTypes,
-      allTracks: formData?.tracks ?? [],
-      enrollmentTypeId: values.enrollment_type_id,
-      trackId: values.selected_track_id,
-    });
-    const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
-    if (isAudioRequired && values.quran_audio) {
+    if (
+      isAudioRequiredForSelection(values, {
+        enrollmentTypes,
+        allTracks: formData?.tracks ?? [],
+      }) &&
+      values.quran_audio
+    ) {
       fd.append("audio_test_path", values.quran_audio);
     }
     fd.append("user_role_id", resolveRoleId("student", userRoles));
@@ -192,7 +194,7 @@ export default function TeacherChildrenPage() {
           </div>
           {todaySessions && todaySessions.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {todaySessions.map((session: any) => (
+              {(todaySessions as ParentTodaySession[]).map((session) => (
                 <TodaySessionCard key={session.session_id} session={session} />
               ))}
             </div>

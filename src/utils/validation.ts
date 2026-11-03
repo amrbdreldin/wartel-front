@@ -71,7 +71,6 @@ export interface PendingGroup {
   id: string | number;
   name?: string;
   requires_audio?: number | boolean | string | null;
-  [key: string]: any;
 }
 
 export interface Track {
@@ -79,7 +78,6 @@ export interface Track {
   name?: string;
   requires_audio?: number | boolean | string | null;
   pending_groups?: PendingGroup[];
-  [key: string]: any;
 }
 
 export interface EnrollmentType {
@@ -87,75 +85,73 @@ export interface EnrollmentType {
   name?: string;
   requires_audio?: number | boolean | string | null;
   tracks?: Track[];
-  [key: string]: any;
 }
+
+export interface GroupLookupContext {
+  enrollmentTypes?: EnrollmentType[];
+  allTracks?: Track[];
+  enrollmentTypeId?: string | number | null;
+  trackId?: string | number | null;
+}
+
+const sameId = (a: unknown, b: unknown) =>
+  a !== undefined && a !== null && b !== undefined && b !== null && String(a) === String(b);
 
 export function findPendingGroup(
   groupId?: string | number | null,
-  context?: {
-    enrollmentTypes?: EnrollmentType[];
-    allTracks?: Track[];
-    enrollmentTypeId?: string | number | null;
-    trackId?: string | number | null;
-  }
+  context?: GroupLookupContext
 ): PendingGroup | undefined {
   if (!groupId) return undefined;
-  const strGroupId = String(groupId);
-  const enrollmentTypes = context?.enrollmentTypes || [];
-  const allTracks = context?.allTracks || [];
-  const enrollmentTypeId = context?.enrollmentTypeId;
-  const trackId = context?.trackId;
+  const { enrollmentTypes = [], allTracks = [], enrollmentTypeId, trackId } = context ?? {};
 
-  if (enrollmentTypeId) {
-    const selectedEt = enrollmentTypes.find((e) => String(e.id) === String(enrollmentTypeId));
-    if (selectedEt?.tracks) {
-      if (trackId) {
-        const tr = selectedEt.tracks.find((t) => String(t.id) === String(trackId));
-        const grp = tr?.pending_groups?.find((g) => String(g.id) === strGroupId);
-        if (grp) return grp;
-      }
-      for (const tr of selectedEt.tracks) {
-        const grp = tr.pending_groups?.find((g) => String(g.id) === strGroupId);
-        if (grp) return grp;
-      }
-    }
-  }
-
-  for (const et of enrollmentTypes) {
-    if (trackId) {
-      const tr = et.tracks?.find((t) => String(t.id) === String(trackId));
-      const grp = tr?.pending_groups?.find((g) => String(g.id) === strGroupId);
+  const searchTracks = (tracks: Track[] = []): PendingGroup | undefined => {
+    const ordered = trackId
+      ? [...tracks.filter((t) => sameId(t.id, trackId)), ...tracks.filter((t) => !sameId(t.id, trackId))]
+      : tracks;
+    for (const tr of ordered) {
+      const grp = tr.pending_groups?.find((g) => sameId(g.id, groupId));
       if (grp) return grp;
     }
-    for (const tr of et.tracks || []) {
-      const grp = tr.pending_groups?.find((g) => String(g.id) === strGroupId);
-      if (grp) return grp;
-    }
-  }
+    return undefined;
+  };
 
-  if (trackId) {
-    const tr = allTracks.find((t) => String(t.id) === String(trackId));
-    const grp = tr?.pending_groups?.find((g) => String(g.id) === strGroupId);
-    if (grp) return grp;
-  }
-  for (const tr of allTracks) {
-    const grp = tr.pending_groups?.find((g) => String(g.id) === strGroupId);
+  // 1. Selected enrollment type first, then remaining enrollment types, then standalone tracks
+  const orderedTypes = enrollmentTypeId
+    ? [
+        ...enrollmentTypes.filter((e) => sameId(e.id, enrollmentTypeId)),
+        ...enrollmentTypes.filter((e) => !sameId(e.id, enrollmentTypeId)),
+      ]
+    : enrollmentTypes;
+
+  for (const et of orderedTypes) {
+    const grp = searchTracks(et.tracks);
     if (grp) return grp;
   }
 
-  return undefined;
+  return searchTracks(allTracks);
 }
 
 export function isAudioRequiredForGroup(group?: PendingGroup | null): boolean {
   if (!group) return true;
-  if (
-    group.requires_audio === 0 ||
-    group.requires_audio === "0" ||
-    group.requires_audio === false
-  ) {
-    return false;
-  }
-  return true;
+  return group.requires_audio !== 0 && group.requires_audio !== "0" && group.requires_audio !== false;
+}
+
+/** Resolves whether the current form values require a recitation audio upload. */
+export function isAudioRequiredForSelection(
+  values: {
+    selected_group_id?: string | number | null;
+    enrollment_type_id?: string | number | null;
+    selected_track_id?: string | number | null;
+  },
+  context?: { enrollmentTypes?: EnrollmentType[]; allTracks?: Track[] }
+): boolean {
+  return isAudioRequiredForGroup(
+    findPendingGroup(values.selected_group_id, {
+      ...context,
+      enrollmentTypeId: values.enrollment_type_id,
+      trackId: values.selected_track_id,
+    })
+  );
 }
 
 export const registerSchema = Yup.object().shape({
@@ -213,21 +209,13 @@ export const registerSchema = Yup.object().shape({
   quran_audio: Yup.mixed()
     .nullable()
     .test("audio-required", "validation.required", function (value, context) {
-      const enrollmentTypes = (context.options.context || {}).enrollmentTypes as EnrollmentType[] | undefined;
-      const allTracks = (context.options.context || {}).allTracks as Track[] | undefined;
-      const { enrollment_type_id, selected_track_id, selected_group_id } = this.parent;
-
-      const group = findPendingGroup(selected_group_id, {
-        enrollmentTypes,
-        allTracks,
-        enrollmentTypeId: enrollment_type_id,
-        trackId: selected_track_id,
-      });
-
-      if (group && !isAudioRequiredForGroup(group)) {
+      const ctx = (context.options.context || {}) as {
+        enrollmentTypes?: EnrollmentType[];
+        allTracks?: Track[];
+      };
+      if (!isAudioRequiredForSelection(this.parent, ctx)) {
         return true;
       }
-
       return !!value;
     })
     .test("fileSize", "validation.audioFileTooLarge", (value) => {
@@ -244,7 +232,7 @@ export const registerSchema = Yup.object().shape({
         return duration >= 10;
       }
       if (value instanceof File) {
-        const fileDuration = (value as any).duration;
+        const fileDuration = (value as File & { duration?: number }).duration;
         if (fileDuration !== undefined && fileDuration > 0) {
           return fileDuration >= 10;
         }

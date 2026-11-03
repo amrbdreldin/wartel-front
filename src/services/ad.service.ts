@@ -14,7 +14,7 @@ export const adService = {
    *                         If omitted or null, returns ads available for all users.
    */
   getAds: (params?: GetAdsParams, options?: ApiCallOptions) => {
-    const queryParams: Record<string, any> = {};
+    const queryParams: Record<string, string | number> = {};
 
     if (params?.role_id !== undefined && params?.role_id !== null && params.role_id !== "") {
       queryParams.role_id = params.role_id;

@@ -55,43 +55,42 @@ export function getAdsByPlacement(ads: Ad[] = [], placement: AdPlacement): Ad[] 
  * 1. Explicit parameter if provided.
  * 2. Current user's role_id.
  * 3. Current user's role name resolved via resolveRoleId.
- * 4. Route pathname detection (/teacher -> 2, /student -> 1, /parent -> 5).
+ * 4. Route segment detection (/teacher, /student, /parent) via resolveRoleId.
+ * Always returned as a string so "2" and 2 share one cache entry.
  */
-export function useResolvedRoleId(explicitRoleId?: number | string | null): number | string | null {
+const isPresent = (value: unknown): value is number | string =>
+  value !== undefined && value !== null && value !== "";
+
+/** Dashboard route segments that map to a role (e.g. "/ar/teacher/…" → teacher). */
+const DASHBOARD_ROLE_SEGMENTS = ["teacher", "student", "parent"] as const;
+
+export function useResolvedRoleId(explicitRoleId?: number | string | null): string | null {
   const { user } = useAuth();
   const pathname = usePathname();
 
-  if (explicitRoleId !== undefined && explicitRoleId !== null && explicitRoleId !== "") {
-    return explicitRoleId;
-  }
+  if (isPresent(explicitRoleId)) return String(explicitRoleId);
+  if (isPresent(user?.role_id)) return String(user.role_id);
+  if (user?.role) return resolveRoleId(user.role);
 
-  if (user?.role_id !== undefined && user?.role_id !== null && user.role_id !== "") {
-    return user.role_id;
-  }
-
-  if (user?.role) {
-    return resolveRoleId(user.role);
-  }
-
-  // Pathname fallback
-  if (pathname) {
-    if (pathname.includes("/teacher")) return 2;
-    if (pathname.includes("/student")) return 1;
-    if (pathname.includes("/parent")) return 5;
-  }
-
-  return null;
+  // Pathname fallback – match whole segments only
+  const segments = pathname?.split("/") ?? [];
+  const routeRole = DASHBOARD_ROLE_SEGMENTS.find((role) => segments.includes(role));
+  return routeRole ? resolveRoleId(routeRole) : null;
 }
 
 // ============================================================
 // Ads React Query Hook
 // ============================================================
 
+export const adsKeys = {
+  list: (roleId: string | null) => ["ads", roleId ?? "all"] as const,
+};
+
 export function useAdsQuery(roleId?: number | string | null) {
   const resolvedRoleId = useResolvedRoleId(roleId);
 
   return useQuery({
-    queryKey: ["ads", resolvedRoleId ?? "all"],
+    queryKey: adsKeys.list(resolvedRoleId),
     queryFn: async () => {
       const response = await adService.getAds(
         resolvedRoleId !== null ? { role_id: resolvedRoleId } : undefined

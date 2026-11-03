@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useSyncExternalStore, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/enums";
 import { Loader2 } from "lucide-react";
@@ -13,17 +13,15 @@ import { RegisterForm } from "./_components/RegisterForm";
 // Register Page – layout shell only
 // ============================================================
 
+const emptySubscribe = () => () => {};
+
 export default function RegisterPage() {
   const t = useTranslations();
   const params = useParams();
   const locale = params.locale as string;
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
     if (mounted && isAuthenticated && user) {

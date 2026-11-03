@@ -9,13 +9,12 @@ interface AudioSyncControllerProps {
 
 /**
  * Automatically clears audio field values and errors when the selected group
- * does not require audio test (requires_audio === 0).
+ * does not require an audio test (requires_audio === 0).
  */
 export function AudioSyncController({ isAudioRequired }: AudioSyncControllerProps) {
   const { values, setFieldValue, setFieldError } = useFormikContext<{
     quran_audio?: File | null;
     quran_audio_duration?: number;
-    [key: string]: any;
   }>();
 
   useEffect(() => {
@@ -30,4 +29,3 @@ export function AudioSyncController({ isAudioRequired }: AudioSyncControllerProp
 
   return null;
 }
-

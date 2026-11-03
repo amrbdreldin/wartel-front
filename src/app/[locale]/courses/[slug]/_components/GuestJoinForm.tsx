@@ -21,6 +21,11 @@ import type { ApiResponse } from "@/types/api.types";
 import type { LoginResponse } from "@/types/auth.types";
 import { UserRole } from "@/types/enums";
 import { DirectJoinLoginModal } from "./DirectJoinLoginModal";
+import {
+  extractDirectJoinError,
+  resolveGroupRoles,
+  type DirectJoinApiError,
+} from "./direct-join-utils";
 
 // ============================================================
 // GuestJoinForm – Registration form for unauthenticated users
@@ -31,18 +36,6 @@ type TabKey = "parent" | "student";
 interface GuestJoinFormProps {
   groupId: number;
   allowedRoles?: Array<{ id: number; name: string }>;
-}
-
-
-
-interface FormApiError {
-  response?: {
-    data?: {
-      message?: string;
-      errors?: Record<string, string[]>;
-    };
-  };
-  message?: string;
 }
 
 export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
@@ -64,67 +57,21 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     }
   }, []);
 
-  // Check allowed roles
-  const hasParentRole = Boolean(
-    allowedRoles &&
-      allowedRoles.some(
-        (r) =>
-          Number(r.id) === 5 ||
-          r.name?.includes("ولي") ||
-          r.name?.toLowerCase().includes("parent")
-      )
-  );
-
-  const hasSonRole = Boolean(
-    allowedRoles &&
-      allowedRoles.some(
-        (r) =>
-          Number(r.id) === 3 ||
-          r.name?.includes("ابن") ||
-          r.name?.includes("طفل") ||
-          r.name?.toLowerCase().includes("son") ||
-          r.name?.toLowerCase().includes("child")
-      )
-  );
-
-  const hasParentOrSonRole = hasParentRole || hasSonRole;
-
-  const hasStudentRole =
-    !allowedRoles || allowedRoles.length === 0
-      ? true
-      : allowedRoles.some(
-          (r) =>
-            Number(r.id) === 1 ||
-            (r.name?.includes("طالب") && !r.name?.includes("ابن") && !r.name?.includes("طفل")) ||
-            (r.name?.toLowerCase().includes("student") &&
-              !r.name?.toLowerCase().includes("son") &&
-              !r.name?.toLowerCase().includes("child"))
-        );
-
-  const studentRoleObj = allowedRoles?.find(
-    (r) =>
-      Number(r.id) === 1 ||
-      (r.name?.includes("طالب") && !r.name?.includes("ابن") && !r.name?.includes("طفل")) ||
-      (r.name?.toLowerCase().includes("student") &&
-        !r.name?.toLowerCase().includes("son") &&
-        !r.name?.toLowerCase().includes("child"))
-  );
-
+  const { hasParentOrSonRole, hasStudentRole, studentRole } = resolveGroupRoles(allowedRoles);
   const showTabs = hasStudentRole && hasParentOrSonRole;
 
   // Default active tab: student if student role is allowed, otherwise parent
-  const [activeTab, setActiveTab] = useState<TabKey>(() => {
-    return hasStudentRole ? "student" : "parent";
-  });
+  const [activeTab, setActiveTab] = useState<TabKey>(() =>
+    hasStudentRole ? "student" : "parent"
+  );
 
-  const handlePostJoinSuccess = (res: ApiResponse<JoinGroupResponse>, resetForm: () => void) => {
+  const handlePostJoinSuccess = (
+    res: ApiResponse<JoinGroupResponse> & Partial<JoinGroupResponse>,
+    resetForm: () => void
+  ) => {
     const data = res?.data;
-    const token =
-      (res as unknown as { token?: string; access_token?: string })?.token ||
-      (res as unknown as { token?: string; access_token?: string })?.access_token ||
-      data?.token ||
-      data?.access_token;
-    const userObj = data?.user || (res as unknown as { user?: JoinGroupResponse["user"] })?.user;
+    const token = res?.token || res?.access_token || data?.token || data?.access_token;
+    const userObj = data?.user || res?.user;
 
     const successMsg = res?.message || t("directJoin.joinSuccess");
     toast.success(successMsg);
@@ -136,7 +83,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
           role: userObj.role as UserRole | undefined,
         },
         accessToken: token,
-        refreshToken: (res as unknown as { refresh_token?: string })?.refresh_token || data?.refresh_token || "",
+        refreshToken: res?.refresh_token || data?.refresh_token || "",
       });
 
       let redirectPath = `/${locale}/dashboard`;
@@ -163,7 +110,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     setFormSuccess(null);
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
-    const studentRoleId = studentRoleObj ? Number(studentRoleObj.id) : 1;
+    const studentRoleId = studentRole ? Number(studentRole.id) : 1;
 
     const payload: JoinGroupRequest = {
       group_id: groupId,
@@ -176,16 +123,8 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
 
     joinGroup(payload, {
       onSuccess: (res) => handlePostJoinSuccess(res, resetForm),
-      onError: (err: FormApiError) => {
-        const responseData = err.response?.data;
-        const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
-        const validationErrors = responseData?.errors;
-        if (validationErrors && typeof validationErrors === "object") {
-          const firstErr = Object.values(validationErrors).flat()[0];
-          setFormError(firstErr as string);
-        } else {
-          setFormError(mainMessage);
-        }
+      onError: (err: DirectJoinApiError) => {
+        setFormError(extractDirectJoinError(err, t("directJoin.joinError")));
       },
       onSettled: () => setSubmitting(false),
     });
@@ -211,9 +150,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
       },
       {
         onSuccess: (res: LoginResponse) => {
-          const successMsg =
-            (res as unknown as { message?: string })?.message ||
-            t("directJoin.registerParentSuccess");
+          const successMsg = res.message || t("directJoin.registerParentSuccess");
           toast.success(successMsg);
 
           const token = res.token || res.access_token;
@@ -232,16 +169,8 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
             resetForm();
           }
         },
-        onError: (err: FormApiError) => {
-          const responseData = err.response?.data;
-          const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
-          const validationErrors = responseData?.errors;
-          if (validationErrors && typeof validationErrors === "object") {
-            const firstErr = Object.values(validationErrors).flat()[0];
-            setFormError(firstErr as string);
-          } else {
-            setFormError(mainMessage);
-          }
+        onError: (err: DirectJoinApiError) => {
+          setFormError(extractDirectJoinError(err, t("directJoin.joinError")));
         },
         onSettled: () => setSubmitting(false),
       }

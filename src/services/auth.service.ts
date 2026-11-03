@@ -19,55 +19,52 @@ import type {
 
 const AUTH_URL = "/auth";
 
+/**
+ * Unwraps an `ApiResponse<T>` while preserving top-level metadata (`message`, `success`)
+ * on the returned object so callers can inspect either shape.
+ */
+function unwrapWithMeta<T extends object>(
+  res: ApiResponse<T> & Partial<T>
+): T & { message?: string; success?: boolean } {
+  const payload =
+    res && typeof res === "object" && "data" in res && res.data && typeof res.data === "object"
+      ? { ...res.data }
+      : ({ ...res } as unknown as T);
+
+  return {
+    ...payload,
+    ...(res?.message !== undefined && !("message" in payload) ? { message: res.message } : {}),
+    ...(res?.success !== undefined && !("success" in payload) ? { success: res.success } : {}),
+  };
+}
+
 export const authService = {
   login: (data: LoginRequest, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/login`, data, options).then(
-      (r) => {
-        const responseData = r.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
-        return responseData;
-      }
-    ),
+    apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/login`, data, options).then(unwrapWithMeta),
 
   register: (data: FormData, options?: ApiCallOptions) =>
-    apiUpload<ApiResponse<EnrollmentSubmitResponse>>("/enrollment/submit", data, options).then(
-      (r: any) => {
-        const responseData =
-          r && typeof r === "object" && "data" in r && r.data
-            ? { ...r.data }
-            : r && typeof r === "object"
-            ? { ...r }
-            : {};
-        if (typeof responseData === "object" && responseData !== null) {
-          if (r?.message && !responseData.message) (responseData as any).message = r.message;
-          if (r?.success !== undefined && !("success" in responseData)) (responseData as any).success = r.success;
-          if (r?.telegram_tracking_url && !responseData.telegram_tracking_url) {
-            responseData.telegram_tracking_url = r.telegram_tracking_url;
-          }
-        }
-        return responseData as EnrollmentSubmitResponse;
+    apiUpload<ApiResponse<EnrollmentSubmitResponse> & Partial<EnrollmentSubmitResponse>>(
+      "/enrollment/submit",
+      data,
+      options
+    ).then((r) => {
+      const unwrapped = unwrapWithMeta(r);
+      if (r?.telegram_tracking_url && !unwrapped.telegram_tracking_url) {
+        unwrapped.telegram_tracking_url = r.telegram_tracking_url;
       }
-    ),
+      return unwrapped;
+    }),
 
-  parentRegister: (data: { mobile: string; password: string; full_name: string; firebase_token?: string }, options?: ApiCallOptions) =>
+  parentRegister: (
+    data: { mobile: string; password: string; full_name: string; firebase_token?: string },
+    options?: ApiCallOptions
+  ) =>
     apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/parent/register`, data, options).then(
-      (r) => {
-        const responseData = r.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
-        return responseData;
-      }
+      unwrapWithMeta
     ),
 
   logout: (options?: ApiCallOptions) =>
-    apiPost<ApiResponse<null>>(`${AUTH_URL}/logout`, undefined, options).then(
-      (r) => r
-    ),
+    apiPost<ApiResponse<null>>(`${AUTH_URL}/logout`, undefined, options),
 
   refreshToken: (refreshToken: string, options?: ApiCallOptions) =>
     apiPost<ApiResponse<RefreshTokenResponse>>(
@@ -83,26 +80,28 @@ export const authService = {
     apiPut<ApiResponse<User>>(`${AUTH_URL}/me`, data, options).then((r) => r.data),
 
   getAuthUser: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<{ fcm_token?: string[]; [key: string]: any }>>(`${AUTH_URL}/user`, options).then((r) => r.data),
+    apiGet<ApiResponse<{ fcm_token?: string[] } & Record<string, unknown>>>(
+      `${AUTH_URL}/user`,
+      options
+    ).then((r) => r.data),
 
   // ─── Password reset flow ─────────────────────────────────
   forgotPassword: (phone: string, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<InitiatePasswordResetResponse>>(`${AUTH_URL}/initiate-password-reset`, { phone }, options).then(
-      (r) => r
+    apiPost<ApiResponse<InitiatePasswordResetResponse>>(
+      `${AUTH_URL}/initiate-password-reset`,
+      { phone },
+      options
     ),
 
   resetPasswordRequest: (phone: string, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<ResetPasswordRequestResponse>>(`${AUTH_URL}/reset-password-request`, { phone }, options).then(
-      (r) => r
+    apiPost<ApiResponse<ResetPasswordRequestResponse>>(
+      `${AUTH_URL}/reset-password-request`,
+      { phone },
+      options
     ),
 
-  verifyOtp: (
-    payload: { phone: string; otp: string },
-    options?: ApiCallOptions
-  ) =>
-    apiPost<ApiResponse<null>>(`${AUTH_URL}/verify-otp`, payload, options).then(
-      (r) => r
-    ),
+  verifyOtp: (payload: { phone: string; otp: string }, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<null>>(`${AUTH_URL}/verify-otp`, payload, options),
 
   resetPassword: (
     payload: {
@@ -112,29 +111,18 @@ export const authService = {
       new_password_confirmation: string;
     },
     options?: ApiCallOptions
-  ) =>
-    apiPost<ApiResponse<null>>(`${AUTH_URL}/password/reset`, payload, options).then(
-      (r) => r
-    ),
+  ) => apiPost<ApiResponse<null>>(`${AUTH_URL}/password/reset`, payload, options),
 
   // ─── Reactivation request (terminated user) ──────────────────
-  reactivationRequest: (
-    data: UserReactivationRequest,
-    options?: ApiCallOptions
-  ) => {
+  reactivationRequest: (data: UserReactivationRequest, options?: ApiCallOptions) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("phone", data.phone);
     formData.append("reason", data.reason);
-    return apiUpload<ApiResponse<any>>("/user-reactivation-request", formData, options).then(
-      (r) => {
-        const responseData = r?.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
-        }
-        return r;
-      }
+    return apiUpload<ApiResponse<Record<string, unknown>>>(
+      "/user-reactivation-request",
+      formData,
+      options
     );
   },
 
@@ -160,7 +148,7 @@ export const authService = {
       if (resp?.tracks !== undefined) {
         return resp as unknown as RegisterDataResponse;
       }
-      return ((resp?.data ?? resp) as RegisterDataResponse);
+      return (resp?.data ?? resp) as RegisterDataResponse;
     });
   },
 
@@ -169,5 +157,3 @@ export const authService = {
   getAppData: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<AppDataResponse>>("/data", options).then((r) => r.data),
 };
-
-

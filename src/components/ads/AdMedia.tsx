@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Ad } from "@/types/ad.types";
-import { useTranslations } from "next-intl";
+import { getSafeHref, getYoutubeEmbedUrl } from "./ad-utils";
+
+// Re-exported for backwards compatibility with existing imports
+export { getYoutubeEmbedUrl } from "./ad-utils";
 
 interface AdMediaProps {
   ad: Ad;
@@ -11,72 +15,31 @@ interface AdMediaProps {
   aspectRatio?: "video" | "square" | "auto" | "banner";
 }
 
-/**
- * Extracts a safe YouTube embed URL from an ad object.
- */
-export function getYoutubeEmbedUrl(ad: Ad): string | null {
-  if (ad.youtube_embed_url) {
-    try {
-      const parsed = new URL(ad.youtube_embed_url);
-      if (
-        parsed.hostname.includes("youtube.com") ||
-        parsed.hostname.includes("youtube-nocookie.com")
-      ) {
-        return parsed.toString();
-      }
-    } catch {
-      // Fallback to regex parser below
-    }
-  }
-
-  const rawUrl = ad.youtube_url || ad.media_url || "";
-  if (!rawUrl) return null;
-
-  const match = rawUrl.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/
-  );
-
-  if (match && match[1]) {
-    return `https://www.youtube.com/embed/${match[1]}?rel=0`;
-  }
-
-  return null;
-}
+const ASPECT_CLASSES: Record<NonNullable<AdMediaProps["aspectRatio"]>, string> = {
+  video: "aspect-video",
+  square: "aspect-square",
+  banner: "aspect-[21/9]",
+  auto: "aspect-auto",
+};
 
 export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) {
   const t = useTranslations("ads");
   const [imageError, setImageError] = useState(false);
 
-  if (ad.media_type === "none" || !ad.media_type) {
-    return null;
-  }
+  const wrapperClass = (extra: string) =>
+    cn("relative w-full overflow-hidden rounded-2xl", ASPECT_CLASSES[aspectRatio], extra, className);
 
-  const aspectClass =
-    aspectRatio === "video"
-      ? "aspect-video"
-      : aspectRatio === "square"
-      ? "aspect-square"
-      : aspectRatio === "banner"
-      ? "aspect-[21/9]"
-      : "aspect-auto";
-
-  // 1. YouTube Player
   if (ad.media_type === "youtube") {
     const embedUrl = getYoutubeEmbedUrl(ad);
     if (!embedUrl) return null;
 
     return (
-      <div
-        className={cn(
-          "relative w-full overflow-hidden rounded-2xl bg-black shadow-inner",
-          aspectClass,
-          className
-        )}
-      >
+      <div className={wrapperClass("bg-black shadow-inner")}>
         <iframe
           src={embedUrl}
           title={ad.title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
           loading="lazy"
           className="absolute inset-0 h-full w-full border-0"
@@ -85,24 +48,19 @@ export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) 
     );
   }
 
-  // 2. HTML5 Video
-  if (ad.media_type === "video") {
-    if (!ad.media_url) return null;
+  const mediaUrl = getSafeHref(ad.media_url);
+  if (!mediaUrl) return null;
 
+  if (ad.media_type === "video") {
     return (
-      <div
-        className={cn(
-          "relative w-full overflow-hidden rounded-2xl bg-black shadow-inner",
-          aspectClass,
-          className
-        )}
-      >
+      <div className={wrapperClass("bg-black shadow-inner")}>
         <video
-          src={ad.media_url}
+          src={mediaUrl}
           controls
           playsInline
           preload="metadata"
-          className="h-full w-full object-contain bg-black"
+          aria-label={ad.title}
+          className="h-full w-full bg-black object-contain"
         >
           {t("videoNotSupported")}
         </video>
@@ -110,24 +68,18 @@ export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) 
     );
   }
 
-  // 3. Image
-  if (ad.media_type === "image") {
-    if (!ad.media_url || imageError) return null;
-
+  if (ad.media_type === "image" && !imageError) {
     return (
-      <div
-        className={cn(
-          "relative w-full overflow-hidden rounded-2xl bg-muted/40",
-          aspectClass,
-          className
-        )}
-      >
+      <div className={wrapperClass("bg-muted/40")}>
+        {/* Remote, admin-provided URLs of unknown host – next/image would need every host whitelisted */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={ad.media_url}
+          src={mediaUrl}
           alt={ad.title}
           loading="lazy"
+          decoding="async"
           onError={() => setImageError(true)}
-          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-300 motion-safe:hover:scale-105"
         />
       </div>
     );
@@ -135,4 +87,3 @@ export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) 
 
   return null;
 }
-

@@ -106,8 +106,8 @@ export default function StudentDashboardPage() {
         trackTitle={data?.last_grade?.exam?.title}
       />
 
-      {/* Ads - Popup Modal */}
-      <DashboardAds placement="popup" />
+      {/* Ads - Popup Modal (held back while the academy decision modal is showing) */}
+      {!(hasDecision && showDecisionModal) && <DashboardAds placement="popup" />}
 
       {/* Ads - Top Header Banner */}
       <DashboardAds placement="header" />

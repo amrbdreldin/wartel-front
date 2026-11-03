@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ExternalLink, ArrowLeft, ArrowRight, PlayCircle, BookOpen } from "lucide-react";
-import { useLocale } from "next-intl";
+import { PlayCircle, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Ad } from "@/types/ad.types";
 import { AdMedia } from "./AdMedia";
+import { AdActionLink } from "./AdActionLink";
+import { hasAdMedia } from "./ad-utils";
 
 interface AdCardProps {
   ad: Ad;
@@ -15,12 +15,8 @@ interface AdCardProps {
 
 export function AdCard({ ad, className }: AdCardProps) {
   const t = useTranslations("ads");
-  const locale = useLocale();
-  const isRTL = locale === "ar";
-  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
-
-  const hasMedia = ad.media_type && ad.media_type !== "none";
-  const isExternalUrl = ad.action_url?.startsWith("http");
+  const isVideo = ad.media_type === "youtube" || ad.media_type === "video";
+  const BadgeIcon = isVideo ? PlayCircle : BookOpen;
 
   return (
     <article
@@ -31,21 +27,12 @@ export function AdCard({ ad, className }: AdCardProps) {
       )}
     >
       <div className="space-y-4">
-        {/* Media Container (if available) */}
-        {hasMedia && (
-          <div className="overflow-hidden rounded-2xl">
-            <AdMedia ad={ad} aspectRatio="video" />
-          </div>
-        )}
+        {hasAdMedia(ad) && <AdMedia ad={ad} aspectRatio="video" />}
 
-        {/* Header / Badges */}
+        {/* Badges */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-0.5 text-xs font-bold text-primary">
-            {ad.media_type === "youtube" || ad.media_type === "video" ? (
-              <PlayCircle className="h-3 w-3" />
-            ) : (
-              <BookOpen className="h-3 w-3" />
-            )}
+            <BadgeIcon className="h-3 w-3" aria-hidden="true" />
             {ad.placement_name || t("guide")}
           </span>
 
@@ -56,12 +43,10 @@ export function AdCard({ ad, className }: AdCardProps) {
           )}
         </div>
 
-        {/* Title */}
-        <h3 className="text-base md:text-lg font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+        <h3 className="text-base md:text-lg font-bold text-foreground leading-snug transition-colors group-hover:text-primary">
           {ad.title}
         </h3>
 
-        {/* Content */}
         {ad.content && (
           <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-4">
             {ad.content}
@@ -69,31 +54,15 @@ export function AdCard({ ad, className }: AdCardProps) {
         )}
       </div>
 
-      {/* Action / CTA Button */}
       {ad.action_url && (
-        <div className="mt-5 pt-4 border-t border-border/50">
-          {isExternalUrl ? (
-            <a
-              href={ad.action_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-              <span>{ad.action_title || t("viewDetails")}</span>
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          ) : (
-            <Link
-              href={ad.action_url}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-              <span>{ad.action_title || t("viewDetails")}</span>
-              <ArrowIcon className="h-4 w-4" />
-            </Link>
-          )}
+        <div className="mt-5 border-t border-border/50 pt-4">
+          <AdActionLink
+            url={ad.action_url}
+            label={ad.action_title || t("viewDetails")}
+            className="w-full px-4 py-2.5 shadow-sm hover:shadow"
+          />
         </div>
       )}
     </article>
   );
 }
-

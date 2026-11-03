@@ -3,4 +3,4 @@ export { AdHeader } from "./AdHeader";
 export { AdCard } from "./AdCard";
 export { AdPopup } from "./AdPopup";
 export { AdMedia } from "./AdMedia";
-
+export { AdActionLink } from "./AdActionLink";

@@ -86,6 +86,8 @@ export interface LoginResponse {
   token?: string;
   access_token?: string;
   refresh_token?: string;
+  message?: string;
+  success?: boolean;
 }
 
 export interface InitiatePasswordResetResponse {
@@ -115,7 +117,9 @@ export interface EnrollmentSubmitResponse {
   telegram_tracking_url?: string;
   message?: string;
   success?: boolean;
-  [key: string]: any;
+  audio_test_path?: string;
+  status_id?: number;
+  status_name?: string;
 }
 
 export interface RefreshTokenResponse {

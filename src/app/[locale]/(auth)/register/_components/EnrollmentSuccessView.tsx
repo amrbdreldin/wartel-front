@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
@@ -21,12 +21,13 @@ interface EnrollmentSuccessViewProps {
   locale: string;
 }
 
+const DEFAULT_TELEGRAM_BOT_URL = "https://t.me/wartelacademy_bot";
+
 /**
  * Validates and sanitizes a Telegram URL to prevent malicious link injection.
  */
 function sanitizeTelegramUrl(rawUrl?: string | null): string {
-  const fallback = "https://t.me/wartelacademy_bot";
-  if (!rawUrl || typeof rawUrl !== "string") return fallback;
+  if (!rawUrl || typeof rawUrl !== "string") return DEFAULT_TELEGRAM_BOT_URL;
 
   const trimmed = rawUrl.trim();
   try {
@@ -40,11 +41,10 @@ function sanitizeTelegramUrl(rawUrl?: string | null): string {
       return trimmed;
     }
   } catch {
-    // URL parsing failed; fallback to safe default bot
-    return fallback;
+    return DEFAULT_TELEGRAM_BOT_URL;
   }
 
-  return fallback;
+  return DEFAULT_TELEGRAM_BOT_URL;
 }
 
 /**
@@ -62,22 +62,37 @@ function TelegramIcon({ className }: { className?: string }) {
   );
 }
 
+const STEPS = [
+  { num: 1, titleKey: "auth.telegramStep1Title", descKey: "auth.telegramStep1Desc", emphasized: false },
+  { num: 2, titleKey: "auth.telegramStep2Title", descKey: "auth.telegramStep2Desc", emphasized: true },
+  { num: 3, titleKey: "auth.telegramStep3Title", descKey: "auth.telegramStep3Desc", emphasized: false },
+] as const;
+
 export function EnrollmentSuccessView({
   telegramTrackingUrl,
   locale,
 }: EnrollmentSuccessViewProps) {
   const t = useTranslations();
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRTL = locale === "ar";
+  const BackArrow = isRTL ? ArrowLeft : ArrowRight;
 
   const targetUrl = sanitizeTelegramUrl(telegramTrackingUrl);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(targetUrl);
       setCopied(true);
       toast.success(t("auth.telegramCopied"));
-      setTimeout(() => setCopied(false), 2500);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2500);
     } catch {
       toast.error(t("common.errorOccurred"));
     }
@@ -87,11 +102,11 @@ export function EnrollmentSuccessView({
     <div className="bg-card/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12 border border-border/40 text-center animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto">
       {/* ── Top Success Status ── */}
       <div className="relative inline-flex items-center justify-center mb-6">
-        <div className="w-20 h-20 md:w-24 md:h-24 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center ring-8 ring-emerald-500/5 animate-pulse-slow">
-          <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12" />
+        <div className="w-20 h-20 md:w-24 md:h-24 bg-success-500/10 text-success-600 dark:text-success-400 rounded-full flex items-center justify-center ring-8 ring-success-500/5">
+          <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12" aria-hidden="true" />
         </div>
-        <div className="absolute -top-1 -end-1 bg-primary text-white rounded-full p-1.5 shadow-md">
-          <Sparkles className="w-4 h-4" />
+        <div className="absolute -top-1 -end-1 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
+          <Sparkles className="w-4 h-4" aria-hidden="true" />
         </div>
       </div>
 
@@ -104,22 +119,22 @@ export function EnrollmentSuccessView({
       </p>
 
       {/* ── Telegram Callout Card (Highlight & Required) ── */}
-      <div className="bg-gradient-to-b from-[#229ED9]/10 via-[#229ED9]/5 to-transparent dark:from-[#229ED9]/20 dark:via-[#229ED9]/10 rounded-3xl p-5 sm:p-7 md:p-9 border-2 border-[#229ED9]/30 shadow-xl shadow-[#229ED9]/5 text-start relative overflow-hidden mb-8">
+      <div className="bg-gradient-to-b from-info-500/10 via-info-500/5 to-transparent dark:from-info-500/20 dark:via-info-500/10 rounded-3xl p-5 sm:p-7 md:p-9 border-2 border-info-500/30 shadow-xl shadow-info-500/5 text-start relative overflow-hidden mb-8">
         {/* Subtle decorative background circle */}
         <div
-          className="absolute -top-16 -end-16 w-44 h-44 bg-[#229ED9]/10 rounded-full blur-2xl pointer-events-none"
+          className="absolute -top-16 -end-16 w-44 h-44 bg-info-500/10 rounded-full blur-2xl pointer-events-none"
           aria-hidden="true"
         />
 
         {/* Priority Badge */}
         <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#229ED9]/15 text-[#229ED9] dark:text-[#5bc1f5] font-black text-xs md:text-sm border border-[#229ED9]/30 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-info-500/15 text-info-600 dark:text-info-400 font-black text-xs md:text-sm border border-info-500/30 shadow-sm">
             <TelegramIcon className="w-4 h-4" />
             <span>{t("auth.telegramStepBadge")}</span>
           </div>
 
-          <span className="text-[11px] md:text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
-            {isRTL ? "إلزامي لاستلام الرسائل" : "Mandatory for messages"}
+          <span className="text-[11px] md:text-xs font-semibold px-2.5 py-1 rounded-md bg-warning-500/10 text-warning-600 dark:text-warning-400 border border-warning-500/20">
+            {t("auth.telegramMandatoryBadge")}
           </span>
         </div>
 
@@ -133,54 +148,47 @@ export function EnrollmentSuccessView({
         </p>
 
         {/* ── 3 Visual Steps ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6">
-          {/* Step 1 */}
-          <div className="bg-card/90 rounded-2xl p-4 border border-border/60 shadow-sm flex flex-col justify-between">
-            <div className="flex items-center gap-2.5 mb-2">
-              <span className="w-7 h-7 rounded-full bg-muted text-foreground font-black text-xs flex items-center justify-center shrink-0">
-                1
-              </span>
-              <h4 className="font-bold text-sm text-foreground">
-                {t("auth.telegramStep1Title")}
-              </h4>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {t("auth.telegramStep1Desc")}
-            </p>
-          </div>
-
-          {/* Step 2 (Emphasized: Tap Start / ابدأ) */}
-          <div className="bg-card/95 rounded-2xl p-4 border-2 border-[#229ED9] dark:border-[#229ED9]/80 shadow-md shadow-[#229ED9]/10 flex flex-col justify-between relative ring-2 ring-[#229ED9]/20">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-full bg-[#229ED9] text-white font-black text-xs flex items-center justify-center shrink-0">
-                  2
+        <ol className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6 list-none">
+          {STEPS.map(({ num, titleKey, descKey, emphasized }) => (
+            <li
+              key={num}
+              className={cn(
+                "rounded-2xl p-4 flex flex-col justify-between",
+                emphasized
+                  ? "bg-card/95 border-2 border-info-500 dark:border-info-500/80 shadow-md shadow-info-500/10 relative ring-2 ring-info-500/20"
+                  : "bg-card/90 border border-border/60 shadow-sm"
+              )}
+            >
+              <div className="flex items-center gap-2.5 mb-2">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "w-7 h-7 rounded-full font-black text-xs flex items-center justify-center shrink-0",
+                    emphasized ? "bg-info-500 text-white" : "bg-muted text-foreground"
+                  )}
+                >
+                  {num}
                 </span>
-                <h4 className="font-black text-sm text-[#229ED9] dark:text-[#5bc1f5]">
-                  {t("auth.telegramStep2Title")}
+                <h4
+                  className={cn(
+                    "text-sm",
+                    emphasized ? "font-black text-info-600 dark:text-info-400" : "font-bold text-foreground"
+                  )}
+                >
+                  {t(titleKey)}
                 </h4>
               </div>
-            </div>
-            <p className="text-xs text-foreground/90 font-medium leading-relaxed">
-              {t("auth.telegramStep2Desc")}
-            </p>
-          </div>
-
-          {/* Step 3 */}
-          <div className="bg-card/90 rounded-2xl p-4 border border-border/60 shadow-sm flex flex-col justify-between">
-            <div className="flex items-center gap-2.5 mb-2">
-              <span className="w-7 h-7 rounded-full bg-muted text-foreground font-black text-xs flex items-center justify-center shrink-0">
-                3
-              </span>
-              <h4 className="font-bold text-sm text-foreground">
-                {t("auth.telegramStep3Title")}
-              </h4>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {t("auth.telegramStep3Desc")}
-            </p>
-          </div>
-        </div>
+              <p
+                className={cn(
+                  "text-xs leading-relaxed",
+                  emphasized ? "text-foreground/90 font-medium" : "text-muted-foreground"
+                )}
+              >
+                {t(descKey)}
+              </p>
+            </li>
+          ))}
+        </ol>
 
         {/* ── Action Buttons ── */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
@@ -189,25 +197,25 @@ export function EnrollmentSuccessView({
             href={targetUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[#229ED9] hover:bg-[#1e8cc0] active:scale-[0.99] text-white font-black text-base md:text-lg shadow-lg shadow-[#229ED9]/25 hover:shadow-[#229ED9]/40 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#229ED9] focus-visible:ring-offset-2"
+            className="flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-info-500 hover:bg-info-600 active:scale-[0.99] text-white font-black text-base md:text-lg shadow-lg shadow-info-500/25 hover:shadow-info-500/40 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info-500 focus-visible:ring-offset-2"
             aria-label={t("auth.telegramOpenButton")}
           >
             <TelegramIcon className="w-5 h-5 shrink-0" />
             <span>{t("auth.telegramOpenButton")}</span>
-            <ExternalLink className="w-4 h-4 opacity-80 shrink-0" />
+            <ExternalLink className="w-4 h-4 opacity-80 shrink-0" aria-hidden="true" />
           </a>
 
           {/* Secondary: Copy Link */}
           <button
             type="button"
             onClick={handleCopyLink}
-            className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-card hover:bg-muted text-foreground font-bold text-sm border border-border/80 shadow-sm hover:border-[#229ED9]/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-card hover:bg-muted text-foreground font-bold text-sm border border-border/80 shadow-sm hover:border-info-500/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
             aria-label={t("auth.telegramCopyLink")}
           >
             {copied ? (
-              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <Check className="w-4 h-4 text-success-600 dark:text-success-400" aria-hidden="true" />
             ) : (
-              <Copy className="w-4 h-4 text-muted-foreground" />
+              <Copy className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
             )}
             <span>{copied ? t("auth.telegramCopied") : t("auth.telegramCopyLink")}</span>
           </button>
@@ -216,9 +224,9 @@ export function EnrollmentSuccessView({
         {/* ── Important Note / Warning ── */}
         <div
           role="note"
-          className="mt-6 flex items-start gap-3 p-3.5 md:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-800 dark:text-amber-200 text-xs md:text-sm leading-relaxed"
+          className="mt-6 flex items-start gap-3 p-3.5 md:p-4 rounded-2xl bg-warning-500/10 border border-warning-500/25 text-warning-600 dark:text-warning-400 text-xs md:text-sm leading-relaxed"
         >
-          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
           <span>{t("auth.telegramWarning")}</span>
         </div>
       </div>
@@ -229,15 +237,10 @@ export function EnrollmentSuccessView({
           href={`/${locale}`}
           className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm md:text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
-          {isRTL ? (
-            <ArrowLeft className="w-4 h-4" />
-          ) : (
-            <ArrowRight className="w-4 h-4" />
-          )}
+          <BackArrow className="w-4 h-4" aria-hidden="true" />
           <span>{t("common.backToHome")}</span>
         </Link>
       </div>
     </div>
   );
 }
-

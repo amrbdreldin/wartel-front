@@ -24,7 +24,7 @@ export default function TeacherDashboardPage() {
   const [savedLinks, setSavedLinks] = useState<Record<string, boolean>>({});
   const [savingLinks, setSavingLinks] = useState<Record<string, boolean>>({});
 
-  const handleSaveLink = async (group: any) => {
+  const handleSaveLink = async (group: { id: string | number; session_id?: string | number }) => {
     const sessionId = group.session_id || group.id;
     const link = meetLinks[group.id];
     if (!link || !link.trim()) return;
@@ -104,12 +104,11 @@ export default function TeacherDashboardPage() {
 
   return (
     <div className="animate-in fade-in duration-500 space-y-10">
-      {/* ── HERO SECTION ──────────────────────────────────────────────────── */}
+      {/* ── ADS: popup + top banner ───────────────────────────────────────── */}
       <DashboardAds placement="popup" />
-
-      {/* Top Header Banner Ads */}
       <DashboardAds placement="header" />
 
+      {/* ── HERO SECTION ──────────────────────────────────────────────────── */}
       <TeacherHero
         todaySessionsCount={today_sessions.length}
         welcomeTitle={t("welcomeTitle", { name: user?.full_name || "" })}

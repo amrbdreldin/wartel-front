@@ -14,27 +14,16 @@ import { GroupInfoCard } from "./_components/GroupInfoCard";
 import { GuestJoinForm } from "./_components/GuestJoinForm";
 import { AuthJoinSection } from "./_components/AuthJoinSection";
 import { ParentChildrenJoinSection } from "./_components/ParentChildrenJoinSection";
-import { UserRole } from "@/types/enums";
+import {
+  extractDirectJoinError,
+  resolveGroupRoles,
+  ROLE_ID_MAP,
+  type DirectJoinApiError,
+} from "./_components/direct-join-utils";
 
 // ============================================================
 // Direct Join Course Page – /[locale]/courses/[slug]
 // ============================================================
-
-interface ApiErrorResponse {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
-}
-
-/** Map UserRole enum to the corresponding allowed_roles id from the API */
-const ROLE_ID_MAP: Record<string, number[]> = {
-  [UserRole.STUDENT]: [1],
-  [UserRole.TEACHER]: [2],
-  [UserRole.PARENT]: [5],
-};
 
 export default function DirectJoinCoursePage({
   params,
@@ -74,25 +63,15 @@ export default function DirectJoinCoursePage({
   }, [user, selectedGroup]);
 
   // Check if parent/child roles exist in allowed_roles
-  const hasParentOrChildRoles = useMemo(() => {
-    if (!selectedGroup?.allowed_roles) return false;
-    return selectedGroup.allowed_roles.some(
-      (r) =>
-        Number(r.id) === 5 ||
-        Number(r.id) === 3 ||
-        r.name?.includes("ولي") ||
-        r.name?.includes("ابن") ||
-        r.name?.includes("طفل") ||
-        r.name?.toLowerCase().includes("parent") ||
-        r.name?.toLowerCase().includes("son") ||
-        r.name?.toLowerCase().includes("child")
-    );
-  }, [selectedGroup]);
+  const hasParentOrChildRoles = useMemo(
+    () => resolveGroupRoles(selectedGroup?.allowed_roles).hasParentOrSonRole,
+    [selectedGroup]
+  );
 
-  const errorMessage =
-    (error as ApiErrorResponse | null)?.response?.data?.message ||
-    (error as ApiErrorResponse | null)?.message ||
-    t("common.errorOccurred");
+  const errorMessage = extractDirectJoinError(
+    error as DirectJoinApiError | null,
+    t("common.errorOccurred")
+  );
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">

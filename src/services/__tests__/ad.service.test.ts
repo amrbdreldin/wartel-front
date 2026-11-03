@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { adService } from "../ad.service";
 import * as apiClient from "@/lib/api-client";
+import type { ApiResponse } from "@/types/api.types";
+import type { Ad } from "@/types/ad.types";
 
 vi.mock("@/lib/api-client", () => ({
   apiGet: vi.fn(),
@@ -17,7 +19,7 @@ describe("adService", () => {
         success: true,
         message: "تم جلب الإعلانات بنجاح",
         data: [],
-      } as any);
+      } satisfies ApiResponse<Ad[]>);
 
       await adService.getAds();
 
@@ -39,12 +41,20 @@ describe("adService", () => {
           {
             id: 2,
             title: "شرح طريقة استخدام نظام التمام والرفيقات",
+            content: null,
             placement: "card",
             media_type: "youtube",
+            media_url: null,
+            youtube_embed_url: null,
+            action_url: null,
+            action_title: null,
             role_id: 2,
+            start_at: "2026-11-01T00:00:00+02:00",
+            end_at: null,
+            priority: 1,
           },
         ],
-      } as any);
+      } satisfies ApiResponse<Ad[]>);
 
       await adService.getAds({ role_id: 2 });
 
@@ -63,7 +73,7 @@ describe("adService", () => {
         success: true,
         message: "تم جلب الإعلانات بنجاح",
         data: [],
-      } as any);
+      } satisfies ApiResponse<Ad[]>);
 
       await adService.getAds({ role_id: 1 });
 

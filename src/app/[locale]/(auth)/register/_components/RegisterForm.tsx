@@ -4,9 +4,10 @@ import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { Logo } from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
-import { registerSchema, findPendingGroup, isAudioRequiredForGroup } from "@/utils/validation";
+import { registerSchema, isAudioRequiredForSelection } from "@/utils/validation";
 import { useRegisterMutation, useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { Form, Formik, type FormikProps } from "formik";
+import type { ValidationError } from "yup";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, AlertCircle, Info, Users, X, ShieldCheck,
 } from "lucide-react";
@@ -67,7 +68,7 @@ export function RegisterForm() {
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [telegramTrackingUrl, setTelegramTrackingUrl] = useState<string | null>(null);
 
-  const formikRef = useRef<FormikProps<any>>(null);
+  const formikRef = useRef<FormikProps<typeof initialValues>>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"women" | "children">("women");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -136,14 +137,9 @@ export function RegisterForm() {
     
     if (values.selected_track_id) fd.append("track_id", values.selected_track_id);
     if (values.selected_group_id) fd.append("group_id", values.selected_group_id);
-    const selectedGroup = findPendingGroup(values.selected_group_id, {
-      enrollmentTypes,
-      allTracks,
-      enrollmentTypeId: values.enrollment_type_id,
-      trackId: values.selected_track_id,
-    });
-    const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
-    if (isAudioRequired && values.quran_audio) fd.append("audio_test_path", values.quran_audio);
+    if (isAudioRequiredForSelection(values, { enrollmentTypes, allTracks }) && values.quran_audio) {
+      fd.append("audio_test_path", values.quran_audio);
+    }
     
     const roleId = studentRoleId ? String(studentRoleId) : resolveRoleId(values.user_type, userRoles);
     fd.append("user_role_id", roleId);
@@ -156,23 +152,18 @@ export function RegisterForm() {
 
     register(fd, {
       onSuccess: (res) => {
-        const trackingUrl =
-          (res as any)?.telegram_tracking_url ||
-          (res as any)?.data?.telegram_tracking_url;
-
-        if (trackingUrl) {
-          setTelegramTrackingUrl(trackingUrl);
+        if (res?.telegram_tracking_url) {
+          setTelegramTrackingUrl(res.telegram_tracking_url);
         }
-        const enrollmentPayload = (res as any)?.data ?? res;
-        if (enrollmentPayload) {
-          dispatch(setEnrollmentData(enrollmentPayload));
+        if (res) {
+          dispatch(setEnrollmentData(res));
         }
-        const successMsg = (res as any)?.message || t("auth.applicationSubmitted");
+        const successMsg = res?.message || t("auth.applicationSubmitted");
         setFormSuccess(successMsg);
         toast.success(successMsg);
         setIsSuccess(true);
       },
-      onError: (err: any) => {
+      onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("common.errorOccurred");
         const validationErrors = responseData?.errors;
@@ -226,15 +217,15 @@ export function RegisterForm() {
           innerRef={formikRef}
           initialValues={initialValues}
           validate={(values) => {
-            const errors: any = {};
+            const errors: Record<string, string> = {};
             try {
               registerSchema.validateSync(values, {
                 abortEarly: false,
                 context: { enrollmentTypes, allTracks }
               });
-            } catch (err: any) {
-              err.inner.forEach((currentError: any) => {
-                errors[currentError.path] = currentError.message;
+            } catch (err) {
+              (err as ValidationError).inner?.forEach((currentError) => {
+                if (currentError.path) errors[currentError.path] = currentError.message;
               });
             }
 
@@ -247,13 +238,10 @@ export function RegisterForm() {
           onSubmit={handleSubmit}
         >
           {({ values }) => {
-            const selectedGroup = findPendingGroup(values.selected_group_id, {
+            const isAudioRequired = isAudioRequiredForSelection(values, {
               enrollmentTypes,
               allTracks,
-              enrollmentTypeId: values.enrollment_type_id,
-              trackId: values.selected_track_id,
             });
-            const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
 
             return (
               <Form className="space-y-6">

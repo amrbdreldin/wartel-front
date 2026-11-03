@@ -6,16 +6,18 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { parentService } from "@/services/parent.service";
 
+export interface ParentTodaySession {
+  session_id: number;
+  group_name: string;
+  teacher_name: string;
+  scheduled_at: string;
+  status: string;
+  url: string;
+  children_names: string[];
+}
+
 interface TodaySessionCardProps {
-  session: {
-    session_id: number;
-    group_name: string;
-    teacher_name: string;
-    scheduled_at: string;
-    status: string;
-    url: string;
-    children_names: string[];
-  };
+  session: ParentTodaySession;
 }
 
 export function TodaySessionCard({ session }: TodaySessionCardProps) {

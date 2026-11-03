@@ -16,6 +16,11 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { addSingleSonSchema } from "@/utils/validation";
 import { Form, Formik } from "formik";
 import { UserRole } from "@/types/enums";
+import {
+  extractDirectJoinError,
+  resolveGroupRoles,
+  type DirectJoinApiError,
+} from "./direct-join-utils";
 
 // ============================================================
 // ParentChildrenJoinSection – Unified Join list for parent & children
@@ -41,20 +46,8 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
     Record<string | number, { loading: boolean; success: string | null; error: string | null }>
   >({});
 
-  const hasParentRole = allowedRoles
-    ? allowedRoles.some((r) => Number(r.id) === 5 || r.name?.includes("ولي") || r.name?.toLowerCase().includes("parent"))
-    : true;
-
-  const hasSonRole = allowedRoles
-    ? allowedRoles.some(
-        (r) =>
-          Number(r.id) === 3 ||
-          r.name?.includes("ابن") ||
-          r.name?.includes("طفل") ||
-          r.name?.toLowerCase().includes("son") ||
-          r.name?.toLowerCase().includes("child")
-      )
-    : false;
+  const { hasParentRole: groupHasParentRole, hasSonRole, parentRole } = resolveGroupRoles(allowedRoles);
+  const hasParentRole = !allowedRoles ? true : groupHasParentRole;
 
   const isParentOrTeacherCanAddSon =
     user &&
@@ -63,7 +56,8 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
       user.role === UserRole.TEACHER ||
       String(user.role_id) === "5" ||
       String(user.role_id) === "2" ||
-      allowedRoles?.some((r) => Number(r.id) === 5 || Number(r.id) === 3 || r.name.includes("ولي")));
+      groupHasParentRole ||
+      hasSonRole);
 
   const handleJoin = async (id: "parent" | number) => {
     setStates((prev) => ({
@@ -73,18 +67,14 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
 
-    const parentRoleObj = allowedRoles?.find(
-      (r) => Number(r.id) === 5 || r.name?.includes("ولي") || r.name?.toLowerCase().includes("parent")
-    );
-
     const payload: { group_id: number; firebase_token?: string; child_id?: number; role_id?: number } = {
       group_id: groupId,
       firebase_token: firebaseToken || undefined,
     };
     if (id !== "parent") {
       payload.child_id = id;
-    } else if (parentRoleObj) {
-      payload.role_id = Number(parentRoleObj.id);
+    } else if (parentRole) {
+      payload.role_id = Number(parentRole.id);
     }
 
     joinGroup(payload, {
@@ -96,18 +86,14 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           [id]: { loading: false, success: successMsg, error: null },
         }));
       },
-      onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
-        const responseData = err.response?.data;
-        const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
-        const validationErrors = responseData?.errors;
-        let errorMsg = mainMessage;
-        if (validationErrors && typeof validationErrors === "object") {
-          const firstErr = Object.values(validationErrors).flat()[0];
-          errorMsg = firstErr as string;
-        }
+      onError: (err: DirectJoinApiError) => {
         setStates((prev) => ({
           ...prev,
-          [id]: { loading: false, success: null, error: errorMsg },
+          [id]: {
+            loading: false,
+            success: null,
+            error: extractDirectJoinError(err, t("directJoin.joinError")),
+          },
         }));
       },
     });
@@ -143,16 +129,8 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           setShowAddSonForm(false);
           refetchChildren();
         },
-        onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
-          const responseData = err.response?.data;
-          const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
-          const validationErrors = responseData?.errors;
-          if (validationErrors && typeof validationErrors === "object") {
-            const firstErr = Object.values(validationErrors).flat()[0];
-            setAddSonError(firstErr as string);
-          } else {
-            setAddSonError(mainMessage);
-          }
+        onError: (err: DirectJoinApiError) => {
+          setAddSonError(extractDirectJoinError(err, t("directJoin.joinError")));
         },
         onSettled: () => setSubmitting(false),
       }

@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import type { LoginResponse } from "@/types/auth.types";
+import { extractDirectJoinError, type DirectJoinApiError } from "./direct-join-utils";
 
 // ============================================================
 // DirectJoinLoginModal – In-place Login Modal for Course Page
@@ -31,18 +32,6 @@ import type { LoginResponse } from "@/types/auth.types";
 interface DirectJoinLoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-
-
-interface ModalApiError {
-  response?: {
-    data?: {
-      message?: string;
-      errors?: Record<string, string[]>;
-    };
-  };
-  message?: string;
 }
 
 export function DirectJoinLoginModal({
@@ -116,10 +105,7 @@ export function DirectJoinLoginModal({
             });
           }
 
-          const successMsg =
-            (res as unknown as { message?: string })?.message ||
-            t("auth.loginSuccess") ||
-            "تم تسجيل الدخول بنجاح";
+          const successMsg = res.message || t("auth.loginSuccess");
           toast.success(successMsg);
           setFormSuccess(successMsg);
 
@@ -127,17 +113,8 @@ export function DirectJoinLoginModal({
           handleOpenChange(false);
           router.refresh();
         },
-        onError: (err: ModalApiError) => {
-          const responseData = err.response?.data;
-          const mainMessage =
-            responseData?.message || err.message || t("common.errorOccurred");
-          const validationErrors = responseData?.errors;
-          if (validationErrors && typeof validationErrors === "object") {
-            const firstErr = Object.values(validationErrors).flat()[0];
-            setFormError(firstErr as string);
-          } else {
-            setFormError(mainMessage);
-          }
+        onError: (err: DirectJoinApiError) => {
+          setFormError(extractDirectJoinError(err, t("common.errorOccurred")));
         },
         onSettled: () => setSubmitting(false),
       }

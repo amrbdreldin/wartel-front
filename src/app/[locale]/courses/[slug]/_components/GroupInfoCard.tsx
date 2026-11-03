@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import { BookOpen, GraduationCap, Calendar, Clock, Check, Users, Layers, CheckCircle2 } from "lucide-react";
 import type { DirectJoinGroup } from "@/services/group.service";
@@ -21,6 +22,7 @@ export function GroupInfoCard({
   onSelectGroup,
 }: GroupInfoCardProps) {
   const t = useTranslations("directJoin");
+  const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const selectedGroup =
     groups.find((g) => g.group_id === selectedGroupId) || groups[0];
@@ -30,12 +32,18 @@ export function GroupInfoCard({
 
   const isMultiGroup = groups.length > 1;
 
+  const moveSelection = (currentIndex: number, delta: number) => {
+    const nextIndex = (currentIndex + delta + groups.length) % groups.length;
+    onSelectGroup(groups[nextIndex].group_id);
+    optionRefs.current[nextIndex]?.focus();
+  };
+
   return (
     <div className="space-y-6">
       {/* Track / Course Header */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-primary text-white mb-2 mx-auto shadow-lg shadow-primary/25">
-          <BookOpen className="w-7 h-7 sm:w-8 sm:h-8" />
+          <BookOpen className="w-7 h-7 sm:w-8 sm:h-8" aria-hidden="true" />
         </div>
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight px-2">
           {trackName}
@@ -53,7 +61,7 @@ export function GroupInfoCard({
           {/* Section title & count */}
           <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground px-1">
             <span className="flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-primary" />
+              <Layers className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
               {t("availableGroups")}
             </span>
             <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium text-[11px]">
@@ -66,20 +74,29 @@ export function GroupInfoCard({
             aria-label={t("availableGroups")}
             className="space-y-3"
           >
-            {groups.map((group) => {
-              const isSelected = group.group_id === selectedGroupId;
+            {groups.map((group, idx) => {
+              const isSelected = group.group_id === selectedGroup.group_id;
 
               return (
                 <div
                   key={group.group_id}
+                  ref={(el) => {
+                    optionRefs.current[idx] = el;
+                  }}
                   role="radio"
                   aria-checked={isSelected}
-                  tabIndex={0}
+                  tabIndex={isSelected ? 0 : -1}
                   onClick={() => onSelectGroup(group.group_id)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       onSelectGroup(group.group_id);
+                    } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+                      e.preventDefault();
+                      moveSelection(idx, 1);
+                    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+                      e.preventDefault();
+                      moveSelection(idx, -1);
                     }
                   }}
                   className={cn(
@@ -113,7 +130,7 @@ export function GroupInfoCard({
                         </span>
                         {group.teacher_name && (
                           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                            <GraduationCap className="w-3.5 h-3.5 shrink-0 text-accent" />
+                            <GraduationCap className="w-3.5 h-3.5 shrink-0 text-accent" aria-hidden="true" />
                             <span className="truncate">{group.teacher_name}</span>
                           </div>
                         )}
@@ -132,17 +149,17 @@ export function GroupInfoCard({
                   {group.group_session_days && group.group_session_days.length > 0 && (
                     <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-border/40">
                       <span className="text-[11px] text-muted-foreground flex items-center gap-1 shrink-0 font-medium">
-                        <Calendar className="w-3 h-3" />
+                        <Calendar className="w-3 h-3" aria-hidden="true" />
                         {t("schedule")}:
                       </span>
-                      {group.group_session_days.map((session, idx) => (
+                      {group.group_session_days.map((session, sIdx) => (
                         <span
-                          key={idx}
+                          key={sIdx}
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted/80 text-[11px] font-medium text-foreground border border-border/50"
                         >
                           <span>{session.day}</span>
                           <span className="text-muted-foreground">·</span>
-                          <Clock className="w-3 h-3 text-muted-foreground" />
+                          <Clock className="w-3 h-3 text-muted-foreground" aria-hidden="true" />
                           <span>{session.time}</span>
                         </span>
                       ))}
@@ -153,7 +170,7 @@ export function GroupInfoCard({
                   {group.allowed_roles && group.allowed_roles.length > 0 && (
                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
                       <span className="text-[11px] text-muted-foreground flex items-center gap-1 shrink-0">
-                        <Users className="w-3 h-3" />
+                        <Users className="w-3 h-3" aria-hidden="true" />
                         {t("targetAudience")}:
                       </span>
                       {group.allowed_roles.map((role) => (
@@ -175,7 +192,7 @@ export function GroupInfoCard({
           {selectedGroup && (
             <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/15 text-xs text-start">
               <div className="flex items-center gap-2 min-w-0">
-                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
                 <span className="text-muted-foreground truncate">
                   {t("selectedGroup")}:{" "}
                   <strong className="text-foreground">{selectedGroup.group_name}</strong>
@@ -208,7 +225,7 @@ export function GroupInfoCard({
               {selectedGroup.teacher_name && (
                 <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40">
                   <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <GraduationCap className="w-3.5 h-3.5 text-accent" />
+                    <GraduationCap className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
                     {t("teacherName")}
                   </span>
                   <span className="text-sm font-semibold text-foreground">
@@ -222,7 +239,7 @@ export function GroupInfoCard({
             {selectedGroup.group_session_days && selectedGroup.group_session_days.length > 0 && (
               <div className="space-y-2">
                 <h2 className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
+                  <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
                   {t("sessionDays")}
                 </h2>
                 <div className="flex flex-wrap gap-2">
@@ -236,7 +253,7 @@ export function GroupInfoCard({
                       </span>
                       <div className="w-px h-3.5 bg-border" />
                       <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
+                        <Clock className="w-3 h-3" aria-hidden="true" />
                         {session.time}
                       </span>
                     </div>
@@ -249,7 +266,7 @@ export function GroupInfoCard({
             {selectedGroup.allowed_roles && selectedGroup.allowed_roles.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0 font-medium">
-                  <Users className="w-3.5 h-3.5" />
+                  <Users className="w-3.5 h-3.5" aria-hidden="true" />
                   {t("targetAudience")}:
                 </span>
                 {selectedGroup.allowed_roles.map((role) => (

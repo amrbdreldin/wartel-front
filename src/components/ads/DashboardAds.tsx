@@ -1,136 +1,86 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useAdsQuery, getAdsByPlacement } from "@/hooks/api/useAdsQueries";
 import type { Ad, AdPlacement } from "@/types/ad.types";
+import { cn } from "@/lib/utils";
 import { AdHeader } from "./AdHeader";
 import { AdCard } from "./AdCard";
 import { AdPopup } from "./AdPopup";
-import { cn } from "@/lib/utils";
+import { useVisibleAds } from "./ad-utils";
+
+const DEFAULT_CARD_GRID = "grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3";
 
 interface DashboardAdsProps {
-  /**
-   * Specific placement to render. If omitted, renders all active placements.
-   */
+  /** Specific placement to render. If omitted, renders all active placements. */
   placement?: AdPlacement;
-  /**
-   * Explicit role ID override. If omitted, automatically determined from user or route.
-   */
+  /** Explicit role ID override. If omitted, automatically determined from user or route. */
   roleId?: number | string | null;
-  /**
-   * Container className.
-   */
+  /** Container className (only applied when there is something to render). */
   className?: string;
-  /**
-   * Grid layout className when rendering multiple cards (default: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6").
-   */
+  /** Grid layout className when rendering cards. */
   cardGridClassName?: string;
 }
 
-export function DashboardAds({
-  placement,
-  roleId,
-  className,
-  cardGridClassName,
-}: DashboardAdsProps) {
-  const { data: ads = [], isLoading } = useAdsQuery(roleId);
-
-  // Filter ads by placement
-  const headerAds = getAdsByPlacement(ads, "header");
-  const cardAds = getAdsByPlacement(ads, "card");
-  const popupAds = getAdsByPlacement(ads, "popup");
-
-  // Popup state management
-  const [activePopupAd, setActivePopupAd] = useState<Ad | null>(null);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-  useEffect(() => {
-    if (popupAds.length > 0) {
-      // Find the highest priority popup ad that has not been dismissed yet
-      const unDismissed = popupAds.find(
-        (ad) => !sessionStorage.getItem(`wartel_dismissed_ad_${ad.id}`)
-      );
-      if (unDismissed) {
-        setActivePopupAd(unDismissed);
-        setIsPopupOpen(true);
-      }
-    }
-  }, [popupAds]);
-
-  if (isLoading || ads.length === 0) {
-    return null;
-  }
-
-  // 1. Render specific placement if requested
-  if (placement === "header") {
-    if (headerAds.length === 0) return null;
-    return (
-      <div className={cn("space-y-4", className)}>
-        {headerAds.map((ad) => (
-          <AdHeader key={ad.id} ad={ad} />
-        ))}
-      </div>
-    );
-  }
-
-  if (placement === "card") {
-    if (cardAds.length === 0) return null;
-    return (
-      <div
-        className={cn(
-          cardGridClassName || "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6",
-          className
-        )}
-      >
-        {cardAds.map((ad) => (
-          <AdCard key={ad.id} ad={ad} />
-        ))}
-      </div>
-    );
-  }
-
-  if (placement === "popup") {
-    return (
-      <AdPopup
-        ad={activePopupAd}
-        isOpen={isPopupOpen}
-        onClose={() => setIsPopupOpen(false)}
-      />
-    );
-  }
-
-  // 2. Default: render all placements
+function HeaderAds({ ads, className }: { ads: Ad[]; className?: string }) {
+  const visibleAds = useVisibleAds(ads);
+  if (visibleAds.length === 0) return null;
   return (
-    <div className={cn("space-y-8", className)}>
-      {/* Header Ads */}
-      {headerAds.length > 0 && (
-        <div className="space-y-4">
-          {headerAds.map((ad) => (
-            <AdHeader key={ad.id} ad={ad} />
-          ))}
-        </div>
-      )}
-
-      {/* Card Ads */}
-      {cardAds.length > 0 && (
-        <div
-          className={
-            cardGridClassName || "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-          }
-        >
-          {cardAds.map((ad) => (
-            <AdCard key={ad.id} ad={ad} />
-          ))}
-        </div>
-      )}
-
-      {/* Popup Ad Modal */}
-      <AdPopup
-        ad={activePopupAd}
-        isOpen={isPopupOpen}
-        onClose={() => setIsPopupOpen(false)}
-      />
+    <div className={cn("space-y-4", className)}>
+      {visibleAds.map((ad) => (
+        <AdHeader key={ad.id} ad={ad} />
+      ))}
     </div>
   );
 }
 
+function CardAds({ ads, className }: { ads: Ad[]; className?: string }) {
+  if (ads.length === 0) return null;
+  return (
+    <div className={className}>
+      {ads.map((ad) => (
+        <AdCard key={ad.id} ad={ad} />
+      ))}
+    </div>
+  );
+}
+
+/** Shows the highest-priority popup not yet dismissed this session; the next one follows on close. */
+function PopupAds({ ads }: { ads: Ad[] }) {
+  const [activeAd = null] = useVisibleAds(ads);
+  // AdPopup persists the dismissal → the store update selects the next ad automatically
+  return <AdPopup ad={activeAd} isOpen={activeAd !== null} onClose={() => {}} />;
+}
+
+export function DashboardAds({ placement, roleId, className, cardGridClassName }: DashboardAdsProps) {
+  const { data: ads } = useAdsQuery(roleId);
+
+  const byPlacement = useMemo(
+    () => ({
+      header: getAdsByPlacement(ads, "header"),
+      card: getAdsByPlacement(ads, "card"),
+      popup: getAdsByPlacement(ads, "popup"),
+    }),
+    [ads]
+  );
+
+  const cardGrid = cardGridClassName || DEFAULT_CARD_GRID;
+
+  switch (placement) {
+    case "header":
+      return <HeaderAds ads={byPlacement.header} className={className} />;
+    case "card":
+      return <CardAds ads={byPlacement.card} className={cn(cardGrid, className)} />;
+    case "popup":
+      return <PopupAds ads={byPlacement.popup} />;
+    default:
+      if (!ads?.length) return null;
+      return (
+        <div className={cn("space-y-8", className)}>
+          <HeaderAds ads={byPlacement.header} />
+          <CardAds ads={byPlacement.card} className={cardGrid} />
+          <PopupAds ads={byPlacement.popup} />
+        </div>
+      );
+  }
+}

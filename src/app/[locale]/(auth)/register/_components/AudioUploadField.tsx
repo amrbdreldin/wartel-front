@@ -20,6 +20,13 @@ interface RegisterValues {
 }
 
 
+type AudioFileWithDuration = File & { duration?: number };
+type WindowWithWebkitAudio = Window & { webkitAudioContext?: typeof AudioContext };
+
+function getAudioContextConstructor(): typeof AudioContext | undefined {
+  return window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext;
+}
+
 // ── Audio Upload Zone (WhatsApp-like recording UX) ─────────
 export function AudioUploadField({ variant = "student" }: { variant?: "student" | "child" }) {
   const t = useTranslations("auth");
@@ -85,7 +92,7 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
       setFieldValue("quran_audio", null, true);
 
       const duration = await getAudioDuration(file);
-      (file as any).duration = duration;
+      (file as AudioFileWithDuration).duration = duration;
 
       if (duration > 0 && duration < 10) {
         toast.error(t("audioTooShort"));
@@ -106,7 +113,7 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
           const arrayBuffer = await file.arrayBuffer();
           let audioContext = audioContextRef.current;
           if (!audioContext) {
-            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            const AudioCtx = getAudioContextConstructor();
             if (AudioCtx) {
               audioContext = new AudioCtx();
             }
@@ -122,15 +129,23 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
             // Attempt to downsample and compress to 16kHz mono MP3 (32 kbps)
             let processedBuffer = await downsampleAudioBuffer(audioBuffer, 16000);
             let mp3Blob = audioBufferToMp3(processedBuffer, 32);
-            let compressedFile = new File([mp3Blob], file.name.replace(/\.[^/.]+$/, "") + ".mp3", { type: "audio/mp3" });
-            (compressedFile as any).duration = duration;
+            let compressedFile: AudioFileWithDuration = new File(
+              [mp3Blob],
+              file.name.replace(/\.[^/.]+$/, "") + ".mp3",
+              { type: "audio/mp3" }
+            );
+            compressedFile.duration = duration;
 
             // If still over 1MB, try lower sample rate and bitrate
             if (compressedFile.size > 1 * 1024 * 1024) {
               processedBuffer = await downsampleAudioBuffer(audioBuffer, 11025);
               mp3Blob = audioBufferToMp3(processedBuffer, 24);
-              compressedFile = new File([mp3Blob], file.name.replace(/\.[^/.]+$/, "") + ".mp3", { type: "audio/mp3" });
-              (compressedFile as any).duration = duration;
+              compressedFile = new File(
+                [mp3Blob],
+                file.name.replace(/\.[^/.]+$/, "") + ".mp3",
+                { type: "audio/mp3" }
+              );
+              compressedFile.duration = duration;
             }
 
             if (compressedFile.size <= 1 * 1024 * 1024) {
@@ -174,7 +189,7 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
     try {
       // Initialize and resume AudioContext on user interaction gesture
       if (!audioContextRef.current) {
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        const AudioCtx = getAudioContextConstructor();
         if (AudioCtx) {
           audioContextRef.current = new AudioCtx();
         }
@@ -232,7 +247,9 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
           const arrayBuffer = await blob.arrayBuffer();
           let audioContext = audioContextRef.current;
           if (!audioContext) {
-            audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const AudioCtx = getAudioContextConstructor();
+            if (!AudioCtx) throw new Error("AudioContext unavailable");
+            audioContext = new AudioCtx();
           }
           if (audioContext.state === "suspended") {
             await audioContext.resume().catch(() => {});
@@ -242,14 +259,14 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
           
           let processedBuffer = await downsampleAudioBuffer(audioBuffer, 16000);
           let mp3Blob = audioBufferToMp3(processedBuffer, 32);
-          let file = new File([mp3Blob], "recording.mp3", { type: "audio/mp3" });
-          (file as any).duration = duration;
+          let file: AudioFileWithDuration = new File([mp3Blob], "recording.mp3", { type: "audio/mp3" });
+          file.duration = duration;
 
           if (file.size > 1 * 1024 * 1024) {
             processedBuffer = await downsampleAudioBuffer(audioBuffer, 11025);
             mp3Blob = audioBufferToMp3(processedBuffer, 24);
             file = new File([mp3Blob], "recording.mp3", { type: "audio/mp3" });
-            (file as any).duration = duration;
+            file.duration = duration;
           }
 
           const url = URL.createObjectURL(file);
@@ -257,8 +274,8 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
         } catch (err) {
           console.error("Audio conversion failed", err);
           const url = URL.createObjectURL(blob);
-          const file = new File([blob], `recording.${extension}`, { type: actualMimeType });
-          (file as any).duration = duration;
+          const file: AudioFileWithDuration = new File([blob], `recording.${extension}`, { type: actualMimeType });
+          file.duration = duration;
           setAudioFile(file, duration, url);
         }
         stream.getTracks().forEach(tr => tr.stop());
@@ -280,7 +297,7 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
       console.error("Recording failed", err);
       toast.error(t("micAccessError"));
     }
-  }, [setFieldValue, setFieldTouched, t, stopRecording, setAudioFile]);
+  }, [t, stopRecording, setAudioFile]);
 
   const deleteRecording = useCallback(() => {
     setBlobUrl(null); setFileName(null);

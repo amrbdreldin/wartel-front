@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { Formik, Form, FormikHelpers } from "formik";
+import type { ValidationError } from "yup";
 import { X, Info, Loader2, ArrowLeft, ArrowRight, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormField } from "@/components/forms/FormField";
@@ -9,21 +10,26 @@ import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { AudioUploadField } from "@/app/[locale]/(auth)/register/_components/AudioUploadField";
 import { PathSelectionField } from "@/app/[locale]/(auth)/register/_components/PathSelectionField";
 import { ScrollToFieldError } from "@/app/[locale]/(auth)/register/_components/ScrollToFieldError";
-import { registerSchema, findPendingGroup, isAudioRequiredForGroup } from "@/utils/validation";
+import {
+  registerSchema,
+  isAudioRequiredForSelection,
+  type EnrollmentType,
+  type Track,
+} from "@/utils/validation";
 import { AudioSyncController } from "@/app/[locale]/(auth)/register/_components/AudioSyncController";
 
-interface AddChildModalProps {
+interface AddChildModalProps<TValues extends Record<string, unknown> = Record<string, unknown>> {
   isOpen: boolean;
   onClose: () => void;
   isAddPending: boolean;
-  enrollmentTypes: any[];
-  allTracks?: any[];
+  enrollmentTypes: EnrollmentType[];
+  allTracks?: Track[];
   isFormDataLoading: boolean;
-  onSubmit: (values: any, helpers: FormikHelpers<any>) => Promise<void>;
-  initialValues: any;
+  onSubmit: (values: TValues, helpers: FormikHelpers<TValues>) => Promise<void>;
+  initialValues: TValues;
 }
 
-export function AddChildModal({
+export function AddChildModal<TValues extends Record<string, unknown>>({
   isOpen,
   onClose,
   isAddPending,
@@ -32,7 +38,7 @@ export function AddChildModal({
   isFormDataLoading,
   onSubmit,
   initialValues,
-}: AddChildModalProps) {
+}: AddChildModalProps<TValues>) {
   const t = useTranslations("parent");
   const tAuth = useTranslations("auth");
   const tCommon = useTranslations("common");
@@ -83,22 +89,21 @@ export function AddChildModal({
                   abortEarly: false,
                   context: { enrollmentTypes, allTracks },
                 });
-              } catch (err: any) {
-                return err.inner.reduce((errors: any, currentError: any) => {
-                  return { ...errors, [currentError.path]: currentError.message };
-                }, {});
+              } catch (err) {
+                return ((err as ValidationError).inner ?? []).reduce<Record<string, string>>(
+                  (errors, currentError) =>
+                    currentError.path ? { ...errors, [currentError.path]: currentError.message } : errors,
+                  {}
+                );
               }
             }}
             onSubmit={onSubmit}
           >
             {({ values }) => {
-              const selectedGroup = findPendingGroup(values.selected_group_id, {
+              const isAudioRequired = isAudioRequiredForSelection(values, {
                 enrollmentTypes,
                 allTracks,
-                enrollmentTypeId: values.enrollment_type_id,
-                trackId: values.selected_track_id,
               });
-              const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
 
               return (
                 <Form className="space-y-6">

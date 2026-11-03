@@ -64,7 +64,7 @@ describe("AdHeader Component", () => {
       placement_name: "تنويه هام",
     };
 
-    const { container } = render(<AdHeader ad={headerAd} onDismiss={onDismiss} />);
+    render(<AdHeader ad={headerAd} onDismiss={onDismiss} />);
 
     expect(screen.getByText(headerAd.title)).toBeDefined();
 
