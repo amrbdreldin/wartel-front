@@ -39,7 +39,7 @@ export function AuthJoinSection({ groupId }: AuthJoinSectionProps) {
           setSuccess(successMsg);
           toast.success(successMsg);
         },
-        onError: (err: any) => {
+        onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
           const responseData = err.response?.data;
           const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
           const validationErrors = responseData?.errors;

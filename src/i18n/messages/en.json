@@ -1642,7 +1642,19 @@
     "joinCourseAsTeacher": "Join Course as Teacher",
     "alreadyHaveAccount": "Already have an account?",
     "login": "Log in",
-    "loginModalDesc": "Log in to your account to join the course directly."
+    "loginModalDesc": "Log in to your account to join the course directly.",
+    "availableGroups": "Available Groups",
+    "selectGroup": "Choose Suitable Group",
+    "selectGroupDescription": "Please choose the group and timing that best suits you",
+    "selectedGroup": "Selected Group",
+    "selected": "Selected",
+    "schedule": "Session Schedule",
+    "targetAudience": "Allowed Roles",
+    "noGroupsAvailable": "No Groups Available",
+    "noGroupsAvailableDesc": "There are no open groups available to join in this track currently.",
+    "cannotJoinRole": "Sorry, your current account is not eligible to join this group directly.",
+    "groupsAvailable": "available groups",
+    "joinSelectedGroup": "Join: {name}"
   },
   "contactUs": {
     "pageTitle": "Contact Us",

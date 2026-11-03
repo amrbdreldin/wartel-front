@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectJoinGroup } from "@/hooks/api/useGroupQueries";
@@ -20,6 +20,15 @@ import { UserRole } from "@/types/enums";
 // Direct Join Course Page – /[locale]/courses/[slug]
 // ============================================================
 
+interface ApiErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 /** Map UserRole enum to the corresponding allowed_roles id from the API */
 const ROLE_ID_MAP: Record<string, number[]> = {
   [UserRole.STUDENT]: [1],
@@ -35,21 +44,39 @@ export default function DirectJoinCoursePage({
   const { slug } = use(params);
   const t = useTranslations();
   const { isAuthenticated, user } = useAuth();
-  const { data: group, isLoading, isError, error, refetch } = useDirectJoinGroup(
-    decodeURIComponent(slug)
-  );
+
+  const decodedSlug = useMemo(() => {
+    try {
+      return decodeURIComponent(slug);
+    } catch {
+      return slug;
+    }
+  }, [slug]);
+
+  const { data: groups, isLoading, isError, error, refetch } = useDirectJoinGroup(decodedSlug);
+
+  const [userSelectedGroupId, setUserSelectedGroupId] = useState<number | null>(null);
+
+  const selectedGroup = useMemo(() => {
+    if (!groups || groups.length === 0) return null;
+    if (userSelectedGroupId !== null) {
+      const found = groups.find((g) => g.group_id === userSelectedGroupId);
+      if (found) return found;
+    }
+    return groups[0];
+  }, [groups, userSelectedGroupId]);
 
   // Check if the current user's own role is in allowed_roles (student/teacher direct join)
   const canSelfJoin = useMemo(() => {
-    if (!user?.role || !group?.allowed_roles) return false;
+    if (!user?.role || !selectedGroup?.allowed_roles) return false;
     const matchIds = ROLE_ID_MAP[user.role] || [];
-    return group.allowed_roles.some((r) => matchIds.includes(Number(r.id)));
-  }, [user?.role, group?.allowed_roles]);
+    return selectedGroup.allowed_roles.some((r) => matchIds.includes(Number(r.id)));
+  }, [user, selectedGroup]);
 
   // Check if parent/child roles exist in allowed_roles
   const hasParentOrChildRoles = useMemo(() => {
-    if (!group?.allowed_roles) return false;
-    return group.allowed_roles.some(
+    if (!selectedGroup?.allowed_roles) return false;
+    return selectedGroup.allowed_roles.some(
       (r) =>
         Number(r.id) === 5 ||
         Number(r.id) === 3 ||
@@ -60,7 +87,12 @@ export default function DirectJoinCoursePage({
         r.name?.toLowerCase().includes("son") ||
         r.name?.toLowerCase().includes("child")
     );
-  }, [group?.allowed_roles]);
+  }, [selectedGroup]);
+
+  const errorMessage =
+    (error as ApiErrorResponse | null)?.response?.data?.message ||
+    (error as ApiErrorResponse | null)?.message ||
+    t("common.errorOccurred");
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -81,7 +113,7 @@ export default function DirectJoinCoursePage({
       </div>
 
       {/* Main Card */}
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-xl lg:max-w-2xl">
         <Card className="shadow-2xl border border-border/50 bg-card/85 backdrop-blur-md overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-primary/5 hover:border-primary/20">
           <GradientBar variant="primary" />
 
@@ -93,16 +125,9 @@ export default function DirectJoinCoursePage({
                   <Skeleton className="h-16 w-16 rounded-2xl" />
                   <Skeleton className="h-7 w-48" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Skeleton className="h-16 rounded-xl" />
-                  <Skeleton className="h-16 rounded-xl" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-10 w-32 rounded-xl" />
-                    <Skeleton className="h-10 w-32 rounded-xl" />
-                  </div>
+                <div className="space-y-3">
+                  <Skeleton className="h-24 w-full rounded-xl" />
+                  <Skeleton className="h-24 w-full rounded-xl" />
                 </div>
                 <Skeleton className="h-12 w-full rounded-xl" />
               </div>
@@ -119,7 +144,7 @@ export default function DirectJoinCoursePage({
                     {t("directJoin.groupNotFound")}
                   </h2>
                   <p className="text-sm text-muted-foreground max-w-xs">
-                    {(error as any)?.response?.data?.message || t("common.errorOccurred")}
+                    {errorMessage}
                   </p>
                 </div>
                 <Button
@@ -133,10 +158,39 @@ export default function DirectJoinCoursePage({
               </div>
             )}
 
-            {/* Success State – Group loaded */}
-            {group && !isLoading && (
+            {/* Empty State (no groups returned) */}
+            {!isLoading && !isError && groups && groups.length === 0 && (
+              <div className="flex flex-col items-center gap-4 py-8 text-center">
+                <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-muted text-muted-foreground">
+                  <AlertCircle className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-lg font-bold text-foreground">
+                    {t("directJoin.noGroupsAvailable")}
+                  </h2>
+                  <p className="text-sm text-muted-foreground max-w-xs">
+                    {t("directJoin.noGroupsAvailableDesc")}
+                  </p>
+                </div>
+                <Button
+                  onClick={() => refetch()}
+                  variant="outline"
+                  className="gap-2 mt-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  {t("common.retry")}
+                </Button>
+              </div>
+            )}
+
+            {/* Success State – Group(s) loaded */}
+            {selectedGroup && !isLoading && (
               <>
-                <GroupInfoCard group={group} />
+                <GroupInfoCard
+                  groups={groups || []}
+                  selectedGroupId={selectedGroup.group_id}
+                  onSelectGroup={setUserSelectedGroupId}
+                />
 
                 {/* Divider */}
                 <div className="relative">
@@ -144,25 +198,47 @@ export default function DirectJoinCoursePage({
                     <div className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="bg-card px-3 text-muted-foreground font-medium">
-                      {t("directJoin.joinNow")}
+                    <span className="bg-card px-3 text-muted-foreground font-medium text-center">
+                      {groups && groups.length > 1
+                        ? t("directJoin.joinSelectedGroup", { name: selectedGroup.group_name })
+                        : t("directJoin.joinNow")}
                     </span>
                   </div>
                 </div>
 
                 {/* Action Section based on auth state */}
                 {!isAuthenticated ? (
-                  <GuestJoinForm groupId={group.group_id} allowedRoles={group.allowed_roles} />
+                  <GuestJoinForm
+                    key={selectedGroup.group_id}
+                    groupId={selectedGroup.group_id}
+                    allowedRoles={selectedGroup.allowed_roles}
+                  />
                 ) : (
                   <div className="space-y-6">
                     {/* Direct join button for student/teacher */}
                     {canSelfJoin && (
-                      <AuthJoinSection groupId={group.group_id} />
+                      <AuthJoinSection
+                        key={`self-${selectedGroup.group_id}`}
+                        groupId={selectedGroup.group_id}
+                      />
                     )}
 
                     {/* Parent/child join section */}
                     {hasParentOrChildRoles && (
-                      <ParentChildrenJoinSection groupId={group.group_id} allowedRoles={group.allowed_roles} />
+                      <ParentChildrenJoinSection
+                        key={`parent-${selectedGroup.group_id}`}
+                        groupId={selectedGroup.group_id}
+                        allowedRoles={selectedGroup.allowed_roles}
+                      />
+                    )}
+
+                    {/* If authenticated user has no eligible role for this group */}
+                    {!canSelfJoin && !hasParentOrChildRoles && (
+                      <div className="p-4 rounded-xl bg-muted/60 border border-border/60 text-center space-y-2">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          {t("directJoin.cannotJoinRole")}
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
@@ -179,4 +255,3 @@ export default function DirectJoinCoursePage({
     </div>
   );
 }
-

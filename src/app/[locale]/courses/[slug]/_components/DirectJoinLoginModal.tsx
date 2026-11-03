@@ -22,6 +22,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
+import type { User } from "@/types/auth.types";
+import { UserRole } from "@/types/enums";
 
 // ============================================================
 // DirectJoinLoginModal – In-place Login Modal for Course Page
@@ -30,6 +32,41 @@ import { requestNotificationToken } from "@/utils/firebaseMessaging";
 interface DirectJoinLoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+interface LoginUserPayload {
+  id: number;
+  full_name: string;
+  phone?: string;
+  role_id: number;
+  status_id?: number;
+  enrollment_type?: string;
+  role?: string | UserRole;
+  [key: string]: unknown;
+}
+
+interface LoginSuccessPayload {
+  token?: string;
+  access_token?: string;
+  refresh_token?: string;
+  message?: string;
+  data?: {
+    token?: string;
+    access_token?: string;
+    refresh_token?: string;
+    user?: LoginUserPayload;
+  };
+  user?: LoginUserPayload;
+}
+
+interface ModalApiError {
+  response?: {
+    data?: {
+      message?: string;
+      errors?: Record<string, string[]>;
+    };
+  };
+  message?: string;
 }
 
 export function DirectJoinLoginModal({
@@ -46,12 +83,16 @@ export function DirectJoinLoginModal({
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [fcmToken, setFcmToken] = useState("");
 
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
       setFormError(null);
       setFormSuccess(null);
-      return;
     }
+    onOpenChange(nextOpen);
+  };
+
+  useEffect(() => {
+    if (!open) return;
 
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
     if (siteKey) {
@@ -86,7 +127,7 @@ export function DirectJoinLoginModal({
         firebase_token: fcmToken || undefined,
       },
       {
-        onSuccess: (res: any) => {
+        onSuccess: (res: LoginSuccessPayload) => {
           const userObj = res?.user || res?.data?.user;
           const token =
             res?.token ||
@@ -98,7 +139,7 @@ export function DirectJoinLoginModal({
 
           if (token && userObj) {
             handleLoginState({
-              user: userObj,
+              user: userObj as unknown as User,
               accessToken: token,
               refreshToken,
             });
@@ -110,10 +151,10 @@ export function DirectJoinLoginModal({
           setFormSuccess(successMsg);
 
           // Close modal and refresh current page in place
-          onOpenChange(false);
+          handleOpenChange(false);
           router.refresh();
         },
-        onError: (err: any) => {
+        onError: (err: ModalApiError) => {
           const responseData = err.response?.data;
           const mainMessage =
             responseData?.message || err.message || t("common.errorOccurred");
@@ -131,7 +172,7 @@ export function DirectJoinLoginModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[420px] p-6 rounded-2xl">
         <DialogHeader className="text-center space-y-2 pb-2">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">

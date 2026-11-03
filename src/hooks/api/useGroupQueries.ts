@@ -2,7 +2,7 @@
  * useGroupQueries.ts – Hooks for group direct-join flow.
  */
 import type { Locale } from "@/lib/constants";
-import { groupService, type JoinGroupRequest } from "@/services/group.service";
+import { groupService, type JoinGroupRequest, type DirectJoinGroup } from "@/services/group.service";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 
@@ -13,7 +13,7 @@ export const groupKeys = {
 
 export function useDirectJoinGroup(slug: string) {
   const lang = useLocale() as Locale;
-  return useQuery({
+  return useQuery<DirectJoinGroup[]>({
     queryKey: groupKeys.directJoin(slug),
     queryFn: () => groupService.getDirectJoinGroup(slug, { lang }),
     enabled: !!slug,

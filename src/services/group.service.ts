@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from "axios";
 import { apiGet, apiPost, type ApiCallOptions } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 
@@ -10,13 +11,18 @@ export interface GroupSessionDay {
   time: string;
 }
 
+export interface DirectJoinGroupRole {
+  id: number;
+  name: string;
+}
+
 export interface DirectJoinGroup {
   group_id: number;
   group_name: string;
   track_name: string;
   teacher_name: string;
   group_session_days: GroupSessionDay[];
-  allowed_roles?: Array<{ id: number; name: string }>;
+  allowed_roles?: DirectJoinGroupRole[];
 }
 
 export interface SonRequestItem {
@@ -54,8 +60,13 @@ export interface JoinGroupResponse {
 const BASE_URL = "/groups";
 
 export const groupService = {
-  getDirectJoinGroup: (slug: string, options?: ApiCallOptions) =>
-    apiGet<ApiResponse<DirectJoinGroup>>(`${BASE_URL}/direct-join/${slug}`, options).then((r) => r.data),
+  getDirectJoinGroup: (slug: string, options?: ApiCallOptions): Promise<DirectJoinGroup[]> =>
+    apiGet<ApiResponse<DirectJoinGroup[] | DirectJoinGroup>>(`${BASE_URL}/direct-join/${slug}`, options).then((r) => {
+      const data = r?.data;
+      if (Array.isArray(data)) return data;
+      if (data && typeof data === "object") return [data as DirectJoinGroup];
+      return [];
+    }),
 
   joinGroup: (data: JoinGroupRequest, options?: ApiCallOptions) =>
     apiPost<ApiResponse<JoinGroupResponse>>(`${BASE_URL}/join`, data, {
@@ -63,6 +74,6 @@ export const groupService = {
       config: {
         ...options?.config,
         skipGlobalToast: true,
-      } as any,
+      } as AxiosRequestConfig & { skipGlobalToast?: boolean },
     }).then((r) => r),
 };

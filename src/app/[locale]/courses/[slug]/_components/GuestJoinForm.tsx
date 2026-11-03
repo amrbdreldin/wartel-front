@@ -8,7 +8,7 @@ import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { guestJoinSchema } from "@/utils/validation";
 import { Form, Formik } from "formik";
-import { UserPlus, AlertCircle, CheckCircle2, User, Users, Info } from "lucide-react";
+import { UserPlus, AlertCircle, CheckCircle2, User as UserIcon, Users, Info } from "lucide-react";
 import { useJoinGroupMutation } from "@/hooks/api/useGroupQueries";
 import { useParentRegisterMutation } from "@/hooks/api/useAuthMutations";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
@@ -17,6 +17,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { JoinGroupRequest } from "@/services/group.service";
+import type { User } from "@/types/auth.types";
+import { UserRole } from "@/types/enums";
 import { DirectJoinLoginModal } from "./DirectJoinLoginModal";
 
 // ============================================================
@@ -28,6 +30,41 @@ type TabKey = "parent" | "student";
 interface GuestJoinFormProps {
   groupId: number;
   allowedRoles?: Array<{ id: number; name: string }>;
+}
+
+interface AuthJoinUserPayload {
+  id: number;
+  full_name: string;
+  phone?: string;
+  role_id: number;
+  status_id?: number;
+  enrollment_type?: string;
+  role?: string | UserRole;
+  [key: string]: unknown;
+}
+
+interface AuthJoinSuccessPayload {
+  token?: string;
+  access_token?: string;
+  refresh_token?: string;
+  message?: string;
+  data?: {
+    token?: string;
+    access_token?: string;
+    refresh_token?: string;
+    user?: AuthJoinUserPayload;
+  };
+  user?: AuthJoinUserPayload;
+}
+
+interface FormApiError {
+  response?: {
+    data?: {
+      message?: string;
+      errors?: Record<string, string[]>;
+    };
+  };
+  message?: string;
 }
 
 export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
@@ -50,17 +87,19 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
   }, []);
 
   // Check allowed roles
-  const hasParentRole = allowedRoles
-    ? allowedRoles.some(
+  const hasParentRole = Boolean(
+    allowedRoles &&
+      allowedRoles.some(
         (r) =>
           Number(r.id) === 5 ||
           r.name?.includes("ولي") ||
           r.name?.toLowerCase().includes("parent")
       )
-    : false;
+  );
 
-  const hasSonRole = allowedRoles
-    ? allowedRoles.some(
+  const hasSonRole = Boolean(
+    allowedRoles &&
+      allowedRoles.some(
         (r) =>
           Number(r.id) === 3 ||
           r.name?.includes("ابن") ||
@@ -68,20 +107,21 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
           r.name?.toLowerCase().includes("son") ||
           r.name?.toLowerCase().includes("child")
       )
-    : false;
+  );
 
   const hasParentOrSonRole = hasParentRole || hasSonRole;
 
-  const hasStudentRole = allowedRoles
-    ? allowedRoles.some(
-        (r) =>
-          Number(r.id) === 1 ||
-          (r.name?.includes("طالب") && !r.name?.includes("ابن") && !r.name?.includes("طفل")) ||
-          (r.name?.toLowerCase().includes("student") &&
-            !r.name?.toLowerCase().includes("son") &&
-            !r.name?.toLowerCase().includes("child"))
-      )
-    : !hasParentOrSonRole;
+  const hasStudentRole =
+    !allowedRoles || allowedRoles.length === 0
+      ? true
+      : allowedRoles.some(
+          (r) =>
+            Number(r.id) === 1 ||
+            (r.name?.includes("طالب") && !r.name?.includes("ابن") && !r.name?.includes("طفل")) ||
+            (r.name?.toLowerCase().includes("student") &&
+              !r.name?.toLowerCase().includes("son") &&
+              !r.name?.toLowerCase().includes("child"))
+        );
 
   const studentRoleObj = allowedRoles?.find(
     (r) =>
@@ -94,12 +134,12 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
 
   const showTabs = hasStudentRole && hasParentOrSonRole;
 
-  // Default active tab: parent if available, otherwise student
+  // Default active tab: student if student role is allowed, otherwise parent
   const [activeTab, setActiveTab] = useState<TabKey>(() => {
-    return hasParentOrSonRole ? "parent" : "student";
+    return hasStudentRole ? "student" : "parent";
   });
 
-  const handlePostJoinSuccess = (res: any, resetForm: () => void) => {
+  const handlePostJoinSuccess = (res: AuthJoinSuccessPayload, resetForm: () => void) => {
     const token =
       res?.token ||
       res?.access_token ||
@@ -112,7 +152,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
 
     if (token && userObj) {
       handleLoginState({
-        user: userObj,
+        user: userObj as unknown as User,
         accessToken: token,
         refreshToken: res?.refresh_token || res?.data?.refresh_token || "",
       });
@@ -153,8 +193,8 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     };
 
     joinGroup(payload, {
-      onSuccess: (res: any) => handlePostJoinSuccess(res, resetForm),
-      onError: (err: any) => {
+      onSuccess: (res) => handlePostJoinSuccess(res, resetForm),
+      onError: (err: FormApiError) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
         const validationErrors = responseData?.errors;
@@ -188,7 +228,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
         firebase_token: firebaseToken || undefined,
       },
       {
-        onSuccess: (res: any) => {
+        onSuccess: (res: AuthJoinSuccessPayload) => {
           const successMsg =
             res?.message ||
             t("directJoin.registerParentSuccess");
@@ -214,7 +254,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
             resetForm();
           }
         },
-        onError: (err: any) => {
+        onError: (err: FormApiError) => {
           const responseData = err.response?.data;
           const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
           const validationErrors = responseData?.errors;
@@ -256,7 +296,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <User className="w-4 h-4" />
+            <UserIcon className="w-4 h-4" />
             <span>{t("directJoin.registerStudent")}</span>
           </button>
           <button

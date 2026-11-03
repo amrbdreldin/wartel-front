@@ -42,17 +42,17 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
   >({});
 
   const hasParentRole = allowedRoles
-    ? allowedRoles.some((r) => Number(r.id) === 5 || r.name.includes("ولي") || r.name.toLowerCase().includes("parent"))
+    ? allowedRoles.some((r) => Number(r.id) === 5 || r.name?.includes("ولي") || r.name?.toLowerCase().includes("parent"))
     : true;
 
   const hasSonRole = allowedRoles
     ? allowedRoles.some(
         (r) =>
           Number(r.id) === 3 ||
-          r.name.includes("ابن") ||
-          r.name.includes("طفل") ||
-          r.name.toLowerCase().includes("son") ||
-          r.name.toLowerCase().includes("child")
+          r.name?.includes("ابن") ||
+          r.name?.includes("طفل") ||
+          r.name?.toLowerCase().includes("son") ||
+          r.name?.toLowerCase().includes("child")
       )
     : false;
 
@@ -96,7 +96,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           [id]: { loading: false, success: successMsg, error: null },
         }));
       },
-      onError: (err: any) => {
+      onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
         const responseData = err.response?.data;
         const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
         const validationErrors = responseData?.errors;
@@ -143,7 +143,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
           setShowAddSonForm(false);
           refetchChildren();
         },
-        onError: (err: any) => {
+        onError: (err: { response?: { data?: { message?: string; errors?: Record<string, string[]> } }; message?: string }) => {
           const responseData = err.response?.data;
           const mainMessage = responseData?.message || err.message || t("directJoin.joinError");
           const validationErrors = responseData?.errors;

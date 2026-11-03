@@ -1641,7 +1641,19 @@
     "joinCourseAsTeacher": "انضم كمعلم للدورة",
     "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
     "login": "تسجيل الدخول",
-    "loginModalDesc": "سجّل الدخول بحسابك لمتابعة الانضمام مباشرة للدورة."
+    "loginModalDesc": "سجّل الدخول بحسابك لمتابعة الانضمام مباشرة للدورة.",
+    "availableGroups": "المجموعات المتاحة",
+    "selectGroup": "اختر المجموعة المناسبة لك",
+    "selectGroupDescription": "يرجى اختيار المجموعة والموعد الأنسب لك للانضمام",
+    "selectedGroup": "المجموعة المختارة",
+    "selected": "محددة",
+    "schedule": "أوقات الحلقات",
+    "targetAudience": "الفئات المتاحة",
+    "noGroupsAvailable": "لا توجد مجموعات متاحة",
+    "noGroupsAvailableDesc": "لا تتوفر أي مجموعات مفتوحة للانضمام في هذا المسار حالياً.",
+    "cannotJoinRole": "عفواً، حسابك الحالي غير مؤهل للانضمام لهذه المجموعة مباشرة.",
+    "groupsAvailable": "مجموعات متاحة",
+    "joinSelectedGroup": "الانضمام إلى: {name}"
   },
   "contactUs": {
     "pageTitle": "تواصل معنا",
