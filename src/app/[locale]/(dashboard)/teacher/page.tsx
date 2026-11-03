@@ -10,6 +10,7 @@ import { TeacherHero } from "./_components/TeacherHero";
 import { TodaySessions } from "./_components/TodaySessions";
 import { MyGroups } from "./_components/MyGroups";
 import { toast } from "sonner";
+import { DashboardAds } from "@/components/ads";
 
 export default function TeacherDashboardPage() {
   const t = useTranslations("teacherBoard");
@@ -104,6 +105,11 @@ export default function TeacherDashboardPage() {
   return (
     <div className="animate-in fade-in duration-500 space-y-10">
       {/* ── HERO SECTION ──────────────────────────────────────────────────── */}
+      <DashboardAds placement="popup" />
+
+      {/* Top Header Banner Ads */}
+      <DashboardAds placement="header" />
+
       <TeacherHero
         todaySessionsCount={today_sessions.length}
         welcomeTitle={t("welcomeTitle", { name: user?.full_name || "" })}
@@ -113,6 +119,9 @@ export default function TeacherDashboardPage() {
         totalStudents={total_students}
         t={t}
       />
+
+      {/* Dashboard Card Ads */}
+      <DashboardAds placement="card" />
 
       {/* ── TODAY'S SESSIONS ─────────────────────────────────────────────── */}
       <TodaySessions

@@ -22,6 +22,7 @@ import { ChildCard } from "./_components/ChildCard";
 import { AddChildModal } from "./_components/AddChildModal";
 import { ChildCardSkeleton } from "./_components/ChildCardSkeleton";
 import { TodaySessionCard } from "./_components/TodaySessionCard";
+import { DashboardAds } from "@/components/ads";
 
 // ============================================================
 // Parent Dashboard Page
@@ -176,8 +177,21 @@ export default function ParentDashboardPage() {
         onAddChildClick={() => setIsAddModalOpen(true)}
       />
 
+      {/* Ads - Popup Modal */}
+      <DashboardAds placement="popup" />
+
+      {/* Ads - Top Header Banner */}
+      <div className="mb-6">
+        <DashboardAds placement="header" />
+      </div>
+
       {/* Main Content */}
       <div className="relative pb-16">
+        {/* Ads - Dashboard Cards */}
+        <div className="mb-8">
+          <DashboardAds placement="card" />
+        </div>
+
         {/* Today Sessions Section */}
         <div className="mb-8">
           <div className="flex justify-between items-end mb-4 md:mb-6 px-1 sm:px-2">

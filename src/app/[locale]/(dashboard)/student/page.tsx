@@ -16,6 +16,7 @@ import { WarningsCard } from "./_components/WarningsCard";
 import { NextSessionCard } from "./_components/NextSessionCard";
 import { LatestGradeCard } from "./_components/LatestGradeCard";
 import { ActiveExamCard } from "./_components/ActiveExamCard";
+import { DashboardAds } from "@/components/ads";
 
 export default function StudentDashboardPage() {
   const t = useTranslations();
@@ -105,6 +106,12 @@ export default function StudentDashboardPage() {
         trackTitle={data?.last_grade?.exam?.title}
       />
 
+      {/* Ads - Popup Modal */}
+      <DashboardAds placement="popup" />
+
+      {/* Ads - Top Header Banner */}
+      <DashboardAds placement="header" />
+
       {/* Main Grid - Balanced 4 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <WarningsCard alerts={alerts} locale={locale} />
@@ -114,6 +121,9 @@ export default function StudentDashboardPage() {
         <LatestGradeCard lastGrade={data?.last_grade} locale={locale} />
         <ActiveExamCard nextExam={data?.next_exam} locale={locale} />
       </div>
+
+      {/* Ads - Dashboard Cards */}
+      <DashboardAds placement="card" />
     </div>
   );
 }

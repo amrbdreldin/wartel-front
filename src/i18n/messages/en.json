@@ -1809,5 +1809,19 @@
     "registerParentTitle": "Parent registration at Wartel Academy",
     "registerParentIntro": "Create a free parent account, log in and add your children to online Quran memorization circles, then follow their attendance and grades from the portal.",
     "loginHelp": "No account yet? See how to register at Wartel Academy"
+  },
+  "ads": {
+    "title": "Announcements & Ads",
+    "badge": "Announcement",
+    "guide": "Guide",
+    "announcement": "Important Notice",
+    "close": "Close",
+    "dismiss": "Don't show again",
+    "dismissShort": "Dismiss announcement",
+    "learnMore": "Learn More",
+    "viewDetails": "View Details",
+    "watchVideo": "Watch Video",
+    "videoNotSupported": "Your browser does not support the video tag.",
+    "priorityHigh": "High Priority"
   }
 }
