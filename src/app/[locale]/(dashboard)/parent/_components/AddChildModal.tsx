@@ -9,13 +9,15 @@ import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { AudioUploadField } from "@/app/[locale]/(auth)/register/_components/AudioUploadField";
 import { PathSelectionField } from "@/app/[locale]/(auth)/register/_components/PathSelectionField";
 import { ScrollToFieldError } from "@/app/[locale]/(auth)/register/_components/ScrollToFieldError";
-import { registerSchema } from "@/utils/validation";
+import { registerSchema, findPendingGroup, isAudioRequiredForGroup } from "@/utils/validation";
+import { AudioSyncController } from "@/app/[locale]/(auth)/register/_components/AudioSyncController";
 
 interface AddChildModalProps {
   isOpen: boolean;
   onClose: () => void;
   isAddPending: boolean;
   enrollmentTypes: any[];
+  allTracks?: any[];
   isFormDataLoading: boolean;
   onSubmit: (values: any, helpers: FormikHelpers<any>) => Promise<void>;
   initialValues: any;
@@ -26,6 +28,7 @@ export function AddChildModal({
   onClose,
   isAddPending,
   enrollmentTypes,
+  allTracks = [],
   isFormDataLoading,
   onSubmit,
   initialValues,
@@ -78,7 +81,7 @@ export function AddChildModal({
               try {
                 registerSchema.validateSync(values, {
                   abortEarly: false,
-                  context: { enrollmentTypes },
+                  context: { enrollmentTypes, allTracks },
                 });
               } catch (err: any) {
                 return err.inner.reduce((errors: any, currentError: any) => {
@@ -88,14 +91,26 @@ export function AddChildModal({
             }}
             onSubmit={onSubmit}
           >
-            <Form className="space-y-6">
-              <ScrollToFieldError />
+            {({ values }) => {
+              const selectedGroup = findPendingGroup(values.selected_group_id, {
+                enrollmentTypes,
+                allTracks,
+                enrollmentTypeId: values.enrollment_type_id,
+                trackId: values.selected_track_id,
+              });
+              const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
 
-              {/* Path Selection */}
-              <PathSelectionField
-                enrollmentTypes={enrollmentTypes}
-                isLoading={isFormDataLoading}
-              />
+              return (
+                <Form className="space-y-6">
+                  <ScrollToFieldError />
+                  <AudioSyncController isAudioRequired={isAudioRequired} />
+
+                  {/* Path Selection */}
+                  <PathSelectionField
+                    enrollmentTypes={enrollmentTypes}
+                    allTracks={allTracks}
+                    isLoading={isFormDataLoading}
+                  />
 
               {/* Personal Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -132,7 +147,7 @@ export function AddChildModal({
               </div>
 
               {/* Audio Upload */}
-              <AudioUploadField variant="child" />
+              {isAudioRequired && <AudioUploadField variant="child" />}
 
               {/* Footer Actions */}
               <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 border-t border-border/50 pt-6">
@@ -165,6 +180,8 @@ export function AddChildModal({
                 </button>
               </div>
             </Form>
+              );
+            }}
           </Formik>
         </div>
       </div>

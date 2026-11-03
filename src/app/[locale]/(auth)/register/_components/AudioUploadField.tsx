@@ -37,6 +37,14 @@ export function AudioUploadField({ variant = "student" }: { variant?: "student" 
 
   useEffect(() => {
     return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (mediaRef.current && mediaRef.current.state !== "inactive") {
+        try {
+          mediaRef.current.stop();
+        } catch {}
+      }
       if (audioContextRef.current) {
         audioContextRef.current.close().catch((err) => console.error("Error closing AudioContext", err));
       }

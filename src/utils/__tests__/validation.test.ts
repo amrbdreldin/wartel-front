@@ -6,6 +6,8 @@ import {
   excuseSchema,
   teacherRequestSchema,
   messageSchema,
+  findPendingGroup,
+  isAudioRequiredForGroup,
 } from "../validation";
 
 describe("Validation Schemas", () => {
@@ -80,6 +82,9 @@ describe("Validation Schemas", () => {
                 id: "track-1",
                 pending_groups: [
                   { id: "group-1" },
+                  { id: "group-audio-1", requires_audio: 1 },
+                  { id: "group-audio-0", requires_audio: 0 },
+                  { id: "group-audio-str0", requires_audio: "0" },
                 ],
               },
             ],
@@ -132,6 +137,58 @@ describe("Validation Schemas", () => {
         enrollment_type_id: "type-1",
         selected_track_id: "track-1",
         selected_group_id: "group-1",
+      };
+
+      await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).resolves.toBeDefined();
+    });
+
+    it("should pass registration without audio if selected group has requires_audio: 0", async () => {
+      const data = {
+        ...baseValidStudentData,
+        enrollment_type_id: "type-1",
+        selected_track_id: "track-1",
+        selected_group_id: "group-audio-0",
+        quran_audio: null,
+      };
+
+      await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).resolves.toBeDefined();
+    });
+
+    it("should pass registration without audio if selected group has requires_audio: '0'", async () => {
+      const data = {
+        ...baseValidStudentData,
+        enrollment_type_id: "type-1",
+        selected_track_id: "track-1",
+        selected_group_id: "group-audio-str0",
+        quran_audio: null,
+      };
+
+      await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).resolves.toBeDefined();
+    });
+
+    it("should reject registration without audio if selected group has requires_audio: 1", async () => {
+      const data = {
+        ...baseValidStudentData,
+        enrollment_type_id: "type-1",
+        selected_track_id: "track-1",
+        selected_group_id: "group-audio-1",
+        quran_audio: null,
+      };
+
+      await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).rejects.toThrow(
+        "validation.required"
+      );
+    });
+
+    it("should pass registration with valid audio if selected group has requires_audio: 1", async () => {
+      const audioFile = new File([new ArrayBuffer(1000)], "test.wav", { type: "audio/wav" });
+      const data = {
+        ...baseValidStudentData,
+        enrollment_type_id: "type-1",
+        selected_track_id: "track-1",
+        selected_group_id: "group-audio-1",
+        quran_audio: audioFile,
+        quran_audio_duration: 15,
       };
 
       await expect(registerSchema.validate(data, mockEnrollmentTypesContext)).resolves.toBeDefined();

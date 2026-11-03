@@ -22,6 +22,7 @@ export interface FormDataPendingGroup {
   updated_at: string;
   deleted_at: string | null;
   session_days: FormDataSessionDay[];
+  requires_audio?: number | boolean | string | null;
 }
 
 export interface FormDataTrack {
@@ -33,6 +34,7 @@ export interface FormDataTrack {
   created_at: string;
   deleted_at: string | null;
   pending_groups: FormDataPendingGroup[];
+  requires_audio?: number | boolean | string | null;
 }
 
 export interface FormDataUserRole {

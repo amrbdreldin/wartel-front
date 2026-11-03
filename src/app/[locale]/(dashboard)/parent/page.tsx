@@ -15,6 +15,7 @@ import {
 import { useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { resolveRoleId } from "@/utils/role";
+import { findPendingGroup, isAudioRequiredForGroup } from "@/utils/validation";
 
 import { ParentHeader } from "./_components/ParentHeader";
 import { ChildCard } from "./_components/ChildCard";
@@ -99,7 +100,14 @@ export default function ParentDashboardPage() {
     if (values.selected_group_id) {
       fd.append("group_id", values.selected_group_id);
     }
-    if (values.quran_audio) {
+    const selectedGroup = findPendingGroup(values.selected_group_id, {
+      enrollmentTypes,
+      allTracks: formData?.tracks ?? [],
+      enrollmentTypeId: values.enrollment_type_id,
+      trackId: values.selected_track_id,
+    });
+    const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
+    if (isAudioRequired && values.quran_audio) {
       fd.append("audio_test_path", values.quran_audio);
     }
     fd.append("user_role_id", resolveRoleId("student", userRoles));
@@ -254,6 +262,7 @@ export default function ParentDashboardPage() {
         onClose={() => setIsAddModalOpen(false)}
         isAddPending={isAddPending}
         enrollmentTypes={enrollmentTypes}
+        allTracks={formData?.tracks ?? []}
         isFormDataLoading={isFormDataLoading}
         onSubmit={handleAddStudent}
         initialValues={initialValues}

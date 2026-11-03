@@ -4,7 +4,7 @@ import { FormField } from "@/components/forms/FormField";
 import { PhoneFormField } from "@/components/forms/PhoneFormField";
 import { Logo } from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
-import { registerSchema } from "@/utils/validation";
+import { registerSchema, findPendingGroup, isAudioRequiredForGroup } from "@/utils/validation";
 import { useRegisterMutation, useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
 import { Form, Formik, type FormikProps } from "formik";
 import {
@@ -23,6 +23,7 @@ import { resolveRoleId } from "@/utils/role";
 
 
 import { AudioUploadField } from "./AudioUploadField";
+import { AudioSyncController } from "./AudioSyncController";
 import { PathSelectionField } from "./PathSelectionField";
 import { ScrollToFieldError } from "./ScrollToFieldError";
 import { AdmissionPanel } from "./AdmissionPanel";
@@ -135,7 +136,14 @@ export function RegisterForm() {
     
     if (values.selected_track_id) fd.append("track_id", values.selected_track_id);
     if (values.selected_group_id) fd.append("group_id", values.selected_group_id);
-    if (values.quran_audio) fd.append("audio_test_path", values.quran_audio);
+    const selectedGroup = findPendingGroup(values.selected_group_id, {
+      enrollmentTypes,
+      allTracks,
+      enrollmentTypeId: values.enrollment_type_id,
+      trackId: values.selected_track_id,
+    });
+    const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
+    if (isAudioRequired && values.quran_audio) fd.append("audio_test_path", values.quran_audio);
     
     const roleId = studentRoleId ? String(studentRoleId) : resolveRoleId(values.user_type, userRoles);
     fd.append("user_role_id", roleId);
@@ -222,7 +230,7 @@ export function RegisterForm() {
             try {
               registerSchema.validateSync(values, {
                 abortEarly: false,
-                context: { enrollmentTypes }
+                context: { enrollmentTypes, allTracks }
               });
             } catch (err: any) {
               err.inner.forEach((currentError: any) => {
@@ -238,9 +246,19 @@ export function RegisterForm() {
           }}
           onSubmit={handleSubmit}
         >
-          {({ values }) => (
-            <Form className="space-y-6">
-              <ScrollToFieldError />
+          {({ values }) => {
+            const selectedGroup = findPendingGroup(values.selected_group_id, {
+              enrollmentTypes,
+              allTracks,
+              enrollmentTypeId: values.enrollment_type_id,
+              trackId: values.selected_track_id,
+            });
+            const isAudioRequired = isAudioRequiredForGroup(selectedGroup);
+
+            return (
+              <Form className="space-y-6">
+                <ScrollToFieldError />
+                <AudioSyncController isAudioRequired={isAudioRequired} />
 
               {/* Role is implicitly student (women) */}
 
@@ -265,7 +283,7 @@ export function RegisterForm() {
               <FormField name="password_confirmation" label={t("auth.passwordConfirmation")} type="password" placeholder="••••••••" required />
 
               {/* ── Audio Upload ── */}
-              <AudioUploadField />
+              {isAudioRequired && <AudioUploadField />}
 
 
 
@@ -391,7 +409,8 @@ export function RegisterForm() {
               </div>
               */}
             </Form>
-          )}
+            );
+          }}
         </Formik>
       </div>
     </div>

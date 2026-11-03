@@ -67,21 +67,95 @@ export const addSingleSonSchema = Yup.object().shape({
   password: passwordSchema,
 });
 
-interface PendingGroup {
+export interface PendingGroup {
   id: string | number;
   name?: string;
+  requires_audio?: number | boolean | string | null;
+  [key: string]: any;
 }
 
-interface Track {
+export interface Track {
   id: string | number;
   name?: string;
+  requires_audio?: number | boolean | string | null;
   pending_groups?: PendingGroup[];
+  [key: string]: any;
 }
 
-interface EnrollmentType {
+export interface EnrollmentType {
   id: string | number;
   name?: string;
+  requires_audio?: number | boolean | string | null;
   tracks?: Track[];
+  [key: string]: any;
+}
+
+export function findPendingGroup(
+  groupId?: string | number | null,
+  context?: {
+    enrollmentTypes?: EnrollmentType[];
+    allTracks?: Track[];
+    enrollmentTypeId?: string | number | null;
+    trackId?: string | number | null;
+  }
+): PendingGroup | undefined {
+  if (!groupId) return undefined;
+  const strGroupId = String(groupId);
+  const enrollmentTypes = context?.enrollmentTypes || [];
+  const allTracks = context?.allTracks || [];
+  const enrollmentTypeId = context?.enrollmentTypeId;
+  const trackId = context?.trackId;
+
+  if (enrollmentTypeId) {
+    const selectedEt = enrollmentTypes.find((e) => String(e.id) === String(enrollmentTypeId));
+    if (selectedEt?.tracks) {
+      if (trackId) {
+        const tr = selectedEt.tracks.find((t) => String(t.id) === String(trackId));
+        const grp = tr?.pending_groups?.find((g) => String(g.id) === strGroupId);
+        if (grp) return grp;
+      }
+      for (const tr of selectedEt.tracks) {
+        const grp = tr.pending_groups?.find((g) => String(g.id) === strGroupId);
+        if (grp) return grp;
+      }
+    }
+  }
+
+  for (const et of enrollmentTypes) {
+    if (trackId) {
+      const tr = et.tracks?.find((t) => String(t.id) === String(trackId));
+      const grp = tr?.pending_groups?.find((g) => String(g.id) === strGroupId);
+      if (grp) return grp;
+    }
+    for (const tr of et.tracks || []) {
+      const grp = tr.pending_groups?.find((g) => String(g.id) === strGroupId);
+      if (grp) return grp;
+    }
+  }
+
+  if (trackId) {
+    const tr = allTracks.find((t) => String(t.id) === String(trackId));
+    const grp = tr?.pending_groups?.find((g) => String(g.id) === strGroupId);
+    if (grp) return grp;
+  }
+  for (const tr of allTracks) {
+    const grp = tr.pending_groups?.find((g) => String(g.id) === strGroupId);
+    if (grp) return grp;
+  }
+
+  return undefined;
+}
+
+export function isAudioRequiredForGroup(group?: PendingGroup | null): boolean {
+  if (!group) return true;
+  if (
+    group.requires_audio === 0 ||
+    group.requires_audio === "0" ||
+    group.requires_audio === false
+  ) {
+    return false;
+  }
+  return true;
 }
 
 export const registerSchema = Yup.object().shape({
@@ -105,10 +179,11 @@ export const registerSchema = Yup.object().shape({
     "validation.required",
     function (value, context) {
       const enrollmentTypes = (context.options.context || {}).enrollmentTypes as EnrollmentType[] | undefined;
-      if (!enrollmentTypes) return true;
+      const allTracks = (context.options.context || {}).allTracks as Track[] | undefined;
       const { enrollment_type_id } = this.parent;
-      const enrollmentType = enrollmentTypes.find((e) => String(e.id) === String(enrollment_type_id));
-      const hasTracks = enrollmentType && enrollmentType.tracks && enrollmentType.tracks.length > 0;
+      const enrollmentType = enrollmentTypes?.find((e) => String(e.id) === String(enrollment_type_id));
+      const hasTracks = (enrollmentType && enrollmentType.tracks && enrollmentType.tracks.length > 0) ||
+                        (allTracks && allTracks.length > 0);
       if (hasTracks) {
         return !!value;
       }
@@ -120,10 +195,13 @@ export const registerSchema = Yup.object().shape({
     "validation.required",
     function (value, context) {
       const enrollmentTypes = (context.options.context || {}).enrollmentTypes as EnrollmentType[] | undefined;
-      if (!enrollmentTypes) return true;
+      const allTracks = (context.options.context || {}).allTracks as Track[] | undefined;
       const { enrollment_type_id, selected_track_id } = this.parent;
-      const enrollmentType = enrollmentTypes.find((e) => String(e.id) === String(enrollment_type_id));
-      const track = enrollmentType?.tracks?.find((t) => String(t.id) === String(selected_track_id));
+      const enrollmentType = enrollmentTypes?.find((e) => String(e.id) === String(enrollment_type_id));
+      let track = enrollmentType?.tracks?.find((t) => String(t.id) === String(selected_track_id));
+      if (!track && allTracks) {
+        track = allTracks.find((t) => String(t.id) === String(selected_track_id));
+      }
       const hasGroups = track && track.pending_groups && track.pending_groups.length > 0;
       if (hasGroups) {
         return !!value;
@@ -133,7 +211,25 @@ export const registerSchema = Yup.object().shape({
   ),
   enrollment_type_id: Yup.string().required("validation.required"),
   quran_audio: Yup.mixed()
-    .required("validation.required")
+    .nullable()
+    .test("audio-required", "validation.required", function (value, context) {
+      const enrollmentTypes = (context.options.context || {}).enrollmentTypes as EnrollmentType[] | undefined;
+      const allTracks = (context.options.context || {}).allTracks as Track[] | undefined;
+      const { enrollment_type_id, selected_track_id, selected_group_id } = this.parent;
+
+      const group = findPendingGroup(selected_group_id, {
+        enrollmentTypes,
+        allTracks,
+        enrollmentTypeId: enrollment_type_id,
+        trackId: selected_track_id,
+      });
+
+      if (group && !isAudioRequiredForGroup(group)) {
+        return true;
+      }
+
+      return !!value;
+    })
     .test("fileSize", "validation.audioFileTooLarge", (value) => {
       if (!value) return true;
       if (value instanceof File) {
