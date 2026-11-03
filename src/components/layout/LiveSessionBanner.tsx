@@ -49,16 +49,16 @@ export function LiveSessionBanner() {
         </div>
       </div>
 
-      <div className="relative flex shrink-0 flex-wrap items-center justify-center gap-2">
+      <div className="relative flex shrink-0 flex-wrap items-center justify-center gap-2.5">
         {links.adult && (
           <a
             href={links.adult}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-bold text-wartel-primary-dark shadow-md transition hover:scale-105 hover:bg-wartel-secondary hover:text-white"
+            className="inline-flex h-10 min-w-[150px] items-center justify-center gap-2 rounded-xl border-2 border-white bg-white px-4 text-sm font-bold whitespace-nowrap text-wartel-primary-dark shadow-sm transition-all duration-200 hover:bg-white/90 active:scale-95"
           >
-            <ExternalLink className="size-4" />
-            {t("join")}
+            <ExternalLink className="size-4 shrink-0" />
+            <span>{t("join")}</span>
           </a>
         )}
         {links.child && (
@@ -66,10 +66,10 @@ export function LiveSessionBanner() {
             href={links.child}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border-2 border-white px-4 py-2 text-sm font-bold text-white transition hover:bg-white/15"
+            className="inline-flex h-10 min-w-[150px] items-center justify-center gap-2 rounded-xl border-2 border-white bg-transparent px-4 text-sm font-bold whitespace-nowrap text-white transition-all duration-200 hover:bg-white/15 active:scale-95"
           >
-            <Baby className="size-4" />
-            {t("joinChild")}
+            <Baby className="size-4 shrink-0" />
+            <span>{t("joinChild")}</span>
           </a>
         )}
       </div>

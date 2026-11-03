@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { X, Sparkles } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Ad } from "@/types/ad.types";
 import { AdMedia } from "./AdMedia";
@@ -48,11 +48,6 @@ export function AdHeader({ ad, className, onDismiss }: AdHeaderProps) {
 
       <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex-1 space-y-3 pe-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-bold text-primary">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{ad.placement_name || t("announcement")}</span>
-          </div>
-
           <h2 className="text-lg md:text-xl font-bold text-foreground leading-snug">{ad.title}</h2>
 
           {ad.content && (

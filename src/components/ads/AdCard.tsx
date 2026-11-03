@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { PlayCircle, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Ad } from "@/types/ad.types";
 import { AdMedia } from "./AdMedia";
@@ -15,8 +14,6 @@ interface AdCardProps {
 
 export function AdCard({ ad, className }: AdCardProps) {
   const t = useTranslations("ads");
-  const isVideo = ad.media_type === "youtube" || ad.media_type === "video";
-  const BadgeIcon = isVideo ? PlayCircle : BookOpen;
 
   return (
     <article
@@ -28,20 +25,6 @@ export function AdCard({ ad, className }: AdCardProps) {
     >
       <div className="space-y-4">
         {hasAdMedia(ad) && <AdMedia ad={ad} aspectRatio="video" />}
-
-        {/* Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-0.5 text-xs font-bold text-primary">
-            <BadgeIcon className="h-3 w-3" aria-hidden="true" />
-            {ad.placement_name || t("guide")}
-          </span>
-
-          {(ad.role_name || ad.target_roles_text) && (
-            <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
-              {ad.role_name || ad.target_roles_text}
-            </span>
-          )}
-        </div>
 
         <h3 className="text-base md:text-lg font-bold text-foreground leading-snug transition-colors group-hover:text-primary">
           {ad.title}

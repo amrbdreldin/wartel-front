@@ -29,13 +29,11 @@ const mockAd: Ad = {
 };
 
 describe("AdCard Component", () => {
-  it("renders ad title, content, badge, and CTA action link", () => {
+  it("renders ad title, content, and CTA action link", () => {
     render(<AdCard ad={mockAd} />);
 
     expect(screen.getByText(mockAd.title)).toBeDefined();
     expect(screen.getByText(mockAd.content!)).toBeDefined();
-    expect(screen.getByText("كارد في لوحة التحكم")).toBeDefined();
-    expect(screen.getByText("الطلاب")).toBeDefined();
 
     const ctaLink = screen.getByRole("link", { name: /مشاهدة الدليل/i });
     expect(ctaLink.getAttribute("href")).toBe(mockAd.action_url);
