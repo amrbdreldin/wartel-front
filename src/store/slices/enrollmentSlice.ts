@@ -10,6 +10,7 @@ export interface EnrollmentData {
   audio_test_path?: string;
   status_id: number;
   status_name: string;
+  telegram_tracking_url?: string;
 }
 
 interface EnrollmentState {

@@ -263,7 +263,20 @@
     "terminatedAccountQuestion": "تم إنهاء قيدك؟ طلب إعادة التفعيل",
     "reactivationBannerTitle": "هل تم إنهاء قيدك وترغب بالعودة؟",
     "reactivationBannerSubtitle": "تقديم طلب لإعادة تفعيل الحساب واستئناف الحلقات والدراسة",
-    "reactivationBannerBtn": "تقديم طلب"
+    "reactivationBannerBtn": "تقديم طلب",
+    "telegramStepBadge": "خطوة هامة جداً لتفعيل حسابك ومتابعة طلبك",
+    "telegramRequiredTitle": "اشترك في بوت تيليجرام لتصلك رسائل المنصة",
+    "telegramRequiredDesc": "لتصلك نتائج القبول، التنبيهات، ومواعيد الحلقات والاختبار من المنصة؛ يجب عليك فتح الرابط والضغط على زر «ابدأ / Start» في التيليجرام.",
+    "telegramStep1Title": "1. اضغط على زر الانتقال",
+    "telegramStep1Desc": "انقر على زر الانتقال إلى تيليجرام بالأسفل لفتح محادثة البوت.",
+    "telegramStep2Title": "2. اضغط على زر «ابدأ / Start»",
+    "telegramStep2Desc": "فور فتح التيليجرام، اضغط على زر ابدأ أو Start في أسفل الشاشة لتفعيل استقبال الرسائل وربط طلبك.",
+    "telegramStep3Title": "3. تأكيد الربط واستقبال الرسائل",
+    "telegramStep3Desc": "ستصلك رسالة تأكيد مباشرة وسيتم إرسال كافة التحديثات ومواعيدك عبر البوت.",
+    "telegramOpenButton": "الانتقال إلى تيليجرام والضغط على ابدأ (Start)",
+    "telegramCopyLink": "نسخ الرابط",
+    "telegramCopied": "تم نسخ رابط التيليجرام بنجاح!",
+    "telegramWarning": "تنبيه هام: بدون الضغط على زر «ابدأ / Start» في التيليجرام، لن تتمكن المنصة من إرسال رسائل أو إشعارات قبولك ومواعيدك إليك."
   },
   "student": {
     "group": "الحلقة",

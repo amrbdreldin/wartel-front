@@ -264,7 +264,20 @@
     "terminatedAccountQuestion": "Terminated? Request reactivation",
     "reactivationBannerTitle": "Was your enrollment terminated?",
     "reactivationBannerSubtitle": "Submit a request to reactivate your account and resume classes",
-    "reactivationBannerBtn": "Apply Now"
+    "reactivationBannerBtn": "Apply Now",
+    "telegramStepBadge": "Critical Step: Activate Your Account & Track Application",
+    "telegramRequiredTitle": "Subscribe to Telegram to receive platform messages & admission updates",
+    "telegramRequiredDesc": "To receive admission results, notifications, and session/test schedules from the platform, you must open the link and tap \"Start\" in Telegram.",
+    "telegramStep1Title": "1. Click Open Telegram",
+    "telegramStep1Desc": "Click the button below to open the official bot conversation.",
+    "telegramStep2Title": "2. Tap the «Start / ابدأ» Button",
+    "telegramStep2Desc": "Once the bot opens, tap the Start button at the bottom of the screen to activate messages and link your application.",
+    "telegramStep3Title": "3. Confirmation & Updates",
+    "telegramStep3Desc": "You will receive an instant confirmation message and all future notifications via the bot.",
+    "telegramOpenButton": "Open Telegram & Tap Start (ابدأ)",
+    "telegramCopyLink": "Copy Link",
+    "telegramCopied": "Telegram link copied successfully!",
+    "telegramWarning": "Important notice: Without tapping \"Start\" in Telegram, the platform cannot send you interview dates or acceptance results."
   },
   "student": {
     "group": "Group",

@@ -22,8 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
-import type { User } from "@/types/auth.types";
-import { UserRole } from "@/types/enums";
+import type { LoginResponse } from "@/types/auth.types";
 
 // ============================================================
 // DirectJoinLoginModal – In-place Login Modal for Course Page
@@ -34,30 +33,7 @@ interface DirectJoinLoginModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface LoginUserPayload {
-  id: number;
-  full_name: string;
-  phone?: string;
-  role_id: number;
-  status_id?: number;
-  enrollment_type?: string;
-  role?: string | UserRole;
-  [key: string]: unknown;
-}
 
-interface LoginSuccessPayload {
-  token?: string;
-  access_token?: string;
-  refresh_token?: string;
-  message?: string;
-  data?: {
-    token?: string;
-    access_token?: string;
-    refresh_token?: string;
-    user?: LoginUserPayload;
-  };
-  user?: LoginUserPayload;
-}
 
 interface ModalApiError {
   response?: {
@@ -127,26 +103,23 @@ export function DirectJoinLoginModal({
         firebase_token: fcmToken || undefined,
       },
       {
-        onSuccess: (res: LoginSuccessPayload) => {
-          const userObj = res?.user || res?.data?.user;
-          const token =
-            res?.token ||
-            res?.access_token ||
-            res?.data?.token ||
-            res?.data?.access_token;
-          const refreshToken =
-            res?.refresh_token || res?.data?.refresh_token || "";
+        onSuccess: (res: LoginResponse) => {
+          const userObj = res.user;
+          const token = res.token || res.access_token;
+          const refreshToken = res.refresh_token || "";
 
           if (token && userObj) {
             handleLoginState({
-              user: userObj as unknown as User,
+              user: userObj,
               accessToken: token,
               refreshToken,
             });
           }
 
           const successMsg =
-            res?.message || t("auth.loginSuccess") || "تم تسجيل الدخول بنجاح";
+            (res as unknown as { message?: string })?.message ||
+            t("auth.loginSuccess") ||
+            "تم تسجيل الدخول بنجاح";
           toast.success(successMsg);
           setFormSuccess(successMsg);
 

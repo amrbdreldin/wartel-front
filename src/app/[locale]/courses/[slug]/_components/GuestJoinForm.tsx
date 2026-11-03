@@ -16,8 +16,9 @@ import { loadRecaptchaScript, executeRecaptcha } from "@/utils/recaptcha";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { JoinGroupRequest } from "@/services/group.service";
-import type { User } from "@/types/auth.types";
+import type { JoinGroupRequest, JoinGroupResponse } from "@/services/group.service";
+import type { ApiResponse } from "@/types/api.types";
+import type { LoginResponse } from "@/types/auth.types";
 import { UserRole } from "@/types/enums";
 import { DirectJoinLoginModal } from "./DirectJoinLoginModal";
 
@@ -32,30 +33,7 @@ interface GuestJoinFormProps {
   allowedRoles?: Array<{ id: number; name: string }>;
 }
 
-interface AuthJoinUserPayload {
-  id: number;
-  full_name: string;
-  phone?: string;
-  role_id: number;
-  status_id?: number;
-  enrollment_type?: string;
-  role?: string | UserRole;
-  [key: string]: unknown;
-}
 
-interface AuthJoinSuccessPayload {
-  token?: string;
-  access_token?: string;
-  refresh_token?: string;
-  message?: string;
-  data?: {
-    token?: string;
-    access_token?: string;
-    refresh_token?: string;
-    user?: AuthJoinUserPayload;
-  };
-  user?: AuthJoinUserPayload;
-}
 
 interface FormApiError {
   response?: {
@@ -139,22 +117,26 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     return hasStudentRole ? "student" : "parent";
   });
 
-  const handlePostJoinSuccess = (res: AuthJoinSuccessPayload, resetForm: () => void) => {
+  const handlePostJoinSuccess = (res: ApiResponse<JoinGroupResponse>, resetForm: () => void) => {
+    const data = res?.data;
     const token =
-      res?.token ||
-      res?.access_token ||
-      res?.data?.token ||
-      res?.data?.access_token;
-    const userObj = res?.user || res?.data?.user;
+      (res as unknown as { token?: string; access_token?: string })?.token ||
+      (res as unknown as { token?: string; access_token?: string })?.access_token ||
+      data?.token ||
+      data?.access_token;
+    const userObj = data?.user || (res as unknown as { user?: JoinGroupResponse["user"] })?.user;
 
     const successMsg = res?.message || t("directJoin.joinSuccess");
     toast.success(successMsg);
 
     if (token && userObj) {
       handleLoginState({
-        user: userObj as unknown as User,
+        user: {
+          ...userObj,
+          role: userObj.role as UserRole | undefined,
+        },
         accessToken: token,
-        refreshToken: res?.refresh_token || res?.data?.refresh_token || "",
+        refreshToken: (res as unknown as { refresh_token?: string })?.refresh_token || data?.refresh_token || "",
       });
 
       let redirectPath = `/${locale}/dashboard`;
@@ -228,24 +210,20 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
         firebase_token: firebaseToken || undefined,
       },
       {
-        onSuccess: (res: AuthJoinSuccessPayload) => {
+        onSuccess: (res: LoginResponse) => {
           const successMsg =
-            res?.message ||
+            (res as unknown as { message?: string })?.message ||
             t("directJoin.registerParentSuccess");
           toast.success(successMsg);
 
-          const token =
-            res?.token ||
-            res?.access_token ||
-            res?.data?.token ||
-            res?.data?.access_token;
-          const userObj = res?.user || res?.data?.user;
+          const token = res.token || res.access_token;
+          const userObj = res.user;
 
           if (token && userObj) {
             handleLoginState({
               user: userObj,
               accessToken: token,
-              refreshToken: res?.refresh_token || res?.data?.refresh_token || "",
+              refreshToken: res.refresh_token || "",
             });
             // Stay on the direct join course page to show parent and children section
             router.refresh();

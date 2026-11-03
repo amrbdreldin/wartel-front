@@ -8,6 +8,7 @@ import type {
   ResetPasswordRequestResponse,
   User,
   RegisterDataResponse,
+  EnrollmentSubmitResponse,
   UserReactivationRequest,
   AppDataResponse,
 } from "@/types/auth.types";
@@ -32,14 +33,22 @@ export const authService = {
     ),
 
   register: (data: FormData, options?: ApiCallOptions) =>
-    apiUpload<ApiResponse<any>>("/enrollment/submit", data, options).then(
-      (r) => {
-        const responseData = r.data;
-        if (responseData && typeof responseData === "object") {
-          (responseData as any).message = r.message;
-          (responseData as any).success = r.success;
+    apiUpload<ApiResponse<EnrollmentSubmitResponse>>("/enrollment/submit", data, options).then(
+      (r: any) => {
+        const responseData =
+          r && typeof r === "object" && "data" in r && r.data
+            ? { ...r.data }
+            : r && typeof r === "object"
+            ? { ...r }
+            : {};
+        if (typeof responseData === "object" && responseData !== null) {
+          if (r?.message && !responseData.message) (responseData as any).message = r.message;
+          if (r?.success !== undefined && !("success" in responseData)) (responseData as any).success = r.success;
+          if (r?.telegram_tracking_url && !responseData.telegram_tracking_url) {
+            responseData.telegram_tracking_url = r.telegram_tracking_url;
+          }
         }
-        return responseData;
+        return responseData as EnrollmentSubmitResponse;
       }
     ),
 

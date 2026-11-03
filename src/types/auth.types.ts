@@ -108,6 +108,14 @@ export interface RegisterRequest {
   preferred_rafeqa_time?: string;
 }
 
+export interface EnrollmentSubmitResponse {
+  application_id?: number;
+  telegram_tracking_url?: string;
+  message?: string;
+  success?: boolean;
+  [key: string]: any;
+}
+
 export interface RefreshTokenResponse {
   access_token: string;
   refresh_token: string;

@@ -26,6 +26,7 @@ import { AudioUploadField } from "./AudioUploadField";
 import { PathSelectionField } from "./PathSelectionField";
 import { ScrollToFieldError } from "./ScrollToFieldError";
 import { AdmissionPanel } from "./AdmissionPanel";
+import { EnrollmentSuccessView } from "./EnrollmentSuccessView";
 
 // ============================================================
 // RegisterForm – full registration logic extracted from page
@@ -63,6 +64,7 @@ export function RegisterForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [telegramTrackingUrl, setTelegramTrackingUrl] = useState<string | null>(null);
 
   const formikRef = useRef<FormikProps<any>>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -146,7 +148,17 @@ export function RegisterForm() {
 
     register(fd, {
       onSuccess: (res) => {
-        if (res?.data) dispatch(setEnrollmentData(res.data));
+        const trackingUrl =
+          (res as any)?.telegram_tracking_url ||
+          (res as any)?.data?.telegram_tracking_url;
+
+        if (trackingUrl) {
+          setTelegramTrackingUrl(trackingUrl);
+        }
+        const enrollmentPayload = (res as any)?.data ?? res;
+        if (enrollmentPayload) {
+          dispatch(setEnrollmentData(enrollmentPayload));
+        }
         const successMsg = (res as any)?.message || t("auth.applicationSubmitted");
         setFormSuccess(successMsg);
         toast.success(successMsg);
@@ -168,19 +180,10 @@ export function RegisterForm() {
 
   if (isSuccess) {
     return (
-      <div className="bg-card rounded-3xl shadow-2xl p-12 text-center animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-success-500/10 text-success-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-12 h-12" />
-        </div>
-        <h2 className="text-3xl font-black text-foreground mb-4">{t("auth.applicationSuccessTitle")}</h2>
-        <p className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed">
-          {t("auth.applicationSuccessDesc")}
-        </p>
-        <Link href={`/${locale}`} className="inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 bg-primary text-white font-bold text-base hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 hover:-translate-y-1">
-          <ArrowRight className="w-5 h-5 rtl:-rotate-90" />
-          {t("common.backToHome")}
-        </Link>
-      </div>
+      <EnrollmentSuccessView
+        telegramTrackingUrl={telegramTrackingUrl}
+        locale={locale}
+      />
     );
   }
 
