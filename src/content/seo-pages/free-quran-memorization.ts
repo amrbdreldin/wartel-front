@@ -1,6 +1,6 @@
 import type { SeoPageDefinition } from "./types";
 
-// "Free" facts come from the live site: non-profit charity funded by donations;
+// "Free" facts come from the live site: non-profit charity academy, 100% free;
 // all activities free incl. certificates and ijazahs. Conditions = the instructions page rules.
 
 export const freePage: SeoPageDefinition = {
@@ -17,7 +17,7 @@ export const freePage: SeoPageDefinition = {
       h1: "تحفيظ القرآن أونلاين مجانا في أكاديمية ورتل",
       linkLabel: "تحفيظ القرآن مجاناً",
       lead:
-        "نعم، يمكنك الحصول على تحفيظ القرآن أونلاين مجانا بالكامل في أكاديمية ورتل، لأنها أكاديمية خيرية غير ربحية ممولة من التبرعات. الحلقات ودروس التجويد والاختبارات والشهادات والإجازات كلها بلا رسوم، والشرط الوحيد هو الالتزام بالحضور والتسميع اليومي وفق ضوابط الأكاديمية.",
+        "نعم، يمكنك الحصول على تحفيظ القرآن أونلاين مجانا بالكامل في أكاديمية ورتل، لأنها أكاديمية خيرية غير ربحية. الحلقات ودروس التجويد والاختبارات والشهادات والإجازات كلها بلا رسوم، والشرط الوحيد هو الالتزام بالحضور والتسميع اليومي وفق ضوابط الأكاديمية.",
       sections: [
         {
           h2: "ما الذي تقدّمه أكاديمية ورتل لتحفيظ القرآن أونلاين مجانا؟",
@@ -46,13 +46,12 @@ export const freePage: SeoPageDefinition = {
           blocks: [
             {
               type: "p",
-              text: "أكاديمية ورتل أكاديمية خيرية مسجّلة لا تهدف إلى الربح، تسعى إلى تيسير حفظ القرآن الكريم وفهمه وعلومه للنساء والأطفال، وتموَّل بالكامل من الدعم الخيري والتبرعات. ولأن رسالتها نشر كتاب الله لا تحصيل الرسوم، فإنها لا تشترط على الطالبة أو ولي الأمر أي مقابل مادي في أي مرحلة.",
+              text: "أكاديمية ورتل أكاديمية خيرية مسجّلة لا تهدف إلى الربح، تسعى إلى تيسير حفظ القرآن الكريم وفهمه وعلومه للنساء والأطفال. ولأن رسالتها نشر كتاب الله لا تحصيل الرسوم، فإنها لا تشترط على الطالبة أو ولي الأمر أي مقابل مادي في أي مرحلة.",
             },
             {
               type: "p",
-              text: "هذا النموذج يجعل حلقات التحفيظ المجانية متاحة لمن لا تسمح ظروفه بالاشتراك في الأكاديميات المدفوعة، ويضمن ألا يكون المال سبباً في انقطاع أحد عن القرآن.",
+              text: "هذا النموذج يجعل حلقات التحفيظ المجانية متاحة للجميع، ويضمن ألا يكون المال عائقاً أو سبباً في انقطاع أحد عن كتاب الله.",
             },
-            { type: "todo", text: "إن رغبتم في قبول التبرعات من الزوار، أضيفوا هنا رابط صفحة التبرع أو وسيلة التبرع الرسمية." },
           ],
         },
         {
@@ -146,7 +145,7 @@ export const freePage: SeoPageDefinition = {
       faq: [
         {
           q: "هل أكاديمية ورتل لتحفيظ القرآن أونلاين مجانا فعلاً؟",
-          a: "نعم، جميع أنشطة الأكاديمية مجانية بالكامل بما في ذلك الحلقات والتجويد والشهادات والإجازات، وهي ممولة من الدعم الخيري والتبرعات.",
+          a: "نعم، جميع أنشطة الأكاديمية مجانية بالكامل بما في ذلك الحلقات والتجويد والشهادات والإجازات بلا أي مقابل مادي.",
         },
         {
           q: "هل هناك رسوم للشهادة أو الإجازة؟",
@@ -192,7 +191,7 @@ export const freePage: SeoPageDefinition = {
       h1: "Free Online Quran Classes at Wartel Academy",
       linkLabel: "Free Quran classes",
       lead:
-        "Yes – Wartel Academy offers completely free online Quran classes because it is a registered non-profit funded by donations. Memorization circles, Tajweed lessons, tests, certificates and Ijazahs all cost nothing; the only requirement is commitment to attendance and daily recitation under the academy's rules.",
+        "Yes – Wartel Academy offers completely free online Quran classes as a registered non-profit academy. Memorization circles, Tajweed lessons, tests, certificates and Ijazahs all cost nothing; the only requirement is commitment to attendance and daily recitation under the academy's rules.",
       sections: [
         {
           h2: "What is free?",
@@ -221,9 +220,8 @@ export const freePage: SeoPageDefinition = {
           blocks: [
             {
               type: "p",
-              text: "Wartel is a registered non-profit academy that aims to make Quran memorization and understanding accessible to women and children. It is funded entirely by charitable support and donations, so it never charges students or parents at any stage. This keeps quality Quran teaching open to people who could not afford a paid academy.",
+              text: "Wartel is a registered non-profit academy that aims to make Quran memorization and understanding accessible to women and children. Its mission is to teach the Book of Allah, so it never charges students or parents at any stage. This keeps quality Quran teaching open to everyone.",
             },
-            { type: "todo", text: "If you accept donations from visitors, add the official donation link here." },
           ],
         },
         {
@@ -303,7 +301,7 @@ export const freePage: SeoPageDefinition = {
       faq: [
         {
           q: "Are Wartel's online Quran classes really free?",
-          a: "Yes. All activities – circles, Tajweed, certificates and Ijazahs – are free, funded by charitable support and donations.",
+          a: "Yes. All activities – circles, Tajweed, certificates and Ijazahs – are completely free.",
         },
         {
           q: "Is there a fee for the certificate or Ijazah?",

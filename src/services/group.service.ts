@@ -57,6 +57,26 @@ export interface JoinGroupResponse {
   };
 }
 
+export interface AvailableGroup {
+  id: number;
+  name: string;
+  display_name: string;
+  track_id: number;
+  track_name: string;
+  course_id: number;
+  course_name: string;
+  teacher_id: number;
+  teacher_name: string;
+  type: string;
+  start_date: string;
+  max_number: number;
+  requires_audio: number;
+  has_tamam: number;
+  has_buddy: number;
+  has_attendance: number;
+  session_days: GroupSessionDay[];
+}
+
 const BASE_URL = "/groups";
 
 export const groupService = {
@@ -76,4 +96,21 @@ export const groupService = {
         skipGlobalToast: true,
       } as AxiosRequestConfig & { skipGlobalToast?: boolean },
     }).then((r) => r),
+
+  getAvailableGroups: (options?: ApiCallOptions): Promise<AvailableGroup[]> =>
+    apiGet<ApiResponse<AvailableGroup[]>>("/student/available-groups", options).then((r) => r?.data ?? []),
+
+  // Errors are rendered inside the apply dialog, so the global toast is skipped.
+  applyToGroup: (groupId: number, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<unknown>>(
+      `${BASE_URL}/apply`,
+      { group_id: groupId },
+      {
+        ...options,
+        config: {
+          ...options?.config,
+          skipGlobalToast: true,
+        } as AxiosRequestConfig & { skipGlobalToast?: boolean },
+      }
+    ),
 };

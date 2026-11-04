@@ -12,8 +12,6 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  Play,
-  Bell,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -64,30 +62,6 @@ function TelegramIcon({ className }: { className?: string }) {
   );
 }
 
-const STEPS = [
-  {
-    num: 1,
-    icon: ExternalLink,
-    titleKey: "auth.telegramStep1Title",
-    descKey: "auth.telegramStep1Desc",
-    emphasized: false,
-  },
-  {
-    num: 2,
-    icon: Play,
-    titleKey: "auth.telegramStep2Title",
-    descKey: "auth.telegramStep2Desc",
-    emphasized: true,
-  },
-  {
-    num: 3,
-    icon: Bell,
-    titleKey: "auth.telegramStep3Title",
-    descKey: "auth.telegramStep3Desc",
-    emphasized: false,
-  },
-] as const;
-
 export function EnrollmentSuccessView({
   telegramTrackingUrl,
   locale,
@@ -119,119 +93,42 @@ export function EnrollmentSuccessView({
   };
 
   return (
-    <div className="bg-card/95 backdrop-blur-md rounded-3xl shadow-2xl p-5 sm:p-8 md:p-10 border border-border/40 text-center animate-in fade-in zoom-in-95 duration-500 max-w-4xl mx-auto">
+    <div className="bg-card/95 backdrop-blur-md rounded-3xl shadow-2xl p-5 sm:p-6 border border-border/40 text-center animate-in fade-in zoom-in-95 duration-500 max-w-lg mx-auto">
       {/* ── Top Success Status ── */}
-      <div className="relative inline-flex items-center justify-center mb-5">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-success-500/10 text-success-600 dark:text-success-400 rounded-full flex items-center justify-center ring-8 ring-success-500/5">
-          <CheckCircle2 className="w-9 h-9 sm:w-10 sm:h-10" aria-hidden="true" />
+      <div className="relative inline-flex items-center justify-center mb-3">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-success-500/10 text-success-600 dark:text-success-400 rounded-full flex items-center justify-center ring-4 ring-success-500/5">
+          <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7" aria-hidden="true" />
         </div>
-        <div className="absolute -top-1 -end-1 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md">
-          <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+        <div className="absolute -top-1 -end-1 bg-primary text-primary-foreground rounded-full p-1 shadow-md">
+          <Sparkles className="w-3 h-3" aria-hidden="true" />
         </div>
       </div>
 
-      <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-2.5 tracking-tight">
+      <h2 className="text-xl sm:text-2xl font-black text-foreground mb-4 tracking-tight">
         {t("auth.applicationSuccessTitle")}
       </h2>
 
-      <p className="text-sm sm:text-base text-muted-foreground mb-7 max-w-xl mx-auto leading-relaxed">
-        {t("auth.applicationSuccessDesc")}
-      </p>
-
       {/* ── Telegram Callout Card (Highlight & Required) ── */}
       <section
-        aria-labelledby="telegram-callout-heading"
-        className="rounded-3xl p-5 sm:p-7 md:p-8 border border-sky-500/20 dark:border-sky-500/30 bg-gradient-to-b from-sky-500/[0.08] via-sky-500/[0.02] to-card dark:from-sky-500/15 dark:via-background dark:to-card shadow-xl shadow-sky-500/5 text-start relative overflow-hidden mb-7"
+        aria-labelledby="telegram-callout-text"
+        className="rounded-2xl p-4 sm:p-5 border border-sky-500/20 dark:border-sky-500/30 bg-gradient-to-b from-sky-500/[0.08] via-sky-500/[0.02] to-card dark:from-sky-500/15 dark:via-background dark:to-card text-center mb-4"
       >
-        {/* Subtle decorative background glow */}
-        <div
-          className="absolute -top-16 -end-16 w-48 h-48 bg-sky-500/10 dark:bg-sky-500/15 rounded-full blur-3xl pointer-events-none"
-          aria-hidden="true"
-        />
-
-        {/* Priority & Status Badges */}
-        <div className="flex items-center justify-between flex-wrap gap-2.5 mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 dark:bg-sky-500/20 text-[#0088cc] dark:text-[#38bdf8] font-bold text-xs md:text-sm border border-sky-500/30">
-            <TelegramIcon className="w-4 h-4 shrink-0" />
-            <span>{t("auth.telegramStepBadge")}</span>
-          </div>
-
-          <span className="text-[11px] md:text-xs font-semibold px-2.5 py-1 rounded-full bg-warning-500/10 text-warning-700 dark:text-warning-400 border border-warning-500/25">
-            {t("auth.telegramMandatoryBadge")}
-          </span>
-        </div>
-
-        {/* Header */}
-        <h3
-          id="telegram-callout-heading"
-          className="text-lg sm:text-xl md:text-2xl font-black text-foreground mb-2 tracking-tight"
+        {/* The Crux / Bottom Line */}
+        <p
+          id="telegram-callout-text"
+          className="text-sm sm:text-base font-bold text-foreground mb-4 leading-relaxed"
         >
-          {t("auth.telegramRequiredTitle")}
-        </h3>
-
-        <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-6 max-w-2xl leading-relaxed">
           {t("auth.telegramRequiredDesc")}
         </p>
 
-        {/* ── 3 Visual Steps ── */}
-        <ol className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-3.5 mb-6 list-none p-0">
-          {STEPS.map(({ num, icon: StepIcon, titleKey, descKey, emphasized }) => (
-            <li
-              key={num}
-              className={cn(
-                "relative rounded-2xl p-4 flex flex-col justify-between transition-all duration-200",
-                emphasized
-                  ? "bg-card border-2 border-[#0088cc] dark:border-[#38bdf8] shadow-md shadow-[#0088cc]/10 ring-2 ring-[#0088cc]/20"
-                  : "bg-card/70 dark:bg-card/40 border border-border/70 hover:border-border"
-              )}
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "w-7 h-7 rounded-full font-black text-xs flex items-center justify-center shrink-0 shadow-sm",
-                      emphasized
-                        ? "bg-[#0088cc] text-white"
-                        : "bg-muted text-muted-foreground font-bold"
-                    )}
-                  >
-                    {num}
-                  </span>
-                  <StepIcon
-                    className={cn(
-                      "w-4 h-4 shrink-0",
-                      emphasized
-                        ? "text-[#0088cc] dark:text-[#38bdf8]"
-                        : "text-muted-foreground/60"
-                    )}
-                    aria-hidden="true"
-                  />
-                </div>
-                <h4
-                  className={cn(
-                    "text-sm mb-1",
-                    emphasized ? "font-black text-foreground" : "font-bold text-foreground/90"
-                  )}
-                >
-                  {t(titleKey)}
-                </h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {t(descKey)}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-
         {/* ── Action Buttons ── */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5">
           {/* Main CTA: Open Telegram */}
           <a
             href={targetUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#0088cc] hover:bg-[#0077b5] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-lg shadow-[#0088cc]/20 hover:shadow-[#0088cc]/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088cc] focus-visible:ring-offset-2"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0088cc] hover:bg-[#0077b5] active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-[#0088cc]/25 hover:shadow-[#0088cc]/35 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0088cc] focus-visible:ring-offset-2"
             aria-label={t("auth.telegramOpenButton")}
           >
             <TelegramIcon className="w-5 h-5 shrink-0" />
@@ -243,7 +140,7 @@ export function EnrollmentSuccessView({
           <button
             type="button"
             onClick={handleCopyLink}
-            className="inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-card hover:bg-muted text-foreground font-semibold text-sm border border-border shadow-sm hover:border-[#0088cc]/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-card hover:bg-muted text-foreground font-semibold text-sm border border-border shadow-sm hover:border-[#0088cc]/40 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
             aria-label={t("auth.telegramCopyLink")}
           >
             {copied ? (
@@ -258,7 +155,7 @@ export function EnrollmentSuccessView({
         {/* ── Important Note / Warning ── */}
         <div
           role="note"
-          className="mt-4 flex items-center gap-2.5 p-3 sm:p-3.5 rounded-xl bg-warning-500/10 border border-warning-500/20 text-warning-800 dark:text-warning-300 text-xs sm:text-sm leading-relaxed"
+          className="mt-3 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-warning-500/10 border border-warning-500/20 text-warning-800 dark:text-warning-300 text-xs leading-relaxed"
         >
           <AlertTriangle className="w-4 h-4 shrink-0 text-warning-600 dark:text-warning-400" aria-hidden="true" />
           <span>{t("auth.telegramWarning")}</span>
@@ -266,10 +163,10 @@ export function EnrollmentSuccessView({
       </section>
 
       {/* ── Back to Home Link ── */}
-      <div className="flex justify-center pt-1">
+      <div className="flex justify-center">
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-2.5 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm md:text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <BackArrow className="w-4 h-4" aria-hidden="true" />
           <span>{t("common.backToHome")}</span>

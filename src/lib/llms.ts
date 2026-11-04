@@ -63,7 +63,7 @@ export async function buildLlmsTxt(): Promise<string> {
     `${l.footer.desc} Classes are taught online in Arabic by certified (Ijazah-holding) teachers. Everything, including certificates and Ijazahs, is free of charge.`,
     "",
     "Key facts:",
-    "- Type: non-profit, charity-funded online Quran academy",
+    "- Type: non-profit, 100% free online Quran academy",
     "- Audience: women and children (children enrol through a parent account)",
     "- Cost: 100% free (lessons, certificates and Ijazahs)",
     "- Teaching language: Arabic; website available in Arabic and English",

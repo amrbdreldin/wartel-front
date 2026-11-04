@@ -127,7 +127,7 @@ export const womenPage: SeoPageDefinition = {
           blocks: [
             {
               type: "p",
-              text: "نعم. أكاديمية ورتل أكاديمية خيرية مسجّلة لا تهدف إلى الربح، وتموَّل بالكامل من الدعم الخيري والتبرعات، لذلك فإن الحلقات ودروس التجويد والشهادات والإجازات كلها بلا رسوم. المطلوب من الطالبة هو الالتزام بالحضور والتمام اليومي والاختبارات. اقرئي التفاصيل في صفحة [تحفيظ القرآن أونلاين مجاناً](/free-quran-memorization).",
+              text: "نعم. أكاديمية ورتل أكاديمية خيرية مسجّلة لا تهدف إلى الربح، لذلك فإن الحلقات ودروس التجويد والشهادات والإجازات كلها مجانية بالكامل وبلا رسوم. المطلوب من الطالبة هو الالتزام بالحضور والتمام اليومي والاختبارات. اقرئي التفاصيل في صفحة [تحفيظ القرآن أونلاين مجاناً](/free-quran-memorization).",
             },
           ],
         },
@@ -298,7 +298,7 @@ export const womenPage: SeoPageDefinition = {
         },
         {
           q: "Are the classes really free?",
-          a: "Yes. Wartel is a non-profit academy funded by charitable support; lessons, certificates and Ijazahs are all free.",
+          a: "Yes. Wartel is a non-profit academy; lessons, certificates and Ijazahs are all completely free.",
         },
         {
           q: "How many classes are there per week?",

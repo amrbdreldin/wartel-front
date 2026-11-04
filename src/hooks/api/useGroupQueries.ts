@@ -1,14 +1,20 @@
 /**
- * useGroupQueries.ts – Hooks for group direct-join flow.
+ * useGroupQueries.ts – Hooks for the group direct-join and apply flows.
  */
 import type { Locale } from "@/lib/constants";
-import { groupService, type JoinGroupRequest, type DirectJoinGroup } from "@/services/group.service";
+import {
+  groupService,
+  type AvailableGroup,
+  type DirectJoinGroup,
+  type JoinGroupRequest,
+} from "@/services/group.service";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 
 export const groupKeys = {
   all: ["group"] as const,
   directJoin: (slug: string) => [...groupKeys.all, "direct-join", slug] as const,
+  available: () => [...groupKeys.all, "available"] as const,
 };
 
 export function useDirectJoinGroup(slug: string) {
@@ -26,5 +32,20 @@ export function useJoinGroupMutation() {
   return useMutation({
     mutationFn: (data: JoinGroupRequest) =>
       groupService.joinGroup(data, { lang }),
+  });
+}
+
+export function useAvailableGroups() {
+  const lang = useLocale() as Locale;
+  return useQuery<AvailableGroup[]>({
+    queryKey: groupKeys.available(),
+    queryFn: () => groupService.getAvailableGroups({ lang }),
+  });
+}
+
+export function useApplyToGroupMutation() {
+  const lang = useLocale() as Locale;
+  return useMutation({
+    mutationFn: (groupId: number) => groupService.applyToGroup(groupId, { lang }),
   });
 }

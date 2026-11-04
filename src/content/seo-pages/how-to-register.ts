@@ -77,7 +77,7 @@ export const howToRegisterPage: SeoPageDefinition = {
           blocks: [
             {
               type: "p",
-              text: "لا توجد أسعار ولا باقات في أكاديمية ورتل؛ كل الأنشطة مجانية، بما فيها الحلقات ودروس التجويد والاختبارات والشهادات والإجازات، لأن الأكاديمية ممولة من الدعم الخيري والتبرعات. إذا طلب منك أحد مبلغاً باسم الأكاديمية فتواصل مع الدعم عبر القنوات الرسمية المذكورة أدناه.",
+              text: "لا توجد أسعار ولا باقات في أكاديمية ورتل؛ كل الأنشطة مجانية بالكامل، بما فيها الحلقات ودروس التجويد والاختبارات والشهادات والإجازات. وإذا طلب منك أحد مبلغاً باسم الأكاديمية فتواصل مع الدعم عبر القنوات الرسمية المذكورة أدناه.",
             },
           ],
         },
@@ -252,7 +252,7 @@ export const howToRegisterPage: SeoPageDefinition = {
           blocks: [
             {
               type: "p",
-              text: "Registration is completely free, and there are no prices or plans. Wartel is a non-profit academy funded by donations: circles, Tajweed lessons, tests, certificates and Ijazahs are all free. See [free online Quran classes](/free-quran-memorization). If anyone asks you for money in the academy's name, contact support through the official channels below.",
+              text: "Registration is completely free, and there are no prices or plans: circles, Tajweed lessons, tests, certificates and Ijazahs are all completely free. See [free online Quran classes](/free-quran-memorization). If anyone asks you for money in the academy's name, contact support through the official channels below.",
             },
           ],
         },

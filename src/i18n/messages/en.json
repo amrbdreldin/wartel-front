@@ -220,7 +220,6 @@
     "sending": "Sending...",
     "applicationSubmitted": "Your application has been submitted successfully!",
     "applicationSuccessTitle": "Your application is under review",
-    "applicationSuccessDesc": "We have successfully received your registration request and audio sample. We will review it to assess your level and contact you soon with the results and details to join the appropriate group.",
     "logoutConfirmTitle": "Log out?",
     "logoutConfirmDesc": "Are you sure you want to log out? You will need to enter your credentials again to access your account.",
     "roleMismatchTitle": "Insufficient Privileges",
@@ -266,9 +265,7 @@
     "reactivationBannerSubtitle": "Submit a request to reactivate your account and resume classes",
     "reactivationBannerBtn": "Apply Now",
     "telegramStepBadge": "Important Step",
-    "telegramMandatoryBadge": "Required for Results",
-    "telegramRequiredTitle": "Connect Telegram to Track Your Application",
-    "telegramRequiredDesc": "Receive admission results, interview schedules, and platform alerts directly via Telegram.",
+    "telegramRequiredDesc": "To receive your admission result and test schedules, open the bot and tap «Start» to confirm your application.",
     "telegramStep1Title": "Open Bot",
     "telegramStep1Desc": "Click the button below to open Telegram chat.",
     "telegramStep2Title": "Tap «Start»",
@@ -278,7 +275,7 @@
     "telegramOpenButton": "Open Telegram & Start",
     "telegramCopyLink": "Copy Link",
     "telegramCopied": "Telegram link copied successfully!",
-    "telegramWarning": "Note: You won't receive admission results and schedules until you tap «Start» in the bot."
+    "telegramWarning": "Important: You won't receive admission results and schedules until you tap «Start» in the bot."
   },
   "student": {
     "group": "Group",
@@ -1117,7 +1114,8 @@
     "submissions": "Audio Submissions",
     "myGroups": "My Rafiqa and Tamam",
     "previousSessions": "Previous Sessions",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "availableGroups": "Available Groups"
   },
   "landing": {
     "nav": {
@@ -1131,7 +1129,7 @@
       "myAccount": "My Account"
     },
     "hero": {
-      "badge": "100% Charity Supported Platform",
+      "badge": "100% Free Platform",
       "titleLine1": "Your spiritual journey to memorize",
       "titleLine2": "the Holy Quran",
       "titleLine3": "starts here",
@@ -1233,7 +1231,7 @@
       "subtitle": "Common Questions",
       "title": "Frequently Asked Questions",
       "q1": "Are the lessons paid or free?",
-      "a1": "The platform is completely free and fully funded through charitable support and donations.",
+      "a1": "The platform is completely free, with no fees for classes, tests, certificates, or Ijazahs.",
       "q2": "Do you provide certified certificates after completing the Quran?",
       "a2": "Yes, after passing the final tests, the graduate receives a certified certificate of completion.",
       "q3": "Can a parent track their daughters grades from the system?",
@@ -1824,5 +1822,19 @@
     "watchVideo": "Watch Video",
     "videoNotSupported": "Your browser does not support the video tag.",
     "priorityHigh": "High Priority"
+  },
+  "availableGroups": {
+    "title": "Available Groups",
+    "subtitle": "Choose the group that fits your schedule, then submit a verification request.",
+    "schedule": "Available times",
+    "noSchedule": "Times have not been set yet",
+    "emptyTitle": "No groups are available right now",
+    "emptyDesc": "Check this page later for new groups.",
+    "loadError": "Couldn't load available groups",
+    "loadErrorDesc": "Please check your internet connection and try again.",
+    "submit": "Submit verification request",
+    "submitting": "Sending your request...",
+    "applySuccess": "Your request was sent successfully.",
+    "applyError": "Couldn't send your request. Please try again."
   }
 }

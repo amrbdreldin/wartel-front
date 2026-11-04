@@ -1,6 +1,6 @@
 import { UserRole } from "@/types/enums";
 import {
-  AlertTriangle, Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, Users, Scroll,
+  AlertTriangle, Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, UserPlus, Users, Scroll,
   type LucideIcon
 } from "lucide-react";
 
@@ -59,6 +59,7 @@ const studentNavigation: NavGroup[] = [
       { labelKey: "nav.werd", href: "/student/werd", icon: Scroll },
       { labelKey: "nav.grades", href: "/student/grades", icon: GraduationCap },
       { labelKey: "nav.myGroups", href: "/student/my-groups", icon: Users },
+      { labelKey: "nav.availableGroups", href: "/student/available-groups", icon: UserPlus },
       { labelKey: "nav.previousSessions", href: "/student/previous-sessions", icon: CalendarCheck },
       { labelKey: "nav.excuses", href: "/student/excuses", icon: FileText },
       { labelKey: "nav.warnings", href: "/student/warnings", icon: AlertTriangle },
@@ -77,6 +78,7 @@ const teacherNavigation: NavGroup[] = [
   {
     items: [
       { labelKey: "nav.dashboard", href: "/teacher", icon: LayoutDashboard },
+      { labelKey: "nav.availableGroups", href: "/teacher/available-groups", icon: UserPlus },
       { labelKey: "nav.werd", href: "/teacher/werd", icon: Scroll },
       { labelKey: "nav.warnings", href: "/teacher/warnings", icon: AlertTriangle },
       { labelKey: "nav.notifications", href: "/teacher/notifications", icon: Bell },
@@ -94,6 +96,7 @@ const parentNavigation: NavGroup[] = [
   {
     items: [
       { labelKey: "nav.dashboard", href: "/parent", icon: LayoutDashboard },
+      { labelKey: "nav.availableGroups", href: "/parent/available-groups", icon: UserPlus },
       { labelKey: "nav.contactUs", href: "/parent/contact-us", icon: Headphones },
     ],
   },

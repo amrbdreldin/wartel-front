@@ -23,9 +23,11 @@ describe("EnrollmentSuccessView", () => {
     expect(telegramLink.getAttribute("target")).toBe("_blank");
     expect(telegramLink.getAttribute("rel")).toBe("noopener noreferrer");
 
-    // Check step 2 (tapping Start/ابدأ) is rendered
-    expect(screen.getByText("auth.telegramStep2Title")).toBeDefined();
-    expect(screen.getByText("auth.telegramStep2Desc")).toBeDefined();
+    // Crux description is the only callout copy, and the removed texts stay gone
+    expect(screen.getByText("auth.telegramRequiredDesc")).toBeDefined();
+    expect(screen.queryByText("auth.applicationSuccessDesc")).toBeNull();
+    expect(screen.queryByText("auth.telegramMandatoryBadge")).toBeNull();
+    expect(screen.queryByText("auth.telegramRequiredTitle")).toBeNull();
   });
 
   it("falls back to default bot link when url is missing or empty", () => {
