@@ -1825,14 +1825,14 @@
   },
   "availableGroups": {
     "title": "Available Groups",
-    "subtitle": "Choose the group that fits your schedule, then submit a verification request.",
+    "subtitle": "Choose the group that fits your schedule, then submit an enrollment request.",
     "schedule": "Available times",
     "noSchedule": "Times have not been set yet",
     "emptyTitle": "No groups are available right now",
     "emptyDesc": "Check this page later for new groups.",
     "loadError": "Couldn't load available groups",
     "loadErrorDesc": "Please check your internet connection and try again.",
-    "submit": "Submit verification request",
+    "submit": "Submit enrollment request",
     "submitting": "Sending your request...",
     "applySuccess": "Your request was sent successfully.",
     "applyError": "Couldn't send your request. Please try again."
