@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig } from "axios";
-import { apiGet, apiPost, type ApiCallOptions } from "@/lib/api-client";
+import { apiGet, apiPost, apiUpload, type ApiCallOptions } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 
 // ============================================================
@@ -100,17 +100,22 @@ export const groupService = {
   getAvailableGroups: (options?: ApiCallOptions): Promise<AvailableGroup[]> =>
     apiGet<ApiResponse<AvailableGroup[]>>("/student/available-groups", options).then((r) => r?.data ?? []),
 
-  // Errors are rendered inside the apply dialog, so the global toast is skipped.
-  applyToGroup: (groupId: number, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<unknown>>(
-      `${BASE_URL}/apply`,
-      { group_id: groupId },
-      {
-        ...options,
-        config: {
-          ...options?.config,
-          skipGlobalToast: true,
-        } as AxiosRequestConfig & { skipGlobalToast?: boolean },
-      }
-    ),
+  // Errors are rendered inside the apply card, so the global toast is skipped.
+  // Groups with requires_audio = 1 expect the voice file under that same key.
+  applyToGroup: (groupId: number, audio?: File | null, options?: ApiCallOptions) => {
+    const requestOptions = {
+      ...options,
+      config: {
+        ...options?.config,
+        skipGlobalToast: true,
+      } as AxiosRequestConfig & { skipGlobalToast?: boolean },
+    };
+    if (!audio) {
+      return apiPost<ApiResponse<unknown>>(`${BASE_URL}/apply`, { group_id: groupId }, requestOptions);
+    }
+    const formData = new FormData();
+    formData.append("group_id", String(groupId));
+    formData.append("requires_audio", audio);
+    return apiUpload<ApiResponse<unknown>>(`${BASE_URL}/apply`, formData, requestOptions);
+  },
 };

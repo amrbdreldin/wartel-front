@@ -1835,6 +1835,29 @@
     "submit": "Submit enrollment request",
     "submitting": "Sending your request...",
     "applySuccess": "Your request was sent successfully.",
-    "applyError": "Couldn't send your request. Please try again."
+    "applyError": "Couldn't send your request. Please try again.",
+    "voice": {
+      "badge": "Voice recording required",
+      "title": "Record your recitation first",
+      "desc": "This group requires a voice recording of at least {seconds} seconds before you can apply.",
+      "stepsLabel": "Application steps",
+      "stepRecord": "Record",
+      "stepSubmit": "Apply",
+      "start": "Start recording",
+      "stop": "Stop recording",
+      "tapToRecord": "Tap the microphone to start recording",
+      "recording": "Recording...",
+      "keepGoing": "Keep going, {seconds}s left to reach the minimum",
+      "minReached": "Great! You can stop recording now",
+      "processing": "Preparing your recording...",
+      "ready": "Recording ready ({time}) — you can apply now",
+      "tooShort": "Your recording is {time}, shorter than {seconds} seconds. Please record again.",
+      "reRecord": "Record again",
+      "uploadInstead": "Or upload an audio file",
+      "submitHint": "Record at least {seconds} seconds to enable the apply button",
+      "micAccess": "Couldn't access the microphone. Please allow it in your browser.",
+      "secureContext": "Microphone access requires a secure connection (HTTPS).",
+      "fileTooLarge": "The audio file is too large (max 2 MB)."
+    }
   }
 }

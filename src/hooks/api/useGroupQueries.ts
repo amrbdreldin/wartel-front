@@ -46,6 +46,7 @@ export function useAvailableGroups() {
 export function useApplyToGroupMutation() {
   const lang = useLocale() as Locale;
   return useMutation({
-    mutationFn: (groupId: number) => groupService.applyToGroup(groupId, { lang }),
+    mutationFn: ({ groupId, audio }: { groupId: number; audio?: File | null }) =>
+      groupService.applyToGroup(groupId, audio, { lang }),
   });
 }

@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApplyToGroupMutation, useAvailableGroups } from "@/hooks/api/useGroupQueries";
+import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { cn } from "@/lib/utils";
 import type { AvailableGroup, GroupSessionDay } from "@/services/group.service";
 import type { ApiError } from "@/types/api.types";
 import type { AxiosError } from "axios";
-import { AlertCircle, CalendarClock, CheckCircle2, Users } from "lucide-react";
+import { AlertCircle, CalendarClock, CheckCircle2, Mic, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { GroupVoiceRecorder, MIN_VOICE_SECONDS, isVoiceValid } from "./GroupVoiceRecorder";
 
 // ============================================================
 // Available Groups – shared by the student, teacher and parent dashboards
@@ -47,6 +49,9 @@ function SessionDays({ days }: { days?: GroupSessionDay[] }) {
 function AvailableGroupCard({ group }: { group: AvailableGroup }) {
   const t = useTranslations("availableGroups");
   const applyMutation = useApplyToGroupMutation();
+  const recorder = useVoiceRecorder();
+  const requiresAudio = Number(group.requires_audio) === 1;
+  const voiceReady = !requiresAudio || isVoiceValid(recorder);
 
   const applied = applyMutation.isSuccess && applyMutation.data?.success !== false;
   const rejected = applyMutation.isError || (applyMutation.isSuccess && !applied);
@@ -58,7 +63,15 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
 
   return (
     <article className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
-      <h2 className="text-base font-bold text-foreground">{group.display_name}</h2>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <h2 className="text-base font-bold text-foreground">{group.display_name}</h2>
+        {requiresAudio && (
+          <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+            <Mic className="h-3 w-3" aria-hidden="true" />
+            {t("voice.badge")}
+          </span>
+        )}
+      </div>
 
       <div className="flex-1 space-y-2">
         <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
@@ -67,6 +80,10 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
         </p>
         <SessionDays days={group.session_days} />
       </div>
+
+      {requiresAudio && !applied && (
+        <GroupVoiceRecorder recorder={recorder} disabled={applyMutation.isPending} />
+      )}
 
       {(applied || rejected) && (
         <div
@@ -94,14 +111,27 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
       )}
 
       {!applied && (
-        <LoadingButton
-          className="w-full"
-          isLoading={applyMutation.isPending}
-          loadingText={t("submitting")}
-          onClick={() => applyMutation.mutate(group.id)}
-        >
-          {t("submit")}
-        </LoadingButton>
+        <div className="space-y-2">
+          <LoadingButton
+            className="w-full"
+            disabled={!voiceReady}
+            isLoading={applyMutation.isPending}
+            loadingText={t("submitting")}
+            onClick={() =>
+              applyMutation.mutate({
+                groupId: group.id,
+                audio: requiresAudio ? recorder.recording?.file : null,
+              })
+            }
+          >
+            {t("submit")}
+          </LoadingButton>
+          {!voiceReady && (
+            <p className="text-center text-xs text-muted-foreground">
+              {t("voice.submitHint", { seconds: MIN_VOICE_SECONDS })}
+            </p>
+          )}
+        </div>
       )}
     </article>
   );
