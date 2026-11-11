@@ -45,6 +45,7 @@ function isCurrentPagePublic(): boolean {
     cleanPath === "" ||
     cleanPath === "/" ||
     cleanPath.startsWith("/courses") ||
+    cleanPath.startsWith("/qr") ||
     cleanPath.startsWith("/register") ||
     cleanPath.startsWith("/login") ||
     cleanPath.startsWith("/forgot-password") ||

@@ -55,7 +55,7 @@ export const PUBLIC_ROUTES: {
 ];
 
 /** Private areas – blocked in robots.txt and marked noindex */
-export const PRIVATE_SEGMENTS = ["dashboard", "admin", "student", "teacher", "parent", "courses", "forgot-password"];
+export const PRIVATE_SEGMENTS = ["dashboard", "admin", "student", "teacher", "parent", "courses", "qr", "forgot-password"];
 
 /** Abusive SEO scrapers – blocked in robots.txt and by middleware */
 export const BLOCKED_BOTS = [

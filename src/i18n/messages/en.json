@@ -1775,6 +1775,10 @@
     "joinCourse": {
       "title": "Join a Circle | Wartel Academy",
       "description": "Join a Quran memorization circle at Wartel Academy."
+    },
+    "qrRedirect": {
+      "title": "Link Redirect | Wartel Academy",
+      "description": "Verifying and redirecting QR code link at Wartel Academy."
     }
   },
   "faqBrowser": {
@@ -1859,5 +1863,14 @@
       "secureContext": "Microphone access requires a secure connection (HTTPS).",
       "fileTooLarge": "The audio file is too large (max 2 MB)."
     }
+  },
+  "qr": {
+    "checkingTitle": "Checking link...",
+    "checkingDesc": "Fetching the redirect destination, please wait a moment.",
+    "redirectingTitle": "Redirecting you now...",
+    "redirectingDesc": "If you are not redirected automatically, click the button below.",
+    "openLink": "Open Link",
+    "errorTitle": "Unable to open link",
+    "invalidOrNotFound": "Code not found or invalid"
   }
 }
