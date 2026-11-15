@@ -26,6 +26,10 @@ import type {
   AvailableTimeSubmission,
   PeerBuddyRequest,
   StudentPreviousSession,
+  PersonalExamCourse,
+  PersonalExamItem,
+  CreatePersonalExamRequest,
+  CreatePersonalExamResponse,
 } from "@/types/student.types";
 
 // ============================================================
@@ -133,6 +137,21 @@ export const studentService = {
 
   getExamResult: (examId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<ExamResultData>>(`${BASE_URL}/exams/${examId}/result`, options).then((r) => r),
+
+  getPersonalExamCourses: (options?: ApiCallOptions) =>
+    apiGet<ApiResponse<{ courses: PersonalExamCourse[] }>>(`${BASE_URL}/personal-exams/courses`, options).then(
+      (r) => r.data.courses
+    ),
+
+  getPersonalExams: (options?: ApiCallOptions) =>
+    apiGet<ApiResponse<{ exams: PersonalExamItem[] }>>(`${BASE_URL}/personal-exams`, options).then(
+      (r) => r.data.exams
+    ),
+
+  createPersonalExam: (data: CreatePersonalExamRequest, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<CreatePersonalExamResponse>>(`${BASE_URL}/personal-exams`, data, options).then(
+      (r) => r.data
+    ),
 
   getDetailedProfile: (userId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<StudentDetailedProfileResponse>>(`${BASE_URL}/${userId}/profile-details`, options).then((r) => r.data),

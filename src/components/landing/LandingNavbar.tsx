@@ -113,6 +113,12 @@ export function LandingNavbar() {
           >
             {t("faq")}
           </a>
+          <Link
+            href={`/${locale}/library`}
+            className="px-4 py-2 rounded-full text-sm font-bold text-primary/80 hover:text-primary hover:bg-primary/5 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+          >
+            {t("library")}
+          </Link>
         </div>
 
         {/* Actions */}
@@ -139,12 +145,12 @@ export function LandingNavbar() {
           ) : (
             /* ── Unauthenticated: Login + Register buttons ──────────── */
             <>
-              {/* <Link
-                href={`/${locale}/instructions?type=student`}
-                className="hidden md:inline-flex items-center justify-center h-9 px-5 rounded-lg border border-primary bg-background text-primary font-bold hover:bg-primary/5 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              <Link
+                href={`/${locale}/student-register`}
+                className="hidden md:inline-flex items-center justify-center h-9 px-4 rounded-lg border border-primary bg-background text-primary font-bold hover:bg-primary/5 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
               >
-                {t("createAccount")}
-              </Link> */}
+                {t("studentRegister")}
+              </Link>
               <Link
                 href={`/${locale}/login`}
                 className="hidden md:inline-flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 hover:shadow-md hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
@@ -171,6 +177,7 @@ export function LandingNavbar() {
                 <a href={`/${locale}#features`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("features")}</a>
                 <a href={`/${locale}#programs`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("tracks")}</a>
                 <a href={`/${locale}#faq`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("faq")}</a>
+                <Link href={`/${locale}/library`} onClick={() => setMenuOpen(false)} className="text-lg font-bold text-foreground hover:text-primary transition-colors">{t("library")}</Link>
 
                 <div className="mt-6 pt-6 border-t border-border/50 flex flex-col gap-4">
                   {isAuthenticated && user ? (
@@ -205,9 +212,9 @@ export function LandingNavbar() {
                       <Link href={`/${locale}/login`} className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-md">
                         {t("login")}
                       </Link>
-                      {/* <Link href={`/${locale}/instructions?type=student`} className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl border-2 border-primary/20 bg-primary/5 text-primary font-bold hover:bg-primary/10 transition-all">
-                        {t("createAccount")}
-                      </Link> */}
+                      <Link href={`/${locale}/student-register`} onClick={() => setMenuOpen(false)} className="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl border-2 border-primary/20 bg-primary/5 text-primary font-bold hover:bg-primary/10 transition-all">
+                        {t("studentRegister")}
+                      </Link>
                     </>
                   )}
                 </div>

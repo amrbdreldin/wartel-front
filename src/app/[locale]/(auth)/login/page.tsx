@@ -76,12 +76,20 @@ export default function LoginPage() {
 
         <LoginForm />
 
-        <Link
-          href={`/${locale}/how-to-register`}
-          className="mt-6 text-sm font-bold text-primary underline underline-offset-4 hover:text-primary/80"
-        >
-          {t("seoPages.loginHelp")}
-        </Link>
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <Link
+            href={`/${locale}/student-register`}
+            className="text-sm font-bold text-primary underline underline-offset-4 hover:text-primary/80"
+          >
+            {t("landing.nav.studentRegister")}
+          </Link>
+          <Link
+            href={`/${locale}/how-to-register`}
+            className="text-sm font-bold text-primary/80 underline underline-offset-4 hover:text-primary"
+          >
+            {t("seoPages.loginHelp")}
+          </Link>
+        </div>
 
         <p className="mt-8 text-xs text-muted-foreground text-center">
           {t("auth.copyright", { year: new Date().getFullYear() })}

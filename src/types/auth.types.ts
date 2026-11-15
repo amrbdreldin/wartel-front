@@ -145,3 +145,26 @@ export interface UserReactivationRequest {
   reason: string;
 }
 
+// ─── Student Telegram Registration ─────────────────────────────
+export interface StudentRegisterRequest {
+  full_name: string;
+  phone: string;
+  password: string;
+  firebase_token?: string;
+}
+
+export interface StudentRegisterResponse {
+  verification_token: string;
+  telegram_url: string | null;
+  bot_username: string | null;
+  phone: string;
+  sent_directly: boolean;
+  expires_in_minutes: number;
+}
+
+export interface StudentVerifyTelegramRequest {
+  phone: string;
+  otp: string;
+  firebase_token?: string;
+}
+

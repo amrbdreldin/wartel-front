@@ -76,9 +76,8 @@ export function LandingFooter() {
           <div>
             <h4 className="font-bold text-foreground mb-4 text-lg">{t("quickLinks")}</h4>
             <ul className="space-y-3">
-              {/* <li>
-                <Link href={`/${locale}/instructions?type=student`} className="text-muted-foreground hover:text-primary transition-colors">{t("regNew")}</Link>
-              </li> */}
+              <li><Link href={`/${locale}/student-register`} className="text-muted-foreground hover:text-primary transition-colors">{t("regNew")}</Link></li>
+              <li><Link href={`/${locale}/library`} className="text-muted-foreground hover:text-primary transition-colors">{t("lib")}</Link></li>
               <li><Link href={`/${locale}/login`} className="text-muted-foreground hover:text-primary transition-colors">{t("studentLogin")}</Link></li>
               <li><Link href={`/${locale}/instructions?type=parent`} className="text-muted-foreground hover:text-primary transition-colors">{t("parentLogin")}</Link></li>
               <li><Link href={`/${locale}/how-to-register`} className="text-muted-foreground hover:text-primary transition-colors">{t("howToRegister")}</Link></li>

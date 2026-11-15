@@ -1115,7 +1115,8 @@
     "myGroups": "My Rafiqa and Tamam",
     "previousSessions": "Previous Sessions",
     "faq": "FAQ",
-    "availableGroups": "Available Groups"
+    "availableGroups": "Available Groups",
+    "myExams": "My Self-Exams"
   },
   "landing": {
     "nav": {
@@ -1126,7 +1127,9 @@
       "createAccount": "Create Account",
       "login": "Login",
       "goToDashboard": "Go to Dashboard",
-      "myAccount": "My Account"
+      "myAccount": "My Account",
+      "library": "Library",
+      "studentRegister": "Student Sign Up"
     },
     "hero": {
       "badge": "100% Free Platform",
@@ -1288,6 +1291,11 @@
       "impactDesc": "Years of Quranic giving that yielded thousands of beneficiaries inside and outside the academy.",
       "freeTitle": "Completely Free",
       "freeDesc": "All academy activities are completely free of charge, including certificates and Ijazat."
+    },
+    "ads": {
+      "badge": "Important Announcements",
+      "title": "Academy Announcements",
+      "subtitle": "Latest news, announcements, and events at Wartel Academy"
     }
   },
   "studentBoard": {
@@ -1872,5 +1880,79 @@
     "openLink": "Open Link",
     "errorTitle": "Unable to open link",
     "invalidOrNotFound": "Code not found or invalid"
+  },
+  "publicLibrary": {
+    "badge": "Public Digital Library",
+    "title": "Wartel Digital Library",
+    "subtitle": "Browse and access approved books, curricula, and educational resources for free.",
+    "searchPlaceholder": "Search by resource title...",
+    "allTypes": "All Types",
+    "allTracks": "All Tracks",
+    "allCourses": "All Courses",
+    "clearFilters": "Clear Filters",
+    "openResource": "Open / Download",
+    "emptyTitle": "No matching resources found",
+    "emptyDesc": "Try adjusting your search or filters to see more resources.",
+    "totalResources": "Total resources",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {page} of {total}",
+    "errorLoading": "Failed to load library resources. Please try again."
+  },
+  "studentRegister": {
+    "title": "Create Student Account",
+    "subtitle": "Register as a student and verify your phone number via our Telegram bot.",
+    "fullNameLabel": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "e.g. 201012345678",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "submitStep1": "Continue & Verify via Telegram",
+    "verifyTitle": "Verify Account via Telegram",
+    "verifySubtitle": "Open our Telegram bot and press Start to receive your 6-digit verification code.",
+    "step1Title": "1. Open Bot & Press Start",
+    "step1Desc": "Click the button below to open the academy Telegram bot and press Start.",
+    "openTelegramBtn": "Open Telegram Bot",
+    "step2Title": "2. Enter Verification Code",
+    "step2Desc": "You will receive a 6-digit code in Telegram. Enter it below to activate your account:",
+    "otpLabel": "Verification Code (6 digits)",
+    "otpPlaceholder": "000000",
+    "verifyBtn": "Verify & Activate Account",
+    "resendBtn": "Resend Code",
+    "resendSuccess": "A new verification code has been generated.",
+    "sentDirectlyNote": "The verification code was sent directly to your Telegram chat.",
+    "botNotConfigured": "Telegram bot username is not configured yet. Please contact support if you do not receive the code.",
+    "backToEdit": "Edit Details",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginLink": "Login",
+    "passwordMismatch": "Passwords do not match",
+    "successActivated": "Account verified successfully! Redirecting..."
+  },
+  "personalExams": {
+    "title": "My Personal Self-Exams",
+    "subtitle": "Create practice tests for yourself in available subjects and review your results anytime.",
+    "createCardTitle": "Create a New Personal Exam",
+    "createCardDesc": "Choose a subject and number of questions (max 20) to start a practice test immediately.",
+    "courseLabel": "Subject / Course",
+    "coursePlaceholder": "Select a subject...",
+    "questionsCountLabel": "Number of Questions (Max 20)",
+    "availableQuestionsHint": "Available questions in this subject: {count}",
+    "customTitleLabel": "Exam Title (Optional)",
+    "customTitlePlaceholder": "e.g. Juz Amma Practice",
+    "startExamBtn": "Create & Start Exam",
+    "historyTitle": "My Personal Exams History",
+    "historyEmptyTitle": "No personal exams created yet",
+    "historyEmptyDesc": "Use the form above to create your first self-practice exam.",
+    "statusCompleted": "Completed",
+    "statusPending": "Pending",
+    "questionsCountBadge": "{count} questions",
+    "scoreLabel": "Score",
+    "reviewResultBtn": "Review Questions & Result",
+    "continueExamBtn": "Start / Continue Exam",
+    "noCoursesAvailable": "No subjects with available questions right now.",
+    "maxQuestionsError": "Maximum allowed number of questions is 20."
   }
 }

@@ -4,6 +4,7 @@ import { FaqSection } from "@/components/landing/FaqSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { GuidesSection } from "@/components/landing/GuidesSection";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { PublicAdsSection } from "@/components/landing/PublicAdsSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { ProgramsSection } from "@/components/landing/ProgramsSection";
@@ -101,6 +102,7 @@ export default async function Home({ params }: Props) {
       <LandingNavbar />
       <main className="flex-1">
         <HeroSection />
+        <PublicAdsSection />
         <AboutSection />
         <FeaturesSection />
         <TimelineSection />

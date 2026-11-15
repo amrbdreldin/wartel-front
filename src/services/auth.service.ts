@@ -11,6 +11,9 @@ import type {
   EnrollmentSubmitResponse,
   UserReactivationRequest,
   AppDataResponse,
+  StudentRegisterRequest,
+  StudentRegisterResponse,
+  StudentVerifyTelegramRequest,
 } from "@/types/auth.types";
 
 // ============================================================
@@ -62,6 +65,23 @@ export const authService = {
     apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/parent/register`, data, options).then(
       unwrapWithMeta
     ),
+
+  studentRegister: (data: StudentRegisterRequest, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<StudentRegisterResponse>>(`${AUTH_URL}/student/register`, data, options).then(
+      unwrapWithMeta
+    ),
+
+  verifyStudentTelegram: (data: StudentVerifyTelegramRequest, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<LoginResponse>>(`${AUTH_URL}/student/verify-telegram`, data, options).then(
+      unwrapWithMeta
+    ),
+
+  resendStudentTelegramOtp: (phone: string, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<StudentRegisterResponse>>(
+      `${AUTH_URL}/student/resend-telegram-otp`,
+      { phone },
+      options
+    ).then(unwrapWithMeta),
 
   logout: (options?: ApiCallOptions) =>
     apiPost<ApiResponse<null>>(`${AUTH_URL}/logout`, undefined, options),

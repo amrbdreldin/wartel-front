@@ -58,6 +58,7 @@ const studentNavigation: NavGroup[] = [
       // { labelKey: "nav.tamam", href: "/student/tamam", icon: BookOpen },
       { labelKey: "nav.werd", href: "/student/werd", icon: Scroll },
       { labelKey: "nav.grades", href: "/student/grades", icon: GraduationCap },
+      { labelKey: "nav.myExams", href: "/student/my-exams", icon: ClipboardList },
       { labelKey: "nav.myGroups", href: "/student/my-groups", icon: Users },
       { labelKey: "nav.availableGroups", href: "/student/available-groups", icon: UserPlus },
       { labelKey: "nav.previousSessions", href: "/student/previous-sessions", icon: CalendarCheck },

@@ -544,3 +544,40 @@ export interface StudentPreviousSession {
   url: string | null;
 }
 
+
+// ─── Personal Self-Exams ─────────────────────────────────────
+export interface PersonalExamCourse {
+  id: number;
+  name: string;
+  track_id: number | null;
+  track_name: string | null;
+  questions_count: number;
+  max_allowed: number;
+}
+
+export interface PersonalExamItem {
+  id: number;
+  title: string;
+  course: { id: number; name: string } | null;
+  track: { id: number; name: string } | null;
+  questions_count: number;
+  total_marks: number;
+  status: "pending" | "completed";
+  score: number | null;
+  completed_at: string | null;
+  created_at: string | null;
+}
+
+export interface CreatePersonalExamRequest {
+  course_id: number;
+  question_count: number;
+  title?: string;
+}
+
+export interface CreatePersonalExamResponse {
+  exam_id: number;
+  title: string;
+  course: { id: number; name: string };
+  questions_count: number;
+  total_marks: number;
+}
