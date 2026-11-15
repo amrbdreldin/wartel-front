@@ -5,10 +5,32 @@ import {
   ChevronUp,
   ChevronDown,
   Clock,
+  Award,
+  Lock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { GroupStudentDetail, StudentSessionNote } from "@/types/teacher.types";
 import { DataTable, Column } from "@/components/ui/DataTable";
+
+function hasNotePoints(points: StudentSessionNote["points"]): boolean {
+  if (points === null || points === undefined) return false;
+  const trimmed = String(points).trim();
+  if (!trimmed) return false;
+  const parsed = Number(trimmed);
+  return !Number.isNaN(parsed) && parsed !== 0;
+}
+
+function getValidSessionNotes(student: GroupStudentDetail): StudentSessionNote[] {
+  return (
+    student.session_notes?.filter(
+      (note) =>
+        Boolean(note.comment) ||
+        Boolean(note.secret_note || note.secret_comment) ||
+        hasNotePoints(note.points) ||
+        Boolean(note.degree)
+    ) || []
+  );
+}
 
 interface GroupStudentsTableProps {
   students: GroupStudentDetail[];
@@ -66,7 +88,7 @@ export function GroupStudentsTable({
       key: "notes",
       header: t("sessionNotes"),
       render: (student) => {
-        const validNotes = student.session_notes?.filter((note) => note.comment || note.secret_comment) || [];
+        const validNotes = getValidSessionNotes(student);
         const notesCount = validNotes.length;
         const isExpanded = !!expandedStudents[student.id];
 
@@ -105,7 +127,7 @@ export function GroupStudentsTable({
   ];
 
   const renderExpandedRow = (student: GroupStudentDetail) => {
-    const validNotes = student.session_notes?.filter((note) => note.comment || note.secret_comment) || [];
+    const validNotes = getValidSessionNotes(student);
     const notesCount = validNotes.length;
 
     if (notesCount === 0) return null;
@@ -123,32 +145,73 @@ export function GroupStudentsTable({
         </div>
 
         <div className="relative ps-6 border-s-2 border-border/80 ms-3 space-y-6">
-          {validNotes.map((note: StudentSessionNote, index: number) => (
-            <div
-              key={note.session_id}
-              className="relative bg-card border border-border/50 rounded-2xl p-5 text-sm leading-relaxed space-y-3 hover:shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-left-2 duration-300"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              {/* Dot Indicator on timeline */}
-              <div className="absolute top-[22px] -start-[35px] w-4 h-4 rounded-full bg-primary border-4 border-card flex items-center justify-center shadow-sm">
-                <div className="w-1.5 h-1.5 rounded-full bg-background" />
-              </div>
+          {validNotes.map((note: StudentSessionNote, index: number) => {
+            const secretNote = note.secret_note || note.secret_comment;
+            const showPoints = hasNotePoints(note.points);
 
-              <div className="flex items-center justify-between gap-2 text-xs font-bold text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md">
-                  <Clock className="w-4 h-4 text-primary" />
-                  {new Date(note.scheduled_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
+            return (
+              <div
+                key={note.session_id}
+                className="relative bg-card border border-border/50 rounded-2xl p-5 text-sm leading-relaxed space-y-3 hover:shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-left-2 duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {/* Dot Indicator on timeline */}
+                <div className="absolute top-[22px] -start-[35px] w-4 h-4 rounded-full bg-primary border-4 border-card flex items-center justify-center shadow-sm">
+                  <div className="w-1.5 h-1.5 rounded-full bg-background" />
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md">
+                    <Clock className="w-4 h-4 text-primary" />
+                    {note.scheduled_at
+                      ? new Date(note.scheduled_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "-"}
+                  </span>
+
+                  {(showPoints || note.degree || note.status) && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {showPoints && (
+                        <span className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 rounded-md font-black text-xs">
+                          <Award className="w-3.5 h-3.5" />
+                          {t("pointsCount", { points: parseFloat(String(note.points)) })}
+                        </span>
+                      )}
+                      {note.degree && (
+                        <span className="inline-flex items-center bg-muted text-foreground border border-border px-2.5 py-1 rounded-md font-bold text-xs">
+                          {note.degree}
+                        </span>
+                      )}
+                      {note.status && (
+                        <span className="inline-flex items-center bg-muted/60 text-muted-foreground px-2.5 py-1 rounded-md font-bold text-xs">
+                          {note.status}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {note.comment && (
+                  <p className="text-foreground font-medium whitespace-pre-wrap leading-relaxed">
+                    {note.comment}
+                  </p>
+                )}
+
+                {secretNote && (
+                  <div className="bg-amber-500/5 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                    <span className="font-black text-[11px] flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>{t("secretNote")}:</span>
+                    </span>
+                    <p className="leading-relaxed font-medium whitespace-pre-wrap">{secretNote}</p>
+                  </div>
+                )}
               </div>
-              <p className="text-foreground font-medium whitespace-pre-wrap leading-relaxed">
-                {note.comment || note.secret_comment}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );

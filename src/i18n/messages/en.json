@@ -1302,6 +1302,18 @@
     "noGrade": "No grades recorded"
   },
   "teacherBoard": {
+    "previousSessionsTab": "Previous Sessions",
+    "sessionDateCol": "Session Date",
+    "presentStudentsCountCol": "Present Students",
+    "absentStudentsCountCol": "Absent Students",
+    "sessionDetailsBtn": "Details",
+    "noPreviousSessions": "No previous sessions recorded for this group",
+    "backToGroup": "Back to Group",
+    "previousSessionDetails": "Previous Session Details",
+    "presentStudentsSection": "Present Students",
+    "absentStudentsSection": "Absent Students",
+    "noAttendanceRecords": "No attendance records logged for this session yet",
+    "actionsCol": "Actions",
     "previousAttendance": "Previous Attendance",
     "previousAttendanceDesc": "Attendance, absence, and grade history for past sessions",
     "loadingPreviousAttendance": "Loading previous attendance...",

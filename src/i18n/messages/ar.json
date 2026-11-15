@@ -1301,6 +1301,18 @@
     "noGrade": "لا توجد درجات مسجلة"
   },
   "teacherBoard": {
+    "previousSessionsTab": "الحلقات السابقة",
+    "sessionDateCol": "تاريخ الحلقة",
+    "presentStudentsCountCol": "عدد الحاضرين",
+    "absentStudentsCountCol": "عدد الغائبين",
+    "sessionDetailsBtn": "تفاصيل",
+    "noPreviousSessions": "لا توجد حلقات سابقة مسجلة لهذه الحلقة",
+    "backToGroup": "العودة لتفاصيل الحلقة",
+    "previousSessionDetails": "تفاصيل الحلقة السابقة",
+    "presentStudentsSection": "الطلاب الحاضرون",
+    "absentStudentsSection": "الطلاب الغائبون",
+    "noAttendanceRecords": "لم يتم تسجيل حضور لهذه الحلقة بعد",
+    "actionsCol": "الإجراءات",
     "previousAttendance": "سجل الحضور السابق",
     "previousAttendanceDesc": "سجلات الحضور والغياب والدرجات للحلقات السابقة",
     "loadingPreviousAttendance": "جاري تحميل سجل الحضور السابق...",
