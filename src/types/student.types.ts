@@ -108,6 +108,7 @@ export interface ExcuseSubmission {
   start_date: string;
   end_date: string;
   reason: string;
+  type?: "student" | "teacher";
 }
 
 export interface StudentSettings {
@@ -178,6 +179,7 @@ export interface LeaveStatus {
 export interface LeaveRecord {
   leave_id: number;
   student_id: string;
+  type?: "student" | "teacher";
   start_date: string;
   end_date: string;
   reason: string;

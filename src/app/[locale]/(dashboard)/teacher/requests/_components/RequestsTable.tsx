@@ -52,7 +52,7 @@ export function RequestsTable() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["teacher-leaves"],
-    queryFn: () => teacherService.getLeaves(),
+    queryFn: () => teacherService.getLeaves({ type: "teacher" }),
   });
 
   const leaves = data?.data?.leaves || [];
