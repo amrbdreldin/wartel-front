@@ -44,7 +44,7 @@ export function ExcusesTable() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["student-leaves"],
-    queryFn: () => studentService.getLeaves(),
+    queryFn: () => studentService.getLeaves({ type: "student" }),
   });
 
   const leaves = data?.data?.leaves || [];

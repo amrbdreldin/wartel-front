@@ -1,6 +1,6 @@
 import { UserRole } from "@/types/enums";
 import {
-  AlertTriangle, Baby, Bell, CalendarCheck, ClipboardList, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, UserPlus, Users, Scroll,
+  AlertTriangle, Baby, Bell, CalendarCheck, FileText, GraduationCap, Headphones, HelpCircle, LayoutDashboard, Library, MessageSquare, User, UserPlus, Users, Scroll,
   type LucideIcon
 } from "lucide-react";
 
@@ -84,7 +84,7 @@ const teacherNavigation: NavGroup[] = [
       { labelKey: "nav.warnings", href: "/teacher/warnings", icon: AlertTriangle },
       { labelKey: "nav.notifications", href: "/teacher/notifications", icon: Bell },
       { labelKey: "nav.messages", href: "/teacher/messages", icon: MessageSquare },
-      { labelKey: "nav.contactAdmin", href: "/teacher/requests", icon: ClipboardList },
+      { labelKey: "nav.excuses", href: "/teacher/excuses", icon: FileText },
       { labelKey: "nav.children", href: "/teacher/children", icon: Baby },
       { labelKey: "nav.contactUs", href: "/teacher/contact-us", icon: Headphones },
     ],

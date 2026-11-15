@@ -1,30 +1,50 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   AlertTriangle,
   RefreshCw,
   GraduationCap,
+  History,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useTeacherGroupStudents } from "@/hooks/api/useTeacherQueries";
+import { useParams, useSearchParams } from "next/navigation";
+import {
+  useTeacherGroupStudents,
+  useTeacherGroupPreviousSessions,
+} from "@/hooks/api/useTeacherQueries";
 import { GroupBanner } from "./_components/GroupBanner";
 import { GroupStudentsTable } from "./_components/GroupStudentsTable";
+import { GroupPreviousSessionsTable } from "./_components/GroupPreviousSessionsTable";
+import { cn } from "@/lib/utils";
 
 export default function GroupStudentsPage() {
   const t = useTranslations("teacherBoard");
   const params = useParams();
+  const searchParams = useSearchParams();
   const locale = params.locale as string;
   const isRTL = locale === "ar";
   const groupId = params.groupId as string;
 
+  const initialTab = searchParams.get("tab") === "previous-sessions" ? "previous-sessions" : "students";
+  const [activeTab, setActiveTab] = useState<"students" | "previous-sessions">(initialTab);
   const [expandedStudents, setExpandedStudents] = useState<Record<number, boolean>>({});
 
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "previous-sessions" || tabParam === "students") {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
   const { data: response, isLoading, error, refetch } = useTeacherGroupStudents(groupId);
+  const {
+    data: previousSessionsRes,
+    isLoading: isPreviousSessionsLoading,
+  } = useTeacherGroupPreviousSessions(groupId, activeTab === "previous-sessions");
   const groupData = response;
 
   const toggleStudentNotes = (studentId: number) => {
@@ -156,16 +176,58 @@ export default function GroupStudentsPage() {
         t={t}
       />
 
-      {/* ── STUDENTS TABLE ─────────────────────────────────────────────────── */}
-      <GroupStudentsTable
-        students={students}
-        trackName={track_name}
-        locale={locale}
-        isRTL={isRTL}
-        t={t}
-        expandedStudents={expandedStudents}
-        toggleStudentNotes={toggleStudentNotes}
-      />
+      {/* ── TABS ──────────────────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 bg-muted/50 p-1.5 rounded-2xl border border-border w-fit">
+        <button
+          type="button"
+          onClick={() => setActiveTab("students")}
+          className={cn(
+            "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all",
+            activeTab === "students"
+              ? "bg-card text-primary shadow-sm border border-border/60"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <GraduationCap className="w-4 h-4" />
+          <span>{t("groupStudentsTitle")}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("previous-sessions")}
+          className={cn(
+            "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all",
+            activeTab === "previous-sessions"
+              ? "bg-card text-primary shadow-sm border border-border/60"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <History className="w-4 h-4" />
+          <span>{t("previousSessionsTab")}</span>
+        </button>
+      </div>
+
+      {/* ── TAB CONTENT ───────────────────────────────────────────────────── */}
+      {activeTab === "students" ? (
+        <GroupStudentsTable
+          students={students}
+          trackName={track_name}
+          locale={locale}
+          isRTL={isRTL}
+          t={t}
+          expandedStudents={expandedStudents}
+          toggleStudentNotes={toggleStudentNotes}
+        />
+      ) : (
+        <GroupPreviousSessionsTable
+          sessions={previousSessionsRes?.sessions || []}
+          groupId={groupId}
+          groupName={previousSessionsRes?.group_name || group_name}
+          locale={locale}
+          t={t}
+          isLoading={isPreviousSessionsLoading}
+        />
+      )}
     </div>
   );
 }

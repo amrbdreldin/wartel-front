@@ -10,6 +10,7 @@ import type {
   TeacherDashboardData,
   TeacherGroupWithStudents,
   GroupStudentsDetailResponse,
+  GroupPreviousSessionsResponse,
   SessionAttendanceRecord,
   SubmitSessionAttendancePayload,
   PreviousAttendanceRecord,
@@ -33,6 +34,9 @@ export const teacherService = {
 
   getGroupStudents: (groupId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<GroupStudentsDetailResponse>>(`${BASE_URL}/groups/${groupId}/students`, options).then((r) => r.data),
+
+  getGroupPreviousSessions: (groupId: string | number, options?: ApiCallOptions) =>
+    apiGet<ApiResponse<GroupPreviousSessionsResponse>>(`${BASE_URL}/groups/${groupId}/previous-sessions`, options).then((r) => r.data),
 
   getGroups: (options?: ApiCallOptions) =>
     apiGet<ApiResponse<TeacherGroup[]>>(`${BASE_URL}/groups`, options).then((r) => r.data),
@@ -70,8 +74,8 @@ export const teacherService = {
       config: { ...options?.config, params },
     }),
 
-  submitExcuse: (data: { start_date: string; end_date: string; reason: string }, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<any>>(`${LEAVES_URL}/request-leave`, data, options),
+  submitExcuse: (data: { start_date: string; end_date: string; reason: string; type?: "teacher" | "student" }, options?: ApiCallOptions) =>
+    apiPost<ApiResponse<any>>(`${LEAVES_URL}/request-leave`, { ...data, type: data.type ?? "teacher" }, options),
 
   getSessionAttendance: (sessionId: string | number, options?: ApiCallOptions) =>
     apiGet<ApiResponse<SessionAttendanceRecord[]>>(`${BASE_URL}/sessions/${sessionId}/attendance`, options).then((r) => r.data),

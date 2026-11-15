@@ -78,7 +78,7 @@ export function RequestForm({ isModal = false, onSuccess }: { isModal?: boolean;
   const queryClient = useQueryClient();
 
   const submitMutation = useMutation({
-    mutationFn: (data: { start_date: string; end_date: string; reason: string }) =>
+    mutationFn: (data: { start_date: string; end_date: string; reason: string; type: "teacher" }) =>
       teacherService.submitExcuse(data),
     onSuccess: (res) => {
       setFormState("success");
@@ -115,12 +115,12 @@ export function RequestForm({ isModal = false, onSuccess }: { isModal?: boolean;
     if (new Date(fromDate) > new Date(toDate)) return;
     if (!isAfterToday(fromDate)) return;
     setFormState("submitting");
-    submitMutation.mutate({ start_date: fromDate, end_date: toDate, reason });
+    submitMutation.mutate({ start_date: fromDate, end_date: toDate, reason, type: "teacher" });
   };
 
   const formContent = (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="grid grid-cols-2 gap-4 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
         {/* From Date */}
         <div>
           <label className="block text-sm font-bold text-foreground/80 mb-2">
@@ -193,8 +193,8 @@ export function RequestForm({ isModal = false, onSuccess }: { isModal?: boolean;
   if (isModal) return formContent;
 
   return (
-    <div className="bg-card rounded-3xl p-8 border border-border/50 shadow-sm">
-      <h5 className="font-bold text-primary text-xl mb-6">{t("student.submitNewRequest")}</h5>
+    <div className="bg-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-border/50 shadow-sm">
+      <h5 className="font-bold text-primary text-lg sm:text-xl mb-6">{t("student.submitNewRequest")}</h5>
       {formContent}
     </div>
   );

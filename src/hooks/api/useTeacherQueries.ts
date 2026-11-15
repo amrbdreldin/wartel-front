@@ -15,6 +15,7 @@ export const teacherKeys = {
   groups: () => [...teacherKeys.all, "groups"] as const,
   groupsWithStudents: () => [...teacherKeys.all, "groupsWithStudents"] as const,
   groupStudents: (groupId: string | number) => [...teacherKeys.all, "groupStudents", groupId] as const,
+  groupPreviousSessions: (groupId: string | number) => [...teacherKeys.all, "groupPreviousSessions", groupId] as const,
   attendance: (groupId: string, date: string) =>
     [...teacherKeys.all, "attendance", groupId, date] as const,
   requests: (params?: QueryParams) => [...teacherKeys.all, "requests", params] as const,
@@ -54,6 +55,15 @@ export function useTeacherGroupStudents(groupId: string | number) {
     queryKey: teacherKeys.groupStudents(groupId),
     queryFn: () => teacherService.getGroupStudents(groupId, { lang }),
     enabled: !!groupId,
+  });
+}
+
+export function useTeacherGroupPreviousSessions(groupId: string | number, enabled: boolean = true) {
+  const lang = useLocale() as Locale;
+  return useQuery({
+    queryKey: teacherKeys.groupPreviousSessions(groupId),
+    queryFn: () => teacherService.getGroupPreviousSessions(groupId, { lang }),
+    enabled: !!groupId && enabled,
   });
 }
 

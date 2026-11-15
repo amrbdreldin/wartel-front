@@ -123,10 +123,14 @@ export interface TeacherGroupWithStudents {
 }
 
 export interface StudentSessionNote {
-  session_id: string;
+  session_id: string | number;
   scheduled_at: string;
   comment: string | null;
   secret_comment: string | null;
+  secret_note?: string | null;
+  points?: string | number | null;
+  degree?: string | null;
+  status?: string | null;
 }
 
 export interface GroupStudentDetail {
@@ -162,6 +166,7 @@ export interface SessionAttendanceSession {
   name?: string;
   url?: string | null;
   meeting_link?: string | null;
+  is_exam?: number;
   group?: {
     id?: number | string;
     name?: string;
@@ -177,6 +182,8 @@ export interface SessionAttendanceRecord {
   secret_note: string | null;
   comment: string | null;
   points: string | number;
+  degree_id?: number | null;
+  degree?: string | { id?: number; name?: string } | null;
   recorded_by: string | number | null;
   recorder: { id: number; full_name: string } | null;
   student: SessionAttendanceStudent;
@@ -223,4 +230,22 @@ export interface PreviousAttendanceRecord {
     url: string | null;
     is_exam: number;
   };
+}
+
+export interface GroupPreviousSession {
+  id: number;
+  group_id: number;
+  scheduled_at: string | null;
+  status_id: number;
+  is_exam: number;
+  present_count: number;
+  absent_count: number;
+  excused_count: number;
+}
+
+export interface GroupPreviousSessionsResponse {
+  group_id: number;
+  group_name: string;
+  track_name: string | null;
+  sessions: GroupPreviousSession[];
 }
