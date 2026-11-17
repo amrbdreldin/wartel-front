@@ -10,7 +10,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import Cookies from "js-cookie";
-import { TOKEN_KEY } from "@/lib/constants";
+import { API_BASE_URL, TOKEN_KEY } from "@/lib/constants";
 
 /** Maps a File MIME type to a simple media category */
 export type MediaType = "image" | "audio" | "video" | "document";
@@ -86,7 +86,6 @@ export function getMediaTypeFromUrl(url: string, fallbackType?: string): MediaTy
  * Response: { success: true, data: { url: string } }
  */
 export async function uploadChatMedia(file: File): Promise<string> {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/proxy";
   const formData = new FormData();
   formData.append("file", file);
 
@@ -98,7 +97,7 @@ export async function uploadChatMedia(file: File): Promise<string> {
     }
   }
 
-  const res = await fetch(`${apiBase}/media/upload`, {
+  const res = await fetch(`${API_BASE_URL}/media/upload`, {
     method: "POST",
     headers,
     body: formData,

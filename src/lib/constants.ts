@@ -3,8 +3,19 @@
 // ============================================================
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Wartel Academy";
-/** Points to the internal Next.js proxy – real upstream URL never leaks to the browser */
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api/proxy";
+/**
+ * In production, call the backend API directly from the browser so requests
+ * use the visitor's IP/session instead of sharing the Next.js server IP
+ * (which triggers upstream WAF/OpenResty 403 blocks).
+ * In development, default to the local Next.js /api/proxy route.
+ */
+const configuredApiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const API_BASE_URL =
+  configuredApiBase && configuredApiBase !== "/api/proxy"
+    ? configuredApiBase
+    : process.env.NODE_ENV === "production"
+      ? "https://admin.wartel-academy.com/api"
+      : "/api/proxy";
 export const DEFAULT_LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "ar";
 
 // Supported locales

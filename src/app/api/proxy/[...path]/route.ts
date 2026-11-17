@@ -30,7 +30,7 @@ function isFileLike(value: any): value is { name?: string; arrayBuffer(): Promis
 const ALLOWED_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 type AllowedMethod = (typeof ALLOWED_METHODS)[number];
 
-// Headers we do NOT forward upstream (hop-by-hop / host-specific)
+// Headers we do NOT forward upstream (hop-by-hop / host-specific / proxy-injected)
 const SKIP_REQUEST_HEADERS = new Set([
   "host",
   "connection",
@@ -41,6 +41,20 @@ const SKIP_REQUEST_HEADERS = new Set([
   "proxy-authorization",
   "proxy-authenticate",
   "content-length", // fetch recalculates this
+  "accept-encoding", // let Node fetch negotiate encodings it can decompress
+  "cookie",
+  "origin",
+  "referer",
+  "x-forwarded-for",
+  "x-forwarded-host",
+  "x-forwarded-port",
+  "x-forwarded-proto",
+  "x-forwarded-server",
+  "x-real-ip",
+  "cf-connecting-ip",
+  "cf-ipcountry",
+  "cf-ray",
+  "cf-visitor",
   "x-recaptcha-token", // Omit custom recaptcha token header from upstream call
 ]);
 
