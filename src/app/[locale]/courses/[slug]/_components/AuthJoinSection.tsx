@@ -7,6 +7,7 @@ import { useJoinGroupMutation } from "@/hooks/api/useGroupQueries";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { toast } from "sonner";
 import { LogIn, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { TelegramBotActivationCard } from "@/components/common/TelegramBotActivationCard";
 import { extractDirectJoinError, type DirectJoinApiError } from "./direct-join-utils";
 
 // ============================================================
@@ -22,10 +23,12 @@ export function AuthJoinSection({ groupId }: AuthJoinSectionProps) {
   const { mutate: joinGroup, isPending } = useJoinGroupMutation();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [telegramTrackingUrl, setTelegramTrackingUrl] = useState<string | null>(null);
 
   const handleJoin = async () => {
     setError(null);
     setSuccess(null);
+    setTelegramTrackingUrl(null);
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
 
@@ -37,6 +40,8 @@ export function AuthJoinSection({ groupId }: AuthJoinSectionProps) {
       {
         onSuccess: (res) => {
           const successMsg = res?.message || t("directJoin.joinSuccess");
+          const trackingUrl = res?.data?.telegram_tracking_url || (res as { telegram_tracking_url?: string })?.telegram_tracking_url || null;
+          setTelegramTrackingUrl(trackingUrl);
           setSuccess(successMsg);
           toast.success(successMsg);
         },
@@ -57,9 +62,16 @@ export function AuthJoinSection({ groupId }: AuthJoinSectionProps) {
         </div>
       )}
       {success && (
-        <div className="w-full p-3.5 rounded-xl bg-success-500/10 border border-success-600/25 text-success-600 flex items-start gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
-          <CheckCircle2 className="w-4 h-4 text-success-600 shrink-0 mt-0.5" />
-          <span className="font-semibold text-xs leading-normal text-start">{success}</span>
+        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="w-full p-3.5 rounded-xl bg-success-500/10 border border-success-600/25 text-success-600 flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-success-600 shrink-0 mt-0.5" />
+            <span className="font-semibold text-xs leading-normal text-start">{success}</span>
+          </div>
+          <TelegramBotActivationCard
+            telegramTrackingUrl={telegramTrackingUrl}
+            description={t("directJoin.telegramRequiredDesc")}
+            warning={t("directJoin.telegramWarning")}
+          />
         </div>
       )}
 

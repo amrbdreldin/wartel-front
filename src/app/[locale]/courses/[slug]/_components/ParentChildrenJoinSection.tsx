@@ -16,6 +16,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { addSingleSonSchema } from "@/utils/validation";
 import { Form, Formik } from "formik";
 import { UserRole } from "@/types/enums";
+import { TelegramBotActivationCard } from "@/components/common/TelegramBotActivationCard";
 import {
   extractDirectJoinError,
   resolveGroupRoles,
@@ -40,6 +41,8 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
   const [showAddSonForm, setShowAddSonForm] = useState(false);
   const [addSonError, setAddSonError] = useState<string | null>(null);
   const [addSonSuccess, setAddSonSuccess] = useState<string | null>(null);
+  const [hasJoinedAny, setHasJoinedAny] = useState(false);
+  const [telegramTrackingUrl, setTelegramTrackingUrl] = useState<string | null>(null);
 
   // Track loading/success/error per item (id can be "parent" or child.id)
   const [states, setStates] = useState<
@@ -80,6 +83,9 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
     joinGroup(payload, {
       onSuccess: (res) => {
         const successMsg = res?.message || t("directJoin.joinSuccess");
+        const trackingUrl = res?.data?.telegram_tracking_url || (res as { telegram_tracking_url?: string })?.telegram_tracking_url || null;
+        if (trackingUrl) setTelegramTrackingUrl(trackingUrl);
+        setHasJoinedAny(true);
         toast.success(successMsg);
         setStates((prev) => ({
           ...prev,
@@ -123,6 +129,9 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
       {
         onSuccess: (res) => {
           const successMsg = res?.message || t("directJoin.joinSuccess");
+          const trackingUrl = res?.data?.telegram_tracking_url || (res as { telegram_tracking_url?: string })?.telegram_tracking_url || null;
+          if (trackingUrl) setTelegramTrackingUrl(trackingUrl);
+          setHasJoinedAny(true);
           toast.success(successMsg);
           setAddSonSuccess(successMsg);
           resetForm();
@@ -331,6 +340,17 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
               </Formik>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Telegram Bot Activation Card after any successful join */}
+      {hasJoinedAny && (
+        <div className="pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+          <TelegramBotActivationCard
+            telegramTrackingUrl={telegramTrackingUrl}
+            description={t("directJoin.telegramRequiredDesc")}
+            warning={t("directJoin.telegramWarning")}
+          />
         </div>
       )}
     </div>

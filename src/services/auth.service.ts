@@ -80,7 +80,15 @@ export const authService = {
     apiPut<ApiResponse<User>>(`${AUTH_URL}/me`, data, options).then((r) => r.data),
 
   getAuthUser: (options?: ApiCallOptions) =>
-    apiGet<ApiResponse<{ fcm_token?: string[] } & Record<string, unknown>>>(
+    apiGet<
+      ApiResponse<
+        {
+          fcm_token?: string[];
+          has_telegram_chat_id?: boolean;
+          telegram_tracking_url?: string | null;
+        } & Record<string, unknown>
+      >
+    >(
       `${AUTH_URL}/user`,
       options
     ).then((r) => r.data),

@@ -33,12 +33,19 @@ import {
 
 type TabKey = "parent" | "student";
 
+export interface GuestJoinSuccessResult {
+  telegramTrackingUrl?: string | null;
+  redirectPath?: string;
+  message?: string;
+}
+
 interface GuestJoinFormProps {
   groupId: number;
   allowedRoles?: Array<{ id: number; name: string }>;
+  onStudentJoinSuccess?: (result: GuestJoinSuccessResult) => void;
 }
 
-export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
+export function GuestJoinForm({ groupId, allowedRoles, onStudentJoinSuccess }: GuestJoinFormProps) {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
@@ -72,6 +79,7 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
     const data = res?.data;
     const token = res?.token || res?.access_token || data?.token || data?.access_token;
     const userObj = data?.user || res?.user;
+    const telegramTrackingUrl = data?.telegram_tracking_url || res?.telegram_tracking_url || null;
 
     const successMsg = res?.message || t("directJoin.joinSuccess");
     toast.success(successMsg);
@@ -95,7 +103,15 @@ export function GuestJoinForm({ groupId, allowedRoles }: GuestJoinFormProps) {
       } else if (roleIdStr === "5") {
         redirectPath = `/${locale}/parent`;
       }
-      router.push(redirectPath);
+
+      if (onStudentJoinSuccess) {
+        onStudentJoinSuccess({ telegramTrackingUrl, redirectPath, message: successMsg });
+      } else {
+        router.push(redirectPath);
+      }
+    } else if (onStudentJoinSuccess) {
+      resetForm();
+      onStudentJoinSuccess({ telegramTrackingUrl, message: successMsg });
     } else {
       setFormSuccess(successMsg);
       resetForm();

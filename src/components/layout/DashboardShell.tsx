@@ -6,6 +6,7 @@ import { MobileSidebar } from "./MobileSidebar";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { LiveSessionBanner } from "./LiveSessionBanner";
+import { TelegramActivationModal } from "./TelegramActivationModal";
 import { useAuth } from "@/hooks/useAuth";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { authService } from "@/services/auth.service";
@@ -103,6 +104,8 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
           {children}
         </main>
       </div>
+
+      <TelegramActivationModal />
     </div>
   );
 }

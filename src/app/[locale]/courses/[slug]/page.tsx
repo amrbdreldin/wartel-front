@@ -1,17 +1,19 @@
 "use client";
 
 import { use, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectJoinGroup } from "@/hooks/api/useGroupQueries";
 import { Card, CardContent } from "@/components/ui/card";
 import { GradientBar } from "@/components/ui/gradient-bar";
 import { Logo } from "@/components/common/Logo";
+import { TelegramBotActivationCard } from "@/components/common/TelegramBotActivationCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw, CheckCircle2, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GroupInfoCard } from "./_components/GroupInfoCard";
-import { GuestJoinForm } from "./_components/GuestJoinForm";
+import { GuestJoinForm, type GuestJoinSuccessResult } from "./_components/GuestJoinForm";
 import { AuthJoinSection } from "./_components/AuthJoinSection";
 import { ParentChildrenJoinSection } from "./_components/ParentChildrenJoinSection";
 import {
@@ -32,7 +34,11 @@ export default function DirectJoinCoursePage({
 }) {
   const { slug } = use(params);
   const t = useTranslations();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const ContinueArrow = isRTL ? ArrowLeft : ArrowRight;
   const { isAuthenticated, user } = useAuth();
+  const [guestJoinSuccess, setGuestJoinSuccess] = useState<GuestJoinSuccessResult | null>(null);
 
   const decodedSlug = useMemo(() => {
     try {
@@ -162,8 +168,50 @@ export default function DirectJoinCoursePage({
               </div>
             )}
 
+            {/* Guest Direct Join Success + Telegram Bot Activation */}
+            {guestJoinSuccess && !isLoading && (
+              <div className="text-center space-y-5 animate-in fade-in zoom-in-95 duration-500 py-2">
+                <div className="relative inline-flex items-center justify-center">
+                  <div className="w-14 h-14 bg-success-500/10 text-success-600 dark:text-success-400 rounded-full flex items-center justify-center ring-4 ring-success-500/5">
+                    <CheckCircle2 className="w-7 h-7" aria-hidden="true" />
+                  </div>
+                  <div className="absolute -top-1 -end-1 bg-primary text-primary-foreground rounded-full p-1 shadow-md">
+                    <Sparkles className="w-3 h-3" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  {guestJoinSuccess.message || t("directJoin.joinSuccess")}
+                </h2>
+
+                <TelegramBotActivationCard
+                  telegramTrackingUrl={guestJoinSuccess.telegramTrackingUrl}
+                  description={t("directJoin.telegramRequiredDesc")}
+                  warning={t("directJoin.telegramWarning")}
+                />
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-1">
+                  {guestJoinSuccess.redirectPath ? (
+                    <Link
+                      href={guestJoinSuccess.redirectPath}
+                      className="min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 gradient-primary text-white font-bold text-sm shadow-md shadow-primary/20 hover:opacity-90 transition-all"
+                    >
+                      <span>{t("directJoin.goToDashboard")}</span>
+                      <ContinueArrow className="w-4 h-4" aria-hidden="true" />
+                    </Link>
+                  ) : null}
+                  <Link
+                    href={`/${locale}`}
+                    className="min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm transition-colors"
+                  >
+                    <span>{t("common.backToHome")}</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+
             {/* Success State – Group(s) loaded */}
-            {selectedGroup && !isLoading && (
+            {selectedGroup && !isLoading && !guestJoinSuccess && (
               <>
                 <GroupInfoCard
                   groups={groups || []}
@@ -191,6 +239,7 @@ export default function DirectJoinCoursePage({
                     key={selectedGroup.group_id}
                     groupId={selectedGroup.group_id}
                     allowedRoles={selectedGroup.allowed_roles}
+                    onStudentJoinSuccess={setGuestJoinSuccess}
                   />
                 ) : (
                   <div className="space-y-6">

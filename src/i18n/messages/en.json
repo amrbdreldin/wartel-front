@@ -1565,6 +1565,12 @@
   },
   "notifications": {
     "blocked_guide": "⚠️ Notifications are blocked in your browser. To receive critical registration updates, please click the lock/settings icon next to the URL and set Notifications to 'Allow'.",
+    "telegramModalTitle": "Activate Telegram Notifications",
+    "telegramModalDesc": "Your account is not linked to our Telegram bot yet! To receive class notifications, schedules, grades, and important alerts instantly, open the bot and tap «Start».",
+    "telegramModalWarning": "Important: This reminder will continue to appear in your dashboard until your Telegram account is linked.",
+    "telegramModalVerify": "Activated — Verify Now",
+    "telegramModalVerified": "Your Telegram account is now linked!",
+    "telegramModalNotLinkedYet": "Not linked yet. Make sure to open the bot and tap «Start».",
     "newNotification": "New Notification",
     "globalNotificationsTitle": "Urgent Alerts",
     "noGlobalNotifications": "No urgent alerts currently",
@@ -1678,7 +1684,10 @@
     "noGroupsAvailableDesc": "There are no open groups available to join in this track currently.",
     "cannotJoinRole": "Sorry, your current account is not eligible to join this group directly.",
     "groupsAvailable": "available groups",
-    "joinSelectedGroup": "Join: {name}"
+    "joinSelectedGroup": "Join: {name}",
+    "telegramRequiredDesc": "To receive course notifications, session schedules, and alerts, open the bot and tap «Start» to activate it.",
+    "telegramWarning": "Important: You won't receive course notifications and schedules until you tap «Start» in the bot.",
+    "goToDashboard": "Go to Dashboard"
   },
   "contactUs": {
     "pageTitle": "Contact Us",

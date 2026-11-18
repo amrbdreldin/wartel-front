@@ -46,6 +46,7 @@ export interface JoinGroupResponse {
   token?: string;
   access_token?: string;
   refresh_token?: string;
+  telegram_tracking_url?: string;
   user: {
     id: number;
     full_name: string;
