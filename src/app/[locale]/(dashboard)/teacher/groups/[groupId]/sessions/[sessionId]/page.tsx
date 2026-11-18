@@ -365,24 +365,36 @@ export default function PreviousSessionDetailsPage() {
 
                           {/* Status */}
                           <td className="px-4 py-3.5 text-center align-middle">
-                            {statusKey === "present" && (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                <span>{t("present")}</span>
-                              </span>
-                            )}
-                            {statusKey === "absent" && (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-destructive text-white shadow-xs">
-                                <XCircle className="w-3.5 h-3.5" />
-                                <span>{t("absent")}</span>
-                              </span>
-                            )}
-                            {statusKey === "excused" && (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-amber-500 text-white shadow-xs">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>{t("excused")}</span>
-                              </span>
-                            )}
+                            <div className="flex flex-col items-center gap-1">
+                              {statusKey === "present" && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs">
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>{t("present")}</span>
+                                </span>
+                              )}
+                              {statusKey === "absent" && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-destructive text-white shadow-xs">
+                                  <XCircle className="w-3.5 h-3.5" />
+                                  <span>{t("absent")}</span>
+                                </span>
+                              )}
+                              {statusKey === "excused" && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-amber-500 text-white shadow-xs">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>{t("excused")}</span>
+                                </span>
+                              )}
+                              {record.joined_at_formatted && (
+                                <span className="text-[11px] font-bold text-muted-foreground">
+                                  {record.joined_at_formatted}
+                                </span>
+                              )}
+                              {record.absence_reason && (
+                                <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-lg break-words max-w-[220px]">
+                                  {record.absence_reason}
+                                </span>
+                              )}
+                            </div>
                           </td>
 
                           {/* Score / Degree */}
@@ -477,6 +489,22 @@ export default function PreviousSessionDetailsPage() {
                         </span>
                       )}
                     </div>
+
+                    {(record.joined_at_formatted || record.absence_reason) && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {record.joined_at_formatted && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-muted/60 text-foreground px-2.5 py-1 rounded-lg border border-border/50">
+                            <Clock className="w-3 h-3 text-primary" />
+                            {record.joined_at_formatted}
+                          </span>
+                        )}
+                        {record.absence_reason && (
+                          <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-lg break-words">
+                            {record.absence_reason}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {statusKey === "present" && (hasScore || degreeName) && (
                       <div className="flex items-center gap-2 flex-wrap">

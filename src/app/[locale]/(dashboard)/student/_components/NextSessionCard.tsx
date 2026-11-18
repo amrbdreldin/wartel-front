@@ -49,7 +49,11 @@ export function NextSessionCard({ nextSession }: NextSessionCardProps) {
       const response = await studentService.submitSessionAttendance(payload);
       
       if (response && response.success !== false) {
-        toast.success(t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        if (response?.data?.status_id === 2 && response?.data?.absence_reason) {
+          toast.warning(response.data.absence_reason);
+        } else {
+          toast.success(t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        }
         setHasJoined(true);
         // Redirect user to meeting URL
         window.open(meetingUrl, "_blank", "noopener,noreferrer");

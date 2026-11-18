@@ -75,7 +75,11 @@ export default function StudentSessionPage() {
     mutationFn: (payload: any) => studentService.submitSessionAttendance(payload),
     onSuccess: (res) => {
       setAttendanceRegistered(true);
-      toast.success(t("student.attendanceRegistered"));
+      if (res?.data?.status_id === 2 && res?.data?.absence_reason) {
+        toast.warning(res.data.absence_reason);
+      } else {
+        toast.success(t("student.attendanceRegistered"));
+      }
       refetch();
     },
     onError: (err: any) => {

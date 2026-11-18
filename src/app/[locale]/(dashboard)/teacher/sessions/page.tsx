@@ -29,6 +29,7 @@ interface StudentRecord {
   id: string;
   name: string;
   loginTime: string | null;
+  absenceReason?: string | null;
   decision: AttendanceDecision;
   score: string;
   notes: string;
@@ -260,7 +261,12 @@ export default function TeacherSessionsPage() {
         return {
           id: record.student_id.toString(),
           name: record.student.full_name,
-          loginTime: (record.status_id === 1 || record.status_id === "1" || record.status?.name === "present") ? "دخلن للرابط" : null,
+          loginTime:
+            record.joined_at_formatted ||
+            ((record.status_id === 1 || record.status_id === "1" || record.status?.name === "present")
+              ? "دخلن للرابط"
+              : null),
+          absenceReason: record.absence_reason || null,
           decision,
           // API returns points like "0.00"; show 0 as an empty field (empty is submitted as 0)
           score: points ? points.toString() : "",

@@ -171,6 +171,7 @@ export interface SessionAttendanceSession {
     id?: number | string;
     name?: string;
   };
+  late_absence_minutes?: number | null;
 }
 
 export interface SessionAttendanceRecord {
@@ -179,6 +180,9 @@ export interface SessionAttendanceRecord {
   student_id: string | number;
   status_id: string | number | null;
   status: SessionAttendanceStatus | null;
+  joined_at?: string | null;
+  joined_at_formatted?: string | null;
+  absence_reason?: string | null;
   secret_note: string | null;
   comment: string | null;
   points: string | number;

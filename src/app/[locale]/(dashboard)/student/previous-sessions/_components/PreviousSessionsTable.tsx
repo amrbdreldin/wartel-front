@@ -172,21 +172,40 @@ export function PreviousSessionsTable({
 
         if (isAttended) {
           return (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-              {row.attendance_status?.name ||
-                t("student.previousSessions.status.attended")}
-            </span>
+            <div className="flex flex-col items-start gap-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                {row.attendance_status?.name ||
+                  t("student.previousSessions.status.attended")}
+              </span>
+              {row.joined_at_formatted && (
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {row.joined_at_formatted}
+                </span>
+              )}
+            </div>
           );
         }
 
         if (isAbsent) {
           return (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/20">
-              <XCircle className="w-3.5 h-3.5 shrink-0" />
-              {row.attendance_status?.name ||
-                t("student.previousSessions.status.absent")}
-            </span>
+            <div className="flex flex-col items-start gap-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/20">
+                <XCircle className="w-3.5 h-3.5 shrink-0" />
+                {row.attendance_status?.name ||
+                  t("student.previousSessions.status.absent")}
+              </span>
+              {row.joined_at_formatted && (
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {row.joined_at_formatted}
+                </span>
+              )}
+              {row.absence_reason && (
+                <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 break-words max-w-[200px]">
+                  {row.absence_reason}
+                </span>
+              )}
+            </div>
           );
         }
 

@@ -33,7 +33,14 @@ export function TodaySessionCard({ session }: TodaySessionCardProps) {
       const response = await parentService.attendChildren({ session_id: session.session_id });
       
       if (response && response.success !== false) {
-        toast.success(response.message || t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        const lateChild = Array.isArray(response?.data)
+          ? response.data.find((r: any) => r?.status_id === 2 && r?.absence_reason)
+          : null;
+        if (lateChild?.absence_reason) {
+          toast.warning(lateChild.absence_reason);
+        } else {
+          toast.success(response.message || t("student.attendanceRegistered") || "Attendance recorded successfully!");
+        }
         setHasJoined(true);
         if (session.url) {
           window.open(session.url, "_blank", "noopener,noreferrer");

@@ -130,6 +130,17 @@ export function SessionDetailsModal({
                   </span>
                 )}
               </div>
+              {session.joined_at_formatted && (
+                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 pt-1">
+                  <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span>{session.joined_at_formatted}</span>
+                </p>
+              )}
+              {session.absence_reason && (
+                <p className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1.5 rounded-lg break-words">
+                  {session.absence_reason}
+                </p>
+              )}
             </div>
 
             {/* Degree / Grade */}

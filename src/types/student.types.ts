@@ -412,6 +412,9 @@ export interface AttendanceRecord {
   session_id: string;
   scheduled_at: string;
   status: "present" | "absent" | "excused" | string;
+  joined_at?: string | null;
+  joined_at_formatted?: string | null;
+  absence_reason?: string | null;
   points: string;
   comment: string | null;
 }
@@ -536,6 +539,9 @@ export interface StudentPreviousSession {
   scheduled_at_formatted: string;
   session_status: SessionStatusItem | null;
   attendance_status: AttendanceStatusItem | null;
+  joined_at?: string | null;
+  joined_at_formatted?: string | null;
+  absence_reason?: string | null;
   degree: number | string | null;
   degree_name: string | null;
   notes: string | null;

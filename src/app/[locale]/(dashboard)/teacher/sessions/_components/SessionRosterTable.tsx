@@ -18,6 +18,7 @@ interface StudentRecord {
   id: string;
   name: string;
   loginTime: string | null;
+  absenceReason?: string | null;
   decision: "present" | "excused" | "absent";
   score: string;
   notes: string;
@@ -216,7 +217,14 @@ export function SessionRosterTable({
                   {/* Login Time */}
                   <td className="px-2 py-3.5 text-center align-middle">
                     {student.loginTime ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-extrabold text-xs bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20 whitespace-nowrap">
+                      <span
+                        className={cn(
+                          "font-extrabold text-xs px-2 py-0.5 rounded-lg border whitespace-nowrap",
+                          student.absenceReason
+                            ? "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20"
+                            : "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                        )}
+                      >
                         {student.loginTime}
                       </span>
                     ) : (
@@ -226,31 +234,38 @@ export function SessionRosterTable({
 
                   {/* Decision */}
                   <td className="px-2 py-3.5 align-middle">
-                    <div className="flex bg-muted/60 rounded-xl p-1 w-max mx-auto border border-border/50 shadow-inner gap-1">
-                      <button
-                        onClick={() => setDecision(student.id, "present")}
-                        disabled={locked}
-                        className={cn(
-                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-emerald-600",
-                          student.decision === "present" &&
-                            "bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 hover:text-white"
-                        )}
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>{t("present")}</span>
-                      </button>
-                      <button
-                        onClick={() => setDecision(student.id, "absent")}
-                        disabled={locked}
-                        className={cn(
-                          "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-destructive",
-                          student.decision === "absent" &&
-                            "bg-destructive text-white shadow-xs hover:bg-destructive/90 hover:text-white"
-                        )}
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                        <span>{t("absent")}</span>
-                      </button>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <div className="flex bg-muted/60 rounded-xl p-1 w-max mx-auto border border-border/50 shadow-inner gap-1">
+                        <button
+                          onClick={() => setDecision(student.id, "present")}
+                          disabled={locked}
+                          className={cn(
+                            "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-emerald-600",
+                            student.decision === "present" &&
+                              "bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 hover:text-white"
+                          )}
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{t("present")}</span>
+                        </button>
+                        <button
+                          onClick={() => setDecision(student.id, "absent")}
+                          disabled={locked}
+                          className={cn(
+                            "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all text-muted-foreground hover:text-destructive",
+                            student.decision === "absent" &&
+                              "bg-destructive text-white shadow-xs hover:bg-destructive/90 hover:text-white"
+                          )}
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>{t("absent")}</span>
+                        </button>
+                      </div>
+                      {student.absenceReason && (
+                        <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-lg text-center break-words max-w-[240px]">
+                          {student.absenceReason}
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -345,7 +360,14 @@ export function SessionRosterTable({
                 {/* Login Status Badge */}
                 <div className="shrink-0">
                   {isDetected ? (
-                    <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20 whitespace-nowrap">
+                    <span
+                      className={cn(
+                        "text-[10px] font-extrabold px-2 py-0.5 rounded-lg border whitespace-nowrap",
+                        student.absenceReason
+                          ? "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20"
+                          : "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                      )}
+                    >
                       {student.loginTime}
                     </span>
                   ) : (
@@ -355,6 +377,12 @@ export function SessionRosterTable({
                   )}
                 </div>
               </div>
+
+              {student.absenceReason && (
+                <div className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1.5 rounded-xl break-words">
+                  {student.absenceReason}
+                </div>
+              )}
 
               {/* Attendance Decision Buttons: Touch-Optimized Segment */}
               <div className="grid grid-cols-2 gap-1.5 bg-muted/50 p-1 rounded-xl border border-border/50">
