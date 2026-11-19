@@ -70,6 +70,7 @@ export const addSingleSonSchema = Yup.object().shape({
 export interface PendingGroup {
   id: string | number;
   name?: string;
+  direct_join?: "yes" | "no" | number | boolean | null;
   requires_audio?: number | boolean | string | null;
 }
 
@@ -133,6 +134,14 @@ export function findPendingGroup(
 
 export function isAudioRequiredForGroup(group?: PendingGroup | null): boolean {
   if (!group) return true;
+  if (
+    group.direct_join === "yes" ||
+    group.direct_join === 1 ||
+    String(group.direct_join) === "1" ||
+    group.direct_join === true
+  ) {
+    return false;
+  }
   return group.requires_audio !== 0 && group.requires_audio !== "0" && group.requires_audio !== false;
 }
 

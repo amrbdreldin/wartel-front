@@ -21,6 +21,8 @@ import type { ApiResponse } from "@/types/api.types";
 import type { LoginResponse } from "@/types/auth.types";
 import { UserRole } from "@/types/enums";
 import { DirectJoinLoginModal } from "./DirectJoinLoginModal";
+import { GroupVoiceRecorder, isVoiceValid } from "@/components/groups/GroupVoiceRecorder";
+import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import {
   extractDirectJoinError,
   resolveGroupRoles,
@@ -42,16 +44,26 @@ export interface GuestJoinSuccessResult {
 interface GuestJoinFormProps {
   groupId: number;
   allowedRoles?: Array<{ id: number; name: string }>;
+  isDirectJoin?: boolean;
+  requiresAudio?: boolean;
   onStudentJoinSuccess?: (result: GuestJoinSuccessResult) => void;
 }
 
-export function GuestJoinForm({ groupId, allowedRoles, onStudentJoinSuccess }: GuestJoinFormProps) {
+export function GuestJoinForm({
+  groupId,
+  allowedRoles,
+  isDirectJoin = true,
+  requiresAudio = false,
+  onStudentJoinSuccess,
+}: GuestJoinFormProps) {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
   const { login: handleLoginState } = useAuth();
   const { mutate: joinGroup, isPending: isJoiningGroup } = useJoinGroupMutation();
   const { mutate: registerParent, isPending: isRegisteringParent } = useParentRegisterMutation();
+  const recorder = useVoiceRecorder();
+  const voiceReady = !requiresAudio || isVoiceValid(recorder);
 
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
@@ -135,6 +147,7 @@ export function GuestJoinForm({ groupId, allowedRoles, onStudentJoinSuccess }: G
       phone: values.phone,
       password: values.password,
       firebase_token: firebaseToken || undefined,
+      audio: requiresAudio ? recorder.recording?.file : null,
     };
 
     joinGroup(payload, {
@@ -330,10 +343,15 @@ export function GuestJoinForm({ groupId, allowedRoles, onStudentJoinSuccess }: G
                 placeholder={t("directJoin.passwordPlaceholder")}
               />
 
+              {requiresAudio && (
+                <GroupVoiceRecorder recorder={recorder} disabled={isJoiningGroup || isSubmitting} />
+              )}
+
               <SubmitButton
-                label={t("directJoin.joinCourse")}
-                loadingLabel={t("directJoin.joiningInProgress")}
+                label={isDirectJoin ? t("directJoin.joinCourse") : t("directJoin.submitApplication")}
+                loadingLabel={isDirectJoin ? t("directJoin.joiningInProgress") : t("directJoin.submittingApplication")}
                 isSubmitting={isJoiningGroup || isSubmitting}
+                disabled={!voiceReady}
                 icon={<UserPlus className="h-4 w-4" />}
               />
             </Form>

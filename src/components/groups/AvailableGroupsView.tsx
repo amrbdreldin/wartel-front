@@ -50,7 +50,8 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
   const t = useTranslations("availableGroups");
   const applyMutation = useApplyToGroupMutation();
   const recorder = useVoiceRecorder();
-  const requiresAudio = Number(group.requires_audio) === 1;
+  const isDirectJoin = group.direct_join === "yes" || group.direct_join === 1 || group.direct_join === true;
+  const requiresAudio = !isDirectJoin && Number(group.requires_audio) === 1;
   const voiceReady = !requiresAudio || isVoiceValid(recorder);
 
   const applied = applyMutation.isSuccess && applyMutation.data?.success !== false;
@@ -65,12 +66,24 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
     <article className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h2 className="text-base font-bold text-foreground">{group.display_name}</h2>
-        {requiresAudio && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
-            <Mic className="h-3 w-3" aria-hidden="true" />
-            {t("voice.badge")}
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {isDirectJoin ? (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+              {t("directJoinBadge")}
+            </span>
+          ) : (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+              {t("applicationBadge")}
+            </span>
+          )}
+          {requiresAudio && (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+              <Mic className="h-3 w-3" aria-hidden="true" />
+              {t("voice.badge")}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 space-y-2">
@@ -116,7 +129,7 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
             className="w-full"
             disabled={!voiceReady}
             isLoading={applyMutation.isPending}
-            loadingText={t("submitting")}
+            loadingText={isDirectJoin ? t("joiningDirect") : t("submitting")}
             onClick={() =>
               applyMutation.mutate({
                 groupId: group.id,
@@ -124,7 +137,7 @@ function AvailableGroupCard({ group }: { group: AvailableGroup }) {
               })
             }
           >
-            {t("submit")}
+            {isDirectJoin ? t("joinDirect") : t("submit")}
           </LoadingButton>
           {!voiceReady && (
             <p className="text-center text-xs text-muted-foreground">

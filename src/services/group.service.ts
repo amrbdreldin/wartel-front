@@ -21,6 +21,8 @@ export interface DirectJoinGroup {
   group_name: string;
   track_name: string;
   teacher_name: string;
+  direct_join?: "yes" | "no" | number | boolean;
+  requires_audio?: number;
   group_session_days: GroupSessionDay[];
   allowed_roles?: DirectJoinGroupRole[];
 }
@@ -37,17 +39,20 @@ export interface JoinGroupRequest {
   name?: string;
   phone?: string;
   password?: string;
+  age?: number | string;
   child_id?: number;
   firebase_token?: string;
   sons?: SonRequestItem[];
+  audio?: File | null;
 }
 
 export interface JoinGroupResponse {
+  direct_join?: boolean;
   token?: string;
   access_token?: string;
   refresh_token?: string;
   telegram_tracking_url?: string;
-  user: {
+  user?: {
     id: number;
     full_name: string;
     phone: string;
@@ -71,6 +76,7 @@ export interface AvailableGroup {
   type: string;
   start_date: string;
   max_number: number;
+  direct_join?: "yes" | "no" | number | boolean;
   requires_audio: number;
   has_tamam: number;
   has_buddy: number;
@@ -89,14 +95,38 @@ export const groupService = {
       return [];
     }),
 
-  joinGroup: (data: JoinGroupRequest, options?: ApiCallOptions) =>
-    apiPost<ApiResponse<JoinGroupResponse>>(`${BASE_URL}/join`, data, {
+  joinGroup: (data: JoinGroupRequest, options?: ApiCallOptions) => {
+    const requestOptions = {
       ...options,
       config: {
         ...options?.config,
         skipGlobalToast: true,
       } as AxiosRequestConfig & { skipGlobalToast?: boolean },
-    }).then((r) => r),
+    };
+
+    if (data.audio) {
+      const formData = new FormData();
+      formData.append("group_id", String(data.group_id));
+      if (data.role_id !== undefined) formData.append("role_id", String(data.role_id));
+      if (data.name) formData.append("name", data.name);
+      if (data.phone) formData.append("phone", data.phone);
+      if (data.password) formData.append("password", data.password);
+      if (data.age !== undefined && data.age !== "") formData.append("age", String(data.age));
+      if (data.child_id !== undefined) formData.append("child_id", String(data.child_id));
+      if (data.firebase_token) formData.append("firebase_token", data.firebase_token);
+      if (data.sons && data.sons.length > 0) {
+        data.sons.forEach((son, idx) => {
+          formData.append(`sons[${idx}][name]`, son.name);
+          if (son.phone) formData.append(`sons[${idx}][phone]`, son.phone);
+          if (son.password) formData.append(`sons[${idx}][password]`, son.password);
+        });
+      }
+      formData.append("audio_test_path", data.audio);
+      return apiUpload<ApiResponse<JoinGroupResponse>>(`${BASE_URL}/join`, formData, requestOptions).then((r) => r);
+    }
+
+    return apiPost<ApiResponse<JoinGroupResponse>>(`${BASE_URL}/join`, data, requestOptions).then((r) => r);
+  },
 
   getAvailableGroups: (options?: ApiCallOptions): Promise<AvailableGroup[]> =>
     apiGet<ApiResponse<AvailableGroup[]>>("/student/available-groups", options).then((r) => r?.data ?? []),

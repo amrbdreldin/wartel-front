@@ -74,6 +74,15 @@ export default function DirectJoinCoursePage({
     [selectedGroup]
   );
 
+  const isDirectJoin = selectedGroup
+    ? selectedGroup.direct_join !== "no" &&
+      selectedGroup.direct_join !== 0 &&
+      selectedGroup.direct_join !== false
+    : true;
+
+  const requiresAudio =
+    !isDirectJoin && Number(selectedGroup?.requires_audio ?? 1) === 1;
+
   const errorMessage = extractDirectJoinError(
     error as DirectJoinApiError | null,
     t("common.errorOccurred")
@@ -233,21 +242,32 @@ export default function DirectJoinCoursePage({
                   </div>
                 </div>
 
+                {/* Application Notice when direct_join = no */}
+                {!isDirectJoin && (
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-300 text-start">
+                    {t("directJoin.applicationNotice")}
+                  </div>
+                )}
+
                 {/* Action Section based on auth state */}
                 {!isAuthenticated ? (
                   <GuestJoinForm
                     key={selectedGroup.group_id}
                     groupId={selectedGroup.group_id}
                     allowedRoles={selectedGroup.allowed_roles}
+                    isDirectJoin={isDirectJoin}
+                    requiresAudio={requiresAudio}
                     onStudentJoinSuccess={setGuestJoinSuccess}
                   />
                 ) : (
                   <div className="space-y-6">
-                    {/* Direct join button for student/teacher */}
+                    {/* Direct join / apply button for student/teacher */}
                     {canSelfJoin && (
                       <AuthJoinSection
                         key={`self-${selectedGroup.group_id}`}
                         groupId={selectedGroup.group_id}
+                        isDirectJoin={isDirectJoin}
+                        requiresAudio={requiresAudio}
                       />
                     )}
 
@@ -257,6 +277,8 @@ export default function DirectJoinCoursePage({
                         key={`parent-${selectedGroup.group_id}`}
                         groupId={selectedGroup.group_id}
                         allowedRoles={selectedGroup.allowed_roles}
+                        isDirectJoin={isDirectJoin}
+                        requiresAudio={requiresAudio}
                       />
                     )}
 

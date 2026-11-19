@@ -8,11 +8,15 @@ import { TelegramBotActivationCard } from "@/components/common/TelegramBotActiva
 interface EnrollmentSuccessViewProps {
   telegramTrackingUrl?: string | null;
   locale: string;
+  redirectPath?: string | null;
+  title?: string;
 }
 
 export function EnrollmentSuccessView({
   telegramTrackingUrl,
   locale,
+  redirectPath,
+  title,
 }: EnrollmentSuccessViewProps) {
   const t = useTranslations();
   const isRTL = locale === "ar";
@@ -31,7 +35,7 @@ export function EnrollmentSuccessView({
       </div>
 
       <h2 className="text-xl sm:text-2xl font-black text-foreground mb-4 tracking-tight">
-        {t("auth.applicationSuccessTitle")}
+        {title || t("auth.applicationSuccessTitle")}
       </h2>
 
       {/* ── Telegram Callout Card (Highlight & Required) ── */}
@@ -40,11 +44,20 @@ export function EnrollmentSuccessView({
         className="mb-4"
       />
 
-      {/* ── Back to Home Link ── */}
-      <div className="flex justify-center">
+      {/* ── Navigation Links ── */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        {redirectPath && (
+          <Link
+            href={redirectPath}
+            className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 gradient-primary text-white font-bold text-sm shadow-md shadow-primary/20 hover:opacity-90 transition-all"
+          >
+            <span>{t("directJoin.goToDashboard")}</span>
+            <BackArrow className="w-4 h-4" aria-hidden="true" />
+          </Link>
+        )}
         <Link
           href={`/${locale}`}
-          className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2 bg-muted hover:bg-muted/80 text-foreground font-bold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <BackArrow className="w-4 h-4" aria-hidden="true" />
           <span>{t("common.backToHome")}</span>

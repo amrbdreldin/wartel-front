@@ -22,6 +22,7 @@ export interface FormDataPendingGroup {
   updated_at: string;
   deleted_at: string | null;
   session_days: FormDataSessionDay[];
+  direct_join?: "yes" | "no" | number | boolean | null;
   requires_audio?: number | boolean | string | null;
 }
 

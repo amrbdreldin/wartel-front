@@ -10,6 +10,7 @@ interface SubmitButtonProps {
   label: string;
   loadingLabel: string;
   isSubmitting: boolean;
+  disabled?: boolean;
   icon?: React.ReactNode;
   className?: string;
 }
@@ -18,6 +19,7 @@ export function SubmitButton({
   label,
   loadingLabel,
   isSubmitting,
+  disabled = false,
   icon,
   className,
 }: SubmitButtonProps) {
@@ -29,7 +31,7 @@ export function SubmitButton({
         "hover:opacity-90 transition-all duration-200 shadow-md shadow-primary/20 gap-2",
         className
       )}
-      disabled={isSubmitting}
+      disabled={isSubmitting || disabled}
     >
       {isSubmitting ? (
         <span className="flex items-center gap-2">

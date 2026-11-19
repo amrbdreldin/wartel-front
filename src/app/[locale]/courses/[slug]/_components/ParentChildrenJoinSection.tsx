@@ -17,6 +17,8 @@ import { addSingleSonSchema } from "@/utils/validation";
 import { Form, Formik } from "formik";
 import { UserRole } from "@/types/enums";
 import { TelegramBotActivationCard } from "@/components/common/TelegramBotActivationCard";
+import { GroupVoiceRecorder, isVoiceValid } from "@/components/groups/GroupVoiceRecorder";
+import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import {
   extractDirectJoinError,
   resolveGroupRoles,
@@ -30,13 +32,22 @@ import {
 interface ParentChildrenJoinSectionProps {
   groupId: number;
   allowedRoles?: Array<{ id: number; name: string }>;
+  isDirectJoin?: boolean;
+  requiresAudio?: boolean;
 }
 
-export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChildrenJoinSectionProps) {
+export function ParentChildrenJoinSection({
+  groupId,
+  allowedRoles,
+  isDirectJoin = true,
+  requiresAudio = false,
+}: ParentChildrenJoinSectionProps) {
   const t = useTranslations();
   const { user } = useAuth();
   const { data: childrenData, isLoading: isLoadingChildren, refetch: refetchChildren } = useParentChildren({ enabled: !!user });
   const { mutate: joinGroup } = useJoinGroupMutation();
+  const recorder = useVoiceRecorder();
+  const voiceReady = !requiresAudio || isVoiceValid(recorder);
 
   const [showAddSonForm, setShowAddSonForm] = useState(false);
   const [addSonError, setAddSonError] = useState<string | null>(null);
@@ -70,9 +81,16 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
 
     const firebaseToken = await requestNotificationToken(t("notifications.blocked_guide"));
 
-    const payload: { group_id: number; firebase_token?: string; child_id?: number; role_id?: number } = {
+    const payload: {
+      group_id: number;
+      firebase_token?: string;
+      child_id?: number;
+      role_id?: number;
+      audio?: File | null;
+    } = {
       group_id: groupId,
       firebase_token: firebaseToken || undefined,
+      audio: requiresAudio ? recorder.recording?.file : null,
     };
     if (id !== "parent") {
       payload.child_id = id;
@@ -118,6 +136,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
       {
         group_id: groupId,
         firebase_token: firebaseToken || undefined,
+        audio: requiresAudio ? recorder.recording?.file : null,
         sons: [
           {
             name: values.name,
@@ -170,6 +189,10 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
 
   return (
     <div className="space-y-4">
+      {requiresAudio && (
+        <GroupVoiceRecorder recorder={recorder} />
+      )}
+
       {isLoadingChildren ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
@@ -217,7 +240,7 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
                   {/* Join Button */}
                   <Button
                     onClick={() => handleJoin(item.id)}
-                    disabled={state.loading || !!state.success}
+                    disabled={state.loading || !!state.success || !voiceReady}
                     className={
                       state.success
                         ? "h-9 px-4 rounded-lg text-xs font-semibold bg-success-500/10 text-success-600 border border-success-600/25 gap-1.5 w-full sm:w-auto shrink-0"
@@ -330,8 +353,9 @@ export function ParentChildrenJoinSection({ groupId, allowedRoles }: ParentChild
                     <div className="flex gap-2 pt-1">
                       <SubmitButton
                         label={t("directJoin.addNewChild")}
-                        loadingLabel={t("directJoin.joiningInProgress")}
+                        loadingLabel={isDirectJoin ? t("directJoin.joiningInProgress") : t("directJoin.submittingApplication")}
                         isSubmitting={isSubmitting}
+                        disabled={!voiceReady}
                         icon={<UserPlus className="h-4 w-4" />}
                       />
                     </div>

@@ -6,6 +6,8 @@ import { Logo } from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
 import { registerSchema, isAudioRequiredForSelection } from "@/utils/validation";
 import { useRegisterMutation, useRegisterFormDataQuery } from "@/hooks/api/useAuthMutations";
+import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types/enums";
 import { Form, Formik, type FormikProps } from "formik";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, AlertCircle, Info, Users, X, ShieldCheck,
@@ -59,6 +61,7 @@ export function RegisterForm() {
   const isStudent = searchParams.get("type") === "student" || searchParams.get("type") === "s" || searchParams.has("student");
   const studentRoleId = isStudent ? 1 : null;
 
+  const { login: handleLoginState } = useAuth();
   const { mutate: register, isPending } = useRegisterMutation();
   const { data: formData, isLoading: isFormDataLoading } = useRegisterFormDataQuery(studentRoleId);
   const dispatch = useDispatch();
@@ -66,6 +69,8 @@ export function RegisterForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [telegramTrackingUrl, setTelegramTrackingUrl] = useState<string | null>(null);
+  const [directJoinRedirectPath, setDirectJoinRedirectPath] = useState<string | null>(null);
+  const [directJoinTitle, setDirectJoinTitle] = useState<string | undefined>(undefined);
 
   const formikRef = useRef<FormikProps<any>>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -150,13 +155,39 @@ export function RegisterForm() {
     if (fcmToken) fd.append("firebase_token", fcmToken);
 
     register(fd, {
-      onSuccess: (res) => {
+      onSuccess: (res: any) => {
         if (res?.telegram_tracking_url) {
           setTelegramTrackingUrl(res.telegram_tracking_url);
         }
         if (res) {
           dispatch(setEnrollmentData(res));
         }
+
+        const token = res?.token || res?.access_token;
+        const userObj = res?.user;
+        if (token && userObj) {
+          handleLoginState({
+            user: {
+              ...userObj,
+              role: userObj.role as UserRole | undefined,
+            },
+            accessToken: token,
+            refreshToken: res?.refresh_token || "",
+          });
+
+          const roleIdStr = String(userObj.role_id);
+          let redirectPath = `/${locale}/dashboard`;
+          if (roleIdStr === "1" || roleIdStr === "3") {
+            redirectPath = `/${locale}/student`;
+          } else if (roleIdStr === "2") {
+            redirectPath = `/${locale}/teacher`;
+          } else if (roleIdStr === "5") {
+            redirectPath = `/${locale}/parent`;
+          }
+          setDirectJoinRedirectPath(redirectPath);
+          setDirectJoinTitle(res?.message || t("directJoin.joinSuccess"));
+        }
+
         const successMsg = res?.message || t("auth.applicationSubmitted");
         setFormSuccess(successMsg);
         toast.success(successMsg);
@@ -181,6 +212,8 @@ export function RegisterForm() {
       <EnrollmentSuccessView
         telegramTrackingUrl={telegramTrackingUrl}
         locale={locale}
+        redirectPath={directJoinRedirectPath}
+        title={directJoinTitle}
       />
     );
   }

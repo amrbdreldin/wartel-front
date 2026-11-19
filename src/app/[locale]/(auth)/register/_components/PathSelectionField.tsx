@@ -228,6 +228,15 @@ export function PathSelectionField({
                   )}>
                     {group.name}
                   </h6>
+                  {group.direct_join === "yes" || group.direct_join === 1 || group.direct_join === true ? (
+                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      {tRoot("directJoin.directJoinBadge")}
+                    </span>
+                  ) : group.direct_join === "no" || group.direct_join === 0 || group.direct_join === false ? (
+                    <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                      {tRoot("directJoin.applicationBadge")}
+                    </span>
+                  ) : null}
                 </div>
 
                 {/* Session Days & Times */}
