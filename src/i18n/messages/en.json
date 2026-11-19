@@ -1903,5 +1903,19 @@
     "openLink": "Open Link",
     "errorTitle": "Unable to open link",
     "invalidOrNotFound": "Code not found or invalid"
+  },
+  "bioLinks": {
+    "directoryTitle": "Wartel Academy Links",
+    "directoryDesc": "Choose a section or page to view its official links.",
+    "linksCount": "{count} links",
+    "noCategories": "No link pages are currently available.",
+    "noLinks": "No links have been added to this page yet.",
+    "notFoundTitle": "Page Not Found",
+    "notFoundDesc": "Sorry, the requested links page was not found or is currently inactive.",
+    "backToDirectory": "View All Pages",
+    "backToHome": "Back to Home",
+    "share": "Share",
+    "copied": "Link copied!",
+    "retry": "Retry"
   }
 }
