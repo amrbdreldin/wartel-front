@@ -16,6 +16,7 @@ import { WarningsCard } from "./_components/WarningsCard";
 import { NextSessionCard } from "./_components/NextSessionCard";
 import { LatestGradeCard } from "./_components/LatestGradeCard";
 import { ActiveExamCard } from "./_components/ActiveExamCard";
+import { MyGroupsSection } from "./_components/MyGroupsSection";
 import { DashboardAds } from "@/components/ads";
 
 export default function StudentDashboardPage() {
@@ -121,6 +122,9 @@ export default function StudentDashboardPage() {
         <LatestGradeCard lastGrade={data?.last_grade} locale={locale} />
         <ActiveExamCard nextExam={data?.next_exam} locale={locale} />
       </div>
+
+      {/* Subscribed Groups */}
+      <MyGroupsSection groups={data?.groups || []} />
 
       {/* Ads - Dashboard Cards */}
       <DashboardAds placement="card" />

@@ -271,10 +271,12 @@ export interface DashboardSessionDay {
 export interface StudentDashboardGroup {
   id: number;
   name: string;
-  teacher_name: string;
+  teacher_name: string | null;
   session_days: DashboardSessionDay[];
   has_tamam: boolean;
   has_buddy: boolean;
+  has_attendance?: boolean;
+  is_mandatory?: boolean;
   tamam_card: DashboardTamamCard | null;
   available_times?: AvailableBuddyTime[];
 }
