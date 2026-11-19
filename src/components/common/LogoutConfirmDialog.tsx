@@ -29,7 +29,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-[400px] rounded-2xl">
         <DialogHeader>
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
             <LogOut className="h-6 w-6 text-destructive" />
@@ -45,14 +45,14 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="flex-1"
+            className="flex-1 min-h-[44px]"
           >
             {t("common.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleLogout}
-            className="flex-1"
+            className="flex-1 min-h-[44px]"
           >
             {t("common.logout") || t("auth.logout")}
           </Button>

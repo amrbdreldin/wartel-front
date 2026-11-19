@@ -7,6 +7,7 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { LiveSessionBanner } from "./LiveSessionBanner";
 import { TelegramActivationModal } from "./TelegramActivationModal";
+import { LogoutConfirmDialog } from "@/components/common/LogoutConfirmDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { requestNotificationToken } from "@/utils/firebaseMessaging";
 import { authService } from "@/services/auth.service";
@@ -26,6 +27,7 @@ interface DashboardShellProps {
 export function DashboardShell({ children, locale }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const tNotifications = useTranslations("notifications");
   const pathname = usePathname();
@@ -75,7 +77,11 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
     <div className="min-h-screen bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
-        <Sidebar collapsed={collapsed} locale={locale} />
+        <Sidebar
+          collapsed={collapsed}
+          locale={locale}
+          onLogoutClick={() => setLogoutDialogOpen(true)}
+        />
       </div>
 
       {/* Mobile Sidebar */}
@@ -83,6 +89,7 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         locale={locale}
+        onLogoutClick={() => setLogoutDialogOpen(true)}
       />
 
       {/* Main Content */}
@@ -106,6 +113,10 @@ export function DashboardShell({ children, locale }: DashboardShellProps) {
       </div>
 
       <TelegramActivationModal />
+      <LogoutConfirmDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+      />
     </div>
   );
 }

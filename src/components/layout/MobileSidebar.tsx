@@ -21,6 +21,7 @@ import { RTL_LOCALES, type Locale } from "@/lib/constants";
 import { useSelector } from "react-redux";
 import { selectNotifications } from "@/store/slices/notificationSlice";
 import type { RootState } from "@/store";
+import { LogOut } from "lucide-react";
 
 // ============================================================
 // MobileSidebar – Sheet-based sidebar for mobile
@@ -30,9 +31,10 @@ interface MobileSidebarProps {
   open: boolean;
   onClose: () => void;
   locale: string;
+  onLogoutClick?: () => void;
 }
 
-export function MobileSidebar({ open, onClose, locale }: MobileSidebarProps) {
+export function MobileSidebar({ open, onClose, locale, onLogoutClick }: MobileSidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { role } = useRole();
@@ -64,7 +66,7 @@ export function MobileSidebar({ open, onClose, locale }: MobileSidebarProps) {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side={isRTL ? "right" : "left"} className="w-[280px] p-0">
+      <SheetContent side={isRTL ? "right" : "left"} className="flex w-[280px] flex-col p-0">
         <SheetHeader className="px-4 pt-4 pb-0">
           <SheetTitle>
             <Logo size="sm" />
@@ -149,6 +151,22 @@ export function MobileSidebar({ open, onClose, locale }: MobileSidebarProps) {
             </div>
           ))}
         </nav>
+
+        {onLogoutClick && (
+          <div className="border-t border-border p-3">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onLogoutClick();
+              }}
+              className="flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <span>{t("common.logout")}</span>
+            </button>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );

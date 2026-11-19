@@ -15,6 +15,7 @@ import { selectNotifications } from "@/store/slices/notificationSlice";
 import type { RootState } from "@/store";
 
 import { useState, useEffect } from "react";
+import { LogOut } from "lucide-react";
 
 // ============================================================
 // Sidebar – Desktop sidebar navigation
@@ -23,9 +24,10 @@ import { useState, useEffect } from "react";
 interface SidebarProps {
   collapsed?: boolean;
   locale: string;
+  onLogoutClick?: () => void;
 }
 
-export function Sidebar({ collapsed = false, locale }: SidebarProps) {
+export function Sidebar({ collapsed = false, locale, onLogoutClick }: SidebarProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { role } = useRole();
@@ -144,6 +146,23 @@ export function Sidebar({ collapsed = false, locale }: SidebarProps) {
           </div>
         ))}
       </nav>
+
+      {onLogoutClick && (
+        <div className="border-t border-sidebar-border p-3">
+          <button
+            type="button"
+            onClick={onLogoutClick}
+            title={collapsed ? t("common.logout") : undefined}
+            className={cn(
+              "flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 cursor-pointer",
+              collapsed && "justify-center px-0"
+            )}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            {!collapsed && <span>{t("common.logout")}</span>}
+          </button>
+        </div>
+      )}
     </aside>
   );
 }
