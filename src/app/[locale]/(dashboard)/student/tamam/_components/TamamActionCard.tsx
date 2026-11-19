@@ -4,7 +4,12 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 interface TamamActionCardProps {
-  onConfirm: (pastChecked: boolean, presentChecked: boolean, withoutBuddyChecked: boolean) => void;
+  onConfirm: (
+    pastChecked: boolean,
+    presentChecked: boolean,
+    withoutBuddyChecked: boolean,
+    withoutBuddySelfExcuseChecked: boolean
+  ) => void;
   isSubmitting: boolean;
   isSuccess: boolean;
   presentStatus?: string;
@@ -16,13 +21,20 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
   const [pastChecked, setPastChecked] = useState(false);
   const [presentChecked, setPresentChecked] = useState(false);
   const [withoutBuddyChecked, setWithoutBuddyChecked] = useState(false);
+  const [withoutBuddySelfExcuseChecked, setWithoutBuddySelfExcuseChecked] = useState(false);
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked);
+  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked && !withoutBuddySelfExcuseChecked);
 
-  // "Recited without companion" is exclusive with the past/present confirmations
-  const toggleWithoutBuddy = () => {
-    setWithoutBuddyChecked(prev => !prev);
+  // "Recited without companion" options are exclusive with past/present and with each other
+  const toggleWithoutBuddy = (selfExcuse: boolean) => {
+    if (selfExcuse) {
+      setWithoutBuddySelfExcuseChecked(prev => !prev);
+      setWithoutBuddyChecked(false);
+    } else {
+      setWithoutBuddyChecked(prev => !prev);
+      setWithoutBuddySelfExcuseChecked(false);
+    }
     setPastChecked(false);
     setPresentChecked(false);
   };
@@ -69,7 +81,7 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                 <button
                   type="button"
                   disabled={!isPending}
-                  onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); }}
+                  onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                     pastChecked
@@ -101,7 +113,7 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                 <button
                   type="button"
                   disabled={!isPending}
-                  onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); }}
+                  onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                     presentChecked
@@ -129,15 +141,31 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                   </span>
                 </button>
 
-                {/* Recited Without Companion Card */}
-                {!isStudentChild && (
+                {/* Recited Without Companion Cards */}
+                {!isStudentChild && [
+                  {
+                    key: "buddy-excuse",
+                    checked: withoutBuddyChecked,
+                    selfExcuse: false,
+                    label: t("student.tamamWithoutBuddyConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لديها",
+                  },
+                  {
+                    key: "self-excuse",
+                    checked: withoutBuddySelfExcuseChecked,
+                    selfExcuse: true,
+                    label: t("student.tamamWithoutBuddySelfExcuseConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لدي",
+                  },
+                ].map((option) => (
                   <button
+                    key={option.key}
                     type="button"
+                    role="checkbox"
+                    aria-checked={option.checked}
                     disabled={!isPending}
-                    onClick={toggleWithoutBuddy}
+                    onClick={() => toggleWithoutBuddy(option.selfExcuse)}
                     className={cn(
-                      "sm:col-span-2 flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
-                      withoutBuddyChecked
+                      "sm:col-span-2 flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none min-h-[44px]",
+                      option.checked
                         ? "border-primary bg-primary/5 text-foreground shadow-sm"
                         : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
                       !isPending && "opacity-60 cursor-not-allowed"
@@ -145,27 +173,27 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                   >
                     <div className={cn(
                       "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
-                      withoutBuddyChecked
+                      option.checked
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-muted-foreground/40 bg-transparent"
                     )}>
-                      {withoutBuddyChecked && (
+                      {option.checked && (
                         <svg className="w-3 h-3 stroke-current stroke-[3]" fill="none" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
                     </div>
                     <span className="text-sm font-bold text-foreground">
-                      {t("student.tamamWithoutBuddyConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لديها"}
+                      {option.label}
                     </span>
                   </button>
-                )}
+                ))}
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
               <button
-                onClick={() => onConfirm(pastChecked, presentChecked, withoutBuddyChecked)}
+                onClick={() => onConfirm(pastChecked, presentChecked, withoutBuddyChecked, withoutBuddySelfExcuseChecked)}
                 disabled={isButtonDisabled}
                 className={cn(
                   "w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 px-6 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 shadow-sm",

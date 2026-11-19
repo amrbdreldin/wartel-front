@@ -219,6 +219,7 @@ export interface TamamSubmissionRequest {
   present_status_id?: number;
   pair_id?: string | null;
   recited_without_buddy?: boolean;
+  recited_without_buddy_self_excuse?: boolean;
 }
 
 export interface DashboardAlert {

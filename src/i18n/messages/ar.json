@@ -374,6 +374,7 @@
     "tamamPastConfirmation": "أؤكد أن الرفيقة سمعت ورد الماضي",
     "tamamPresentConfirmation": "أؤكد أن الرفيقة سمعت ورد الحاضر",
     "tamamWithoutBuddyConfirmation": "تم التسميع بدون الرفيقة لوجود عذر لديها",
+    "tamamWithoutBuddySelfExcuseConfirmation": "تم التسميع بدون الرفيقة لوجود عذر لدي",
     "tamamCompanionHeader": "تأكيد سماع الرفيقة",
     "tamamCompanionInstructionCheck": "يرجى تأكيد سماع الرفيقة لورد الماضي و/أو الحاضر لتتمكني من إرسال التمام:",
     "processing": "جاري المعالجة...",

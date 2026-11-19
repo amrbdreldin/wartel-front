@@ -375,6 +375,7 @@
     "tamamPastConfirmation": "I confirm that my companion listened to the past memorization",
     "tamamPresentConfirmation": "I confirm that my companion listened to the present memorization",
     "tamamWithoutBuddyConfirmation": "I recited without my companion because she has an excuse",
+    "tamamWithoutBuddySelfExcuseConfirmation": "I recited without my companion because I have an excuse",
     "tamamCompanionHeader": "Companion Recitation Confirmation",
     "tamamCompanionInstructionCheck": "Please confirm that the companion listened to the past and/or present memorization to enable Tamam submission:",
     "processing": "Processing...",

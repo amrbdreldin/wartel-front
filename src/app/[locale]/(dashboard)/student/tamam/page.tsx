@@ -85,7 +85,12 @@ export default function TamamSystemPage() {
     }
   });
 
-  const handleConfirmTamam = (pastChecked: boolean, presentChecked: boolean, withoutBuddyChecked: boolean) => {
+  const handleConfirmTamam = (
+    pastChecked: boolean,
+    presentChecked: boolean,
+    withoutBuddyChecked: boolean,
+    withoutBuddySelfExcuseChecked: boolean
+  ) => {
     const groupId = activeGroup?.id || (dashboardData?.data as any)?.group_id || groups[0]?.id;
     const studentId = user?.id || (dashboardData?.data as any)?.student_id;
 
@@ -105,7 +110,8 @@ export default function TamamSystemPage() {
       past_status_id: pastChecked ? 2 : 3, 
       persent_status_id: presentChecked ? 2 : 3,
       present_status_id: presentChecked ? 2 : 3,
-      recited_without_buddy: withoutBuddyChecked,
+      recited_without_buddy: withoutBuddyChecked || withoutBuddySelfExcuseChecked,
+      recited_without_buddy_self_excuse: withoutBuddySelfExcuseChecked,
     });
   };
 

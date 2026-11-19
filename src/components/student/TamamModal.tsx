@@ -48,18 +48,25 @@ export function TamamModal({
   const [pastChecked, setPastChecked] = useState(false);
   const [presentChecked, setPresentChecked] = useState(false);
   const [withoutBuddyChecked, setWithoutBuddyChecked] = useState(false);
+  const [withoutBuddySelfExcuseChecked, setWithoutBuddySelfExcuseChecked] = useState(false);
 
   const effectiveStudentId = studentId ?? user?.id;
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked);
+  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked && !withoutBuddySelfExcuseChecked);
 
   // If companion name is missing or explicitly has no buddy -> perform self tamam
   const isSelfTamam = !companionName || hasBuddy === false;
 
-  // "Recited without companion" is exclusive with the past/present confirmations
-  const toggleWithoutBuddy = () => {
-    setWithoutBuddyChecked(prev => !prev);
+  // "Recited without companion" options are exclusive with past/present and with each other
+  const toggleWithoutBuddy = (selfExcuse: boolean) => {
+    if (selfExcuse) {
+      setWithoutBuddySelfExcuseChecked(prev => !prev);
+      setWithoutBuddyChecked(false);
+    } else {
+      setWithoutBuddyChecked(prev => !prev);
+      setWithoutBuddySelfExcuseChecked(false);
+    }
     setPastChecked(false);
     setPresentChecked(false);
   };
@@ -107,7 +114,8 @@ export function TamamModal({
       past_status_id: pastChecked ? 2 : 3,
       persent_status_id: presentChecked ? 2 : 3,
       present_status_id: presentChecked ? 2 : 3,
-      recited_without_buddy: !isSelfTamam && withoutBuddyChecked,
+      recited_without_buddy: !isSelfTamam && (withoutBuddyChecked || withoutBuddySelfExcuseChecked),
+      recited_without_buddy_self_excuse: !isSelfTamam && withoutBuddySelfExcuseChecked,
     });
   };
 
@@ -119,6 +127,7 @@ export function TamamModal({
         setPastChecked(false);
         setPresentChecked(false);
         setWithoutBuddyChecked(false);
+        setWithoutBuddySelfExcuseChecked(false);
     }, 300);
   };
 
@@ -238,7 +247,7 @@ export function TamamModal({
                                     role="checkbox"
                                     aria-checked={pastChecked}
                                     disabled={!isPending}
-                                    onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); }}
+                                    onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                                     className={cn(
                                         "flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         pastChecked
@@ -270,7 +279,7 @@ export function TamamModal({
                                     role="checkbox"
                                     aria-checked={presentChecked}
                                     disabled={!isPending}
-                                    onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); }}
+                                    onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                                     className={cn(
                                         "flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         presentChecked
@@ -296,17 +305,31 @@ export function TamamModal({
                                     </span>
                                 </button>
 
-                                {/* Recited Without Companion Card */}
-                                {!isSelfTamam && (
+                                {/* Recited Without Companion Cards */}
+                                {!isSelfTamam && [
+                                    {
+                                        key: "buddy-excuse",
+                                        checked: withoutBuddyChecked,
+                                        selfExcuse: false,
+                                        label: t("student.tamamWithoutBuddyConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لديها",
+                                    },
+                                    {
+                                        key: "self-excuse",
+                                        checked: withoutBuddySelfExcuseChecked,
+                                        selfExcuse: true,
+                                        label: t("student.tamamWithoutBuddySelfExcuseConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لدي",
+                                    },
+                                ].map((option) => (
                                     <button
+                                        key={option.key}
                                         type="button"
                                         role="checkbox"
-                                        aria-checked={withoutBuddyChecked}
+                                        aria-checked={option.checked}
                                         disabled={!isPending}
-                                        onClick={toggleWithoutBuddy}
+                                        onClick={() => toggleWithoutBuddy(option.selfExcuse)}
                                         className={cn(
-                                            "sm:col-span-2 flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
-                                            withoutBuddyChecked
+                                            "sm:col-span-2 flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none min-h-[44px]",
+                                            option.checked
                                                 ? "border-primary bg-primary/5 text-foreground shadow-sm"
                                                 : "border-border/60 bg-card hover:bg-muted/10 text-muted-foreground",
                                             !isPending && "opacity-60 cursor-not-allowed"
@@ -314,21 +337,21 @@ export function TamamModal({
                                     >
                                         <div className={cn(
                                             "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
-                                            withoutBuddyChecked
+                                            option.checked
                                                 ? "border-primary bg-primary text-primary-foreground"
                                                 : "border-muted-foreground/40 bg-transparent"
                                         )}>
-                                            {withoutBuddyChecked && (
+                                            {option.checked && (
                                                 <svg className="w-3 h-3 stroke-current stroke-[3]" fill="none" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                 </svg>
                                             )}
                                         </div>
                                         <span className="text-sm font-bold text-foreground">
-                                            {t("student.tamamWithoutBuddyConfirmation") || "تم التسميع بدون الرفيقة لوجود عذر لديها"}
+                                            {option.label}
                                         </span>
                                     </button>
-                                )}
+                                ))}
                             </div>
                         </div>
 

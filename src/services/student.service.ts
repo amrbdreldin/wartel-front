@@ -47,6 +47,7 @@ export const studentService = {
       present_status_id: data.present_status_id ?? data.persent_status_id,
       ...(data.pair_id !== undefined ? { pair_id: data.pair_id } : {}),
       recited_without_buddy: data.recited_without_buddy ?? false,
+      recited_without_buddy_self_excuse: data.recited_without_buddy_self_excuse ?? false,
     };
     return apiPost<ApiResponse<TamamRecord>>(`${BASE_URL}/tamam`, payload, options).then((r) => r);
   },
