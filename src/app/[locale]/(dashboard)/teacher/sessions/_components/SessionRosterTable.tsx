@@ -70,7 +70,7 @@ export function SessionRosterTable({
 
   const displayedStudents = searchQuery.trim()
     ? filteredRoster.filter((s) =>
-        s.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        (s.name || "").toLowerCase().includes(searchQuery.trim().toLowerCase())
       )
     : filteredRoster;
 
@@ -343,7 +343,7 @@ export function SessionRosterTable({
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary/80 text-white flex items-center justify-center font-black text-sm shrink-0 select-none shadow-xs">
-                    {student.name.trim().charAt(0) || "ط"}
+                    {(student.name || "").trim().charAt(0) || "ط"}
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-extrabold text-sm text-foreground truncate">

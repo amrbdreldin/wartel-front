@@ -61,6 +61,7 @@ function getGradeLabel(
 
 export default function TeacherSessionsPage() {
   const t = useTranslations("teacherBoard");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const searchParams = useSearchParams();
 
@@ -229,9 +230,9 @@ export default function TeacherSessionsPage() {
 
   // Auto-lock table if attendance has already been recorded in database
   useEffect(() => {
-    if (attendanceRes && attendanceRes.length > 0) {
+    if (Array.isArray(attendanceRes) && attendanceRes.length > 0) {
       const isAlreadyRecorded = attendanceRes.some(
-        (record) => record.recorded_by !== null && record.recorded_by !== undefined
+        (record) => record?.recorded_by !== null && record?.recorded_by !== undefined
       );
       if (isAlreadyRecorded) {
         setLocked(true);
@@ -244,23 +245,25 @@ export default function TeacherSessionsPage() {
 
   // Sync state when attendance API responds
   useEffect(() => {
-    if (attendanceRes) {
+    if (Array.isArray(attendanceRes)) {
       const isAlreadyRecorded = attendanceRes.some(
-        (record) => record.recorded_by !== null && record.recorded_by !== undefined
+        (record) => record?.recorded_by !== null && record?.recorded_by !== undefined
       );
 
-      const mapped = attendanceRes.map((record) => {
-        const points = Math.round(parseFloat(String(record.points ?? ""))) || 0;
-        let decision: AttendanceDecision = "present";
-        if (record.status_id === "2" || record.status_id === 2 || record.status?.name === "absent") {
-          decision = "absent";
-        } else if (record.status_id === "3" || record.status_id === 3 || record.status?.name === "excused") {
-          decision = "excused";
-        }
+      const mapped = attendanceRes
+        .filter((record) => record && record.student_id != null)
+        .map((record) => {
+          const points = Math.round(parseFloat(String(record.points ?? ""))) || 0;
+          let decision: AttendanceDecision = "present";
+          if (record.status_id === "2" || record.status_id === 2 || record.status?.name === "absent") {
+            decision = "absent";
+          } else if (record.status_id === "3" || record.status_id === 3 || record.status?.name === "excused") {
+            decision = "excused";
+          }
 
-        return {
-          id: record.student_id.toString(),
-          name: record.student.full_name,
+          return {
+            id: String(record.student_id),
+            name: record.student?.full_name || (locale === "ar" ? `طالب #${record.student_id}` : `Student #${record.student_id}`),
           loginTime:
             record.joined_at_formatted ||
             ((record.status_id === 1 || record.status_id === "1" || record.status?.name === "present")
@@ -333,7 +336,7 @@ export default function TeacherSessionsPage() {
         });
       });
     }
-  }, [attendanceRes, resolvedGroupId, resolvedGroupName, sessionId, t]);
+  }, [attendanceRes, resolvedGroupId, resolvedGroupName, sessionId, t, locale]);
 
   // Sync Meeting URL if present (with fallbacks if roster is empty)
   useEffect(() => {
@@ -374,7 +377,7 @@ export default function TeacherSessionsPage() {
     },
     onError: (error: unknown) => {
       console.error(error);
-      toast.error(error instanceof Error ? error.message : t("common.errorOccurred"));
+      toast.error(error instanceof Error ? error.message : tCommon("errorOccurred"));
       setShowConfirmModal(false);
     },
   });
