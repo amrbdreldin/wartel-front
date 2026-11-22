@@ -108,6 +108,30 @@ describe("AdPopup Component", () => {
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("renders image ad with contain fit and opens full-image lightbox on click", () => {
+    const onClose = vi.fn();
+    const imagePopupAd: Ad = {
+      ...mockAd,
+      placement: "popup",
+      media_type: "image",
+      media_url: "https://example.com/banner.png",
+      youtube_embed_url: null,
+    };
+
+    render(<AdPopup ad={imagePopupAd} isOpen={true} onClose={onClose} />);
+
+    const img = screen.getByAltText(imagePopupAd.title);
+    expect(img.className).toContain("object-contain");
+
+    const zoomButton = screen.getByRole("button", { name: /ads\.viewFullImage/i });
+    fireEvent.click(zoomButton);
+
+    // Lightbox dialog should now be open alongside the popup (2 dialogs)
+    const dialogs = screen.getAllByRole("dialog");
+    expect(dialogs.length).toBe(2);
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });
 
 describe("AdMedia Component", () => {

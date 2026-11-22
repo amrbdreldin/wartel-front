@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Ad } from "@/types/ad.types";
 import { getSafeHref, getYoutubeEmbedUrl } from "./ad-utils";
@@ -13,6 +14,9 @@ interface AdMediaProps {
   ad: Ad;
   className?: string;
   aspectRatio?: "video" | "square" | "auto" | "banner";
+  imageFit?: "cover" | "contain";
+  imageClassName?: string;
+  onImageClick?: () => void;
 }
 
 const ASPECT_CLASSES: Record<NonNullable<AdMediaProps["aspectRatio"]>, string> = {
@@ -22,7 +26,14 @@ const ASPECT_CLASSES: Record<NonNullable<AdMediaProps["aspectRatio"]>, string> =
   auto: "aspect-auto",
 };
 
-export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) {
+export function AdMedia({
+  ad,
+  className,
+  aspectRatio = "video",
+  imageFit = "cover",
+  imageClassName,
+  onImageClick,
+}: AdMediaProps) {
   const t = useTranslations("ads");
   const [imageError, setImageError] = useState(false);
 
@@ -69,8 +80,8 @@ export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) 
   }
 
   if (ad.media_type === "image" && !imageError) {
-    return (
-      <div className={wrapperClass("bg-muted/40")}>
+    const imgElement = (
+      <>
         {/* Remote, admin-provided URLs of unknown host – next/image would need every host whitelisted */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -79,8 +90,33 @@ export function AdMedia({ ad, className, aspectRatio = "video" }: AdMediaProps) 
           loading="lazy"
           decoding="async"
           onError={() => setImageError(true)}
-          className="h-full w-full object-cover transition-transform duration-300 motion-safe:hover:scale-105"
+          className={cn(
+            imageFit === "contain"
+              ? "block max-w-full object-contain"
+              : "h-full w-full object-cover transition-transform duration-300 motion-safe:hover:scale-105",
+            imageClassName
+          )}
         />
+      </>
+    );
+
+    return (
+      <div className={wrapperClass("bg-muted/40")}>
+        {onImageClick ? (
+          <button
+            type="button"
+            onClick={onImageClick}
+            aria-label={t("viewFullImage")}
+            className="group/media relative block w-full cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          >
+            {imgElement}
+            <span className="pointer-events-none absolute bottom-2.5 end-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white shadow-sm backdrop-blur-sm transition-transform duration-200 group-hover/media:scale-110">
+              <Maximize2 className="h-4 w-4" aria-hidden="true" />
+            </span>
+          </button>
+        ) : (
+          imgElement
+        )}
       </div>
     );
   }

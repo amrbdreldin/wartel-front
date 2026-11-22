@@ -1857,7 +1857,8 @@
     "viewDetails": "عرض التفاصيل",
     "watchVideo": "مشاهدة الفيديو",
     "videoNotSupported": "المتصفح لا يدعم تشغيل هذا الفيديو.",
-    "priorityHigh": "مهم جداً"
+    "priorityHigh": "مهم جداً",
+    "viewFullImage": "عرض الصورة بالحجم الكامل"
   },
   "availableGroups": {
     "title": "المجموعات المتاحة",

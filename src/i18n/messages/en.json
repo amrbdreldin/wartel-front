@@ -1858,7 +1858,8 @@
     "viewDetails": "View Details",
     "watchVideo": "Watch Video",
     "videoNotSupported": "Your browser does not support the video tag.",
-    "priorityHigh": "High Priority"
+    "priorityHigh": "High Priority",
+    "viewFullImage": "View full image"
   },
   "availableGroups": {
     "title": "Available Groups",
