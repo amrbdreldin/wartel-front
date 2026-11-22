@@ -382,6 +382,7 @@
     "tamamWithoutBuddySelfExcuseConfirmation": "تم التسميع بدون الرفيقة لوجود عذر لدي",
     "tamamCompanionHeader": "تأكيد سماع الرفيقة",
     "tamamCompanionInstructionCheck": "يرجى تأكيد سماع الرفيقة لورد الماضي و/أو الحاضر لتتمكني من إرسال التمام:",
+    "tamamSelectAtLeastOne": "يجب اختيار خيار واحد على الأقل لتأكيد التمام",
     "processing": "جاري المعالجة...",
     "uploadAbsenceExcuse": "رفع عذر غياب",
     "howWasCompanionLevel": "كيف كان مستوى الرفيقة اليوم في الحفظ؟",

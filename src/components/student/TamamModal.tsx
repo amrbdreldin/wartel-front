@@ -3,7 +3,7 @@
 import { studentService } from "@/services/student.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    CheckCircle2, Heart, Info, Loader2,
+    AlertCircle, CheckCircle2, Heart, Info, Loader2,
     Users, UserCheck, X, Phone
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -49,17 +49,20 @@ export function TamamModal({
   const [presentChecked, setPresentChecked] = useState(false);
   const [withoutBuddyChecked, setWithoutBuddyChecked] = useState(false);
   const [withoutBuddySelfExcuseChecked, setWithoutBuddySelfExcuseChecked] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const effectiveStudentId = studentId ?? user?.id;
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked && !withoutBuddySelfExcuseChecked);
+  const hasSelection = pastChecked || presentChecked || withoutBuddyChecked || withoutBuddySelfExcuseChecked;
+  const isButtonDisabled = isSubmitting || !isPending;
 
   // If companion name is missing or explicitly has no buddy -> perform self tamam
   const isSelfTamam = !companionName || hasBuddy === false;
 
   // "Recited without companion" options are exclusive with past/present and with each other
   const toggleWithoutBuddy = (selfExcuse: boolean) => {
+    setValidationError(null);
     if (selfExcuse) {
       setWithoutBuddySelfExcuseChecked(prev => !prev);
       setWithoutBuddyChecked(false);
@@ -98,6 +101,12 @@ export function TamamModal({
   });
 
   const handleConfirmTamam = () => {
+    if (!hasSelection) {
+      const msg = t("student.tamamSelectAtLeastOne");
+      setValidationError(msg);
+      toast.error(msg);
+      return;
+    }
     if (!groupId) {
       toast.error(t("common.errorOccurred"));
       return;
@@ -107,6 +116,7 @@ export function TamamModal({
       return;
     }
 
+    setValidationError(null);
     setIsSubmitting(true);
     submitTamamMutation.mutate({
       group_id: Number(groupId) || groupId,
@@ -128,6 +138,7 @@ export function TamamModal({
         setPresentChecked(false);
         setWithoutBuddyChecked(false);
         setWithoutBuddySelfExcuseChecked(false);
+        setValidationError(null);
     }, 300);
   };
 
@@ -230,7 +241,12 @@ export function TamamModal({
                         </div>
 
                         {/* Confirmation Checkboxes */}
-                        <div className="space-y-3 sm:space-y-4 bg-muted/20 border border-border/40 rounded-2xl p-3 sm:p-5">
+                        <div className={cn(
+                            "space-y-3 sm:space-y-4 rounded-2xl p-3 sm:p-5 border transition-colors",
+                            validationError
+                                ? "bg-destructive/5 border-destructive/60"
+                                : "bg-muted/20 border-border/40"
+                        )}>
                             <h6 className="font-bold text-sm text-foreground flex items-center gap-2">
                                 <span className="w-1.5 h-3 bg-primary rounded-full"></span>
                                 {isSelfTamam ? (t("student.tamamHeaderChild") || "تأكيد تسميع الورد") : (t("student.tamamCompanionHeader") || "تأكيد سماع الرفيقة")}
@@ -247,7 +263,7 @@ export function TamamModal({
                                     role="checkbox"
                                     aria-checked={pastChecked}
                                     disabled={!isPending}
-                                    onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
+                                    onClick={() => { setValidationError(null); setPastChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                                     className={cn(
                                         "flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         pastChecked
@@ -279,7 +295,7 @@ export function TamamModal({
                                     role="checkbox"
                                     aria-checked={presentChecked}
                                     disabled={!isPending}
-                                    onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
+                                    onClick={() => { setValidationError(null); setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                                     className={cn(
                                         "flex items-center gap-3 p-3 sm:p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                                         presentChecked
@@ -353,6 +369,13 @@ export function TamamModal({
                                     </button>
                                 ))}
                             </div>
+
+                            {validationError && (
+                                <div role="alert" className="flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/30 px-3 py-2.5 text-xs sm:text-sm font-bold text-destructive">
+                                    <AlertCircle className="h-4 w-4 shrink-0" />
+                                    <span>{validationError}</span>
+                                </div>
+                            )}
                         </div>
 
                         <button

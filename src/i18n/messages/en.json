@@ -383,6 +383,7 @@
     "tamamWithoutBuddySelfExcuseConfirmation": "I recited without my companion because I have an excuse",
     "tamamCompanionHeader": "Companion Recitation Confirmation",
     "tamamCompanionInstructionCheck": "Please confirm that the companion listened to the past and/or present memorization to enable Tamam submission:",
+    "tamamSelectAtLeastOne": "Please select at least one option to confirm Tamam",
     "processing": "Processing...",
     "uploadAbsenceExcuse": "Upload Absence Excuse",
     "howWasCompanionLevel": "How was your companion's memorization level today?",

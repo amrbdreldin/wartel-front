@@ -1,7 +1,8 @@
-import { CheckCircle2, Heart, Info, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Heart, Info, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface TamamActionCardProps {
   onConfirm: (
@@ -22,12 +23,15 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
   const [presentChecked, setPresentChecked] = useState(false);
   const [withoutBuddyChecked, setWithoutBuddyChecked] = useState(false);
   const [withoutBuddySelfExcuseChecked, setWithoutBuddySelfExcuseChecked] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const isPending = !presentStatus || presentStatus.toLowerCase() === "pending";
-  const isButtonDisabled = isSubmitting || !isPending || (!pastChecked && !presentChecked && !withoutBuddyChecked && !withoutBuddySelfExcuseChecked);
+  const hasSelection = pastChecked || presentChecked || withoutBuddyChecked || withoutBuddySelfExcuseChecked;
+  const isButtonDisabled = isSubmitting || !isPending;
 
   // "Recited without companion" options are exclusive with past/present and with each other
   const toggleWithoutBuddy = (selfExcuse: boolean) => {
+    setValidationError(null);
     if (selfExcuse) {
       setWithoutBuddySelfExcuseChecked(prev => !prev);
       setWithoutBuddyChecked(false);
@@ -37,6 +41,17 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
     }
     setPastChecked(false);
     setPresentChecked(false);
+  };
+
+  const handleConfirm = () => {
+    if (!hasSelection) {
+      const msg = t("student.tamamSelectAtLeastOne");
+      setValidationError(msg);
+      toast.error(msg);
+      return;
+    }
+    setValidationError(null);
+    onConfirm(pastChecked, presentChecked, withoutBuddyChecked, withoutBuddySelfExcuseChecked);
   };
 
   return (
@@ -62,7 +77,12 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
             </div>
 
             {/* Companion Confirmation Checkboxes */}
-            <div className="space-y-4 bg-muted/20 border border-border/40 rounded-2xl p-4 md:p-5">
+            <div className={cn(
+              "space-y-4 rounded-2xl p-4 md:p-5 border transition-colors",
+              validationError
+                ? "bg-destructive/5 border-destructive/60"
+                : "bg-muted/20 border-border/40"
+            )}>
               <h6 className="font-bold text-sm text-foreground flex items-center gap-2">
                 <span className="w-1.5 h-3 bg-primary rounded-full"></span>
                 {isStudentChild
@@ -81,7 +101,7 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                 <button
                   type="button"
                   disabled={!isPending}
-                  onClick={() => { setPastChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
+                  onClick={() => { setValidationError(null); setPastChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                     pastChecked
@@ -113,7 +133,7 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                 <button
                   type="button"
                   disabled={!isPending}
-                  onClick={() => { setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
+                  onClick={() => { setValidationError(null); setPresentChecked(prev => !prev); setWithoutBuddyChecked(false); setWithoutBuddySelfExcuseChecked(false); }}
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-xl border text-start transition-all duration-200 outline-none focus:ring-2 focus:ring-primary/20 select-none",
                     presentChecked
@@ -189,11 +209,18 @@ export function TamamActionCard({ onConfirm, isSubmitting, isSuccess, presentSta
                   </button>
                 ))}
               </div>
+
+              {validationError && (
+                <div role="alert" className="flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/30 px-3 py-2.5 text-xs sm:text-sm font-bold text-destructive">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{validationError}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-4">
               <button
-                onClick={() => onConfirm(pastChecked, presentChecked, withoutBuddyChecked, withoutBuddySelfExcuseChecked)}
+                onClick={handleConfirm}
                 disabled={isButtonDisabled}
                 className={cn(
                   "w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 px-6 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 shadow-sm",
